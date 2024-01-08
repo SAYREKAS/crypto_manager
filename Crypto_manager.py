@@ -349,7 +349,6 @@ if __name__ == '__main__':
     menu.configure(menu=menu_bar)
 
     fr1.pack(side='top', pady=10, padx=10, )
-
     lbl1.grid(row=1, column=0, sticky='NSEW')
     lbl2.grid(row=1, column=1, sticky='NSEW')
     lbl3.grid(row=1, column=2, sticky='NSEW')
@@ -365,5 +364,6 @@ if __name__ == '__main__':
     btn1.grid(row=0, column=0, sticky='NSEW')
     btn2.grid(row=0, column=1, columnspan=3, sticky='NSEW')
     btn3.grid(row=0, column=4, columnspan=3, sticky='NSEW')
+
 
     menu.mainloop()
