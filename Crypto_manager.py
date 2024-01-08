@@ -262,6 +262,12 @@ if __name__ == '__main__':
 
     # елементи меню
 
+    menu_bar = tk.Menu(menu)
+    menu_bar.add_command(label="RED COIN", )
+    menu_bar.add_command(label="RED BUY", command=redact_buy_operation)
+    menu_bar.add_command(label="RED SELL", command=redact_sell_operation)
+    menu_bar.add_command(label="OPTIONS", )
+
     fr1 = tk.Frame(menu, background='#151515')
 
     btn1 = tk.Button(fr1, text="ADD NEW COIN", background=name_colour, borderwidth=0.5, command=add_coin_menu)
@@ -278,14 +284,11 @@ if __name__ == '__main__':
     lbl6 = tk.Label(fr1, text="USD", width=15, height=3, background=sell_color, )
     lbl7 = tk.Label(fr1, text="AVG PRICE", width=15, height=3, background=sell_color, )
 
-    fr2 = tk.Frame(menu, background='white')
-    btn4 = tk.Button(fr2, text="RED COIN", width=20, height=1, )
-    btn5 = tk.Button(fr2, text="RED BUY", width=20, height=1, command=redact_buy_operation)
-    btn6 = tk.Button(fr2, text="RED SELL", width=20, height=1, command=redact_sell_operation)
-
     # розташування елементів меню
 
-    fr1.pack()
+    menu.configure(menu=menu_bar)
+
+    fr1.pack(side='bottom')
 
     btn1.grid(row=0, column=0, sticky='NSEW')
     btn2.grid(row=0, column=1, columnspan=3, sticky='NSEW')
@@ -299,10 +302,5 @@ if __name__ == '__main__':
     lbl6.grid(row=1, column=5, sticky='NSEW')
     lbl7.grid(row=1, column=6, sticky='NSEW')
     show_coin_in_portfolio(fr1)
-
-    fr2.pack()
-    btn4.grid(row=100, column=0, sticky='NSEW')
-    btn5.grid(row=100, column=1, columnspan=3, sticky='NSEW')
-    btn6.grid(row=100, column=4, columnspan=3, sticky='NSEW')
 
     menu.mainloop()
