@@ -69,9 +69,11 @@ def get_curent_coin_operation(coin_name):
     return main_list
 
 
-def del_curent_coin_operation_in_db(coin_name, operation_id):
+def del_curent_coin_operation(coin_name, operation_id):
     cursor.execute(f"DELETE FROM {coin_name} WHERE id = ?;", (operation_id,))
     db.commit()
+    print(f"DELETE FROM {coin_name} WHERE id = {operation_id};")
+
 
 def get_buy_summ(coin_name):
     # сума куплених монет та usd по конкретній криптовалюті у вигляді (0.50, 300.0, 600 )
