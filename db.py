@@ -1,11 +1,15 @@
 import datetime
 import sqlite3
 
-db = sqlite3.connect('coin_db.db')
-cursor = db.cursor()
+
+def create_db():
+    db = sqlite3.connect('crypto_manager.db')
 
 
 def add_coin_to_db(coin_name):
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
+
     # додаємо монету в базу даних
     cursor.execute(
         f"CREATE TABLE IF NOT EXISTS {coin_name} (id INTEGER PRIMARY KEY, DATE TEXT, TIME TEXT, BUY INTEGER, BUY_USD INTEGER, SELL INTEGER, SELL_USD INTEGER)")
@@ -13,10 +17,15 @@ def add_coin_to_db(coin_name):
 
 
 def dell_coin_in_db(coin_name):
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
     cursor.execute(f"DROP TABLE IF EXISTS {coin_name}")
 
 
 def by_coin(coin_name, coin_amount, usd_amount):
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
+
     # купуємо монету
     date = str(datetime.datetime.now().strftime("%d-%m-%Y"))
     time = str(datetime.datetime.now().strftime("%H:%M"))
@@ -27,6 +36,9 @@ def by_coin(coin_name, coin_amount, usd_amount):
 
 
 def sell_coin(coin_name, coin_amount, usd_amount):
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
+
     # продаємо монету
     date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
     time = str(datetime.datetime.now().strftime("%H:%M"))
@@ -37,6 +49,9 @@ def sell_coin(coin_name, coin_amount, usd_amount):
 
 
 def get_all_coin_name():
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
+
     # отримуємо імена всіх криптовалют із БД в вигляді списка ['bitcoin', 'cardano', 'ethereum']
     coin_name = []
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
@@ -47,6 +62,9 @@ def get_all_coin_name():
 
 
 def get_all_coin_operation():
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
+
     # отримуємо всі операції по всім монетам у вигляді словника типу {монета: [(операція1), (операція2),]}
     coin_dict = {}
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
@@ -74,6 +92,9 @@ def get_curent_coin_operation(coin_name):
 
 
 def del_curent_coin_operation(coin_name, operation_id):
+    db = sqlite3.connect('crypto_manager.db')
+    cursor = db.cursor()
+
     cursor.execute(f"DELETE FROM {coin_name} WHERE id = ?;", (operation_id,))
     db.commit()
     print(f"DELETE FROM {coin_name} WHERE id = {operation_id};")

@@ -75,48 +75,55 @@ def add_coin_menu():
 
 
 def dell_coin_menu():
+    global label1
+
     def del_message(coin_name):
         question = mb.askquestion('DELETE MENU',
                                   f'ви впевнені що хочете видалити монету {coin_name} ?')
-
         if question == 'yes':
             dell_coin.destroy()
             dell_coin_in_db(coin_name)
             show_coin_in_portfolio(fr2)
-
         else:
             dell_coin.destroy()
 
-    # параметри вікна програми
-    x = 400
-    y = 200
-    dell_coin = tk.Toplevel(menu)
-    dell_coin.title('DELL COIN')
-    dell_coin.geometry("400x70")
-    xx = (1920 // 2) - (x // 2)
-    yy = (1080 // 2) - (y // 2)
-    dell_coin.geometry(f"+{xx}+{yy}")
-    menu.minsize(x, y)
-    dell_coin.resizable(False, False)
-    dell_coin.config(background=menu_bg_colour)
-    dell_coin.grab_set()
+    try:
+        # параметри вікна програми
+        x = 1
+        y = 110
+        dell_coin = tk.Toplevel(menu)
+        dell_coin.title('DELL COIN')
+        dell_coin.geometry("400x70")
+        xx = (1920 // 2) - (x // 2)
+        yy = (1080 // 2) - (y // 2)
+        dell_coin.geometry(f"+{xx}+{yy}")
+        dell_coin.resizable(False, False)
+        dell_coin.config(background=menu_bg_colour)
+        dell_coin.minsize(x, y)
+        dell_coin.grab_set()
 
-    # елементи меню
-    label1 = tk.Label(dell_coin, text='виберіть ім`я монети яку потрібно видалити', wraplength=200, width=30, )
+        # елементи меню
+        fr = tk.Frame(dell_coin)
+        fr.pack(side='top', pady=10, padx=10, )
 
-    entry_coin_name = ttk.Combobox(dell_coin, width=30, values=get_all_coin_name())
-    entry_coin_name.current(0)
+        label1 = tk.Label(fr, text='виберіть ім`я монети яку потрібно видалити', wraplength=200, width=50, )
+        label1.grid(row=0, column=0, sticky="NSEW")
 
-    button = tk.Button(dell_coin, text='видалити', )
-    button.config(command=lambda: del_message(entry_coin_name.get()))
+        entry_coin_name = ttk.Combobox(fr, width=30, values=get_all_coin_name())
+        entry_coin_name.current(0)
+        entry_coin_name.grid(row=1, column=0, sticky="NSEW")
 
-    # розташування елементів меню
-    label1.grid(row=0, column=0, sticky="nsew")
-    entry_coin_name.grid(row=1, column=0, sticky="nsew")
-    button.grid(row=2, column=0, columnspan=2, sticky="nsew")
+        button = tk.Button(fr, text='видалити', )
+        button.config(command=lambda: del_message(entry_coin_name.get()))
+        button.grid(row=2, column=0, columnspan=2, sticky="NSEW")
+    except Exception:
+        label1.config(text="в портфелі немає жодної монети", width=50, height=5, fg='white',
+                      background=menu_bg_colour)
 
 
 def buy_coin_menu():
+    global coin_name_lbl
+
     def entry_value():
         name = coin_name_combo.get()
         cval = coin_value_entry.get()
@@ -137,51 +144,60 @@ def buy_coin_menu():
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
 
-    # параметри вікна програми
-    buy_menu = tk.Toplevel(menu)
-    buy_menu.title('BUY MENU')
-    xx = 500
-    yy = 100
-    resx = (dispx // 2) - (xx // 2)
-    resy = (dispy // 2) - (yy // 2)
-    buy_menu.geometry(f"+{resx}+{resy}")
-    buy_menu.resizable(False, False)
-    buy_menu.minsize(xx, yy)
-    buy_menu.config(background=menu_bg_colour)
-    buy_menu.grab_set()
+    try:
+        # параметри вікна програми
+        buy_menu = tk.Toplevel(menu)
+        buy_menu.title('BUY MENU')
+        xx = 500
+        yy = 100
+        resx = (dispx // 2) - (xx // 2)
+        resy = (dispy // 2) - (yy // 2)
+        buy_menu.geometry(f"+{resx}+{resy}")
+        buy_menu.resizable(False, False)
+        buy_menu.minsize(xx, yy)
+        buy_menu.config(background=menu_bg_colour)
+        buy_menu.grab_set()
 
-    # елементи меню
-    height = 3
-    width = 23
+        # елементи меню
+        height = 3
+        width = 23
 
-    coin_name_lbl = tk.Label(buy_menu, text="ім'я монети", height=height, width=width, )
-    coin_name_combo = ttk.Combobox(buy_menu, width=width, values=get_all_coin_name())
-    coin_name_combo.current(0)
+        fr = tk.Frame(buy_menu)
+        fr.pack()
 
-    coin_value_lbl = tk.Label(buy_menu, text="кількість монет", height=height, width=width, )
-    coin_value_entry = tk.Entry(buy_menu, width=width, )
+        coin_name_lbl = tk.Label(fr, text="ім'я монети", height=height, width=width, )
+        coin_name_lbl.grid(row=0, column=0, sticky='NSEW')
 
-    usd_value_lbl = tk.Label(buy_menu, text="витрачено usd", height=height, width=width, )
-    usd_value_entry = tk.Entry(buy_menu, width=width, )
+        coin_name_combo = ttk.Combobox(fr, width=width, values=get_all_coin_name())
+        coin_name_combo.current(0)
+        coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
-    info_lbl = tk.Label(buy_menu, text='')
-    buy_menu_btn = tk.Button(buy_menu, text='зробити запис про купівлю', command=entry_value)
+        coin_value_lbl = tk.Label(fr, text="кількість монет", height=height, width=width, )
+        coin_value_lbl.grid(row=0, column=1, sticky='NSEW')
 
-    # розташування елементів меню
-    coin_name_lbl.grid(row=0, column=0, sticky='NSEW')
-    coin_name_combo.grid(row=1, column=0, sticky='NSEW')
+        coin_value_entry = tk.Entry(fr, width=width, )
+        coin_value_entry.grid(row=1, column=1, sticky='NSEW')
 
-    coin_value_lbl.grid(row=0, column=1, sticky='NSEW')
-    coin_value_entry.grid(row=1, column=1, sticky='NSEW')
+        usd_value_lbl = tk.Label(fr, text="витрачено usd", height=height, width=width, )
+        usd_value_lbl.grid(row=0, column=2, sticky='NSEW')
 
-    usd_value_lbl.grid(row=0, column=2, sticky='NSEW')
-    usd_value_entry.grid(row=1, column=2, sticky='NSEW')
+        usd_value_entry = tk.Entry(fr, width=width, )
+        usd_value_entry.grid(row=1, column=2, sticky='NSEW')
 
-    info_lbl.grid(row=2, column=0, sticky='NSEW', columnspan=3)
-    buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
+        info_lbl = tk.Label(fr, text='')
+        info_lbl.grid(row=2, column=0, sticky='NSEW', columnspan=3)
+
+        buy_menu_btn = tk.Button(fr, text='зробити запис про купівлю', command=entry_value)
+        buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
+
+    except Exception:
+        coin_name_lbl.config(text="в портфелі немає жодної монети", width=50, height=5, fg='white',
+                             background=menu_bg_colour)
 
 
 def sell_coin_menu():
+    global coin_name_lbl
+
     def entry_value():
         name = coin_name_combo.get()
         cval = coin_value_entry.get()
@@ -197,54 +213,59 @@ def sell_coin_menu():
             usd_value_entry.delete(0, END)
 
             show_coin_in_portfolio(fr2)
-
-            lbl3.config(text=f"запис успішно додано", background='green')
+            info_lbl.config(text=f"запис успішно додано", background='green')
         else:
-            lbl3.config(text=f"помилка в данних", background='red')
-
+            info_lbl.config(text=f"помилка в данних", background='red')
         # параметри вікна програми
 
-    buy_menu = tk.Toplevel(menu)
-    buy_menu.title('SELL MENU')
-    xx = 500
-    yy = 100
-    resx = (dispx // 2) - (xx // 2)
-    resy = (dispy // 2) - (yy // 2)
-    buy_menu.geometry(f"+{resx}+{resy}")
-    buy_menu.resizable(False, False)
-    buy_menu.minsize(xx, yy)
-    buy_menu.config(background=menu_bg_colour)
-    buy_menu.grab_set()
+    try:
+        buy_menu = tk.Toplevel(menu)
+        buy_menu.title('SELL MENU')
+        xx = 500
+        yy = 100
+        resx = (dispx // 2) - (xx // 2)
+        resy = (dispy // 2) - (yy // 2)
+        buy_menu.geometry(f"+{resx}+{resy}")
+        buy_menu.resizable(False, False)
+        buy_menu.minsize(xx, yy)
+        buy_menu.config(background=menu_bg_colour)
+        buy_menu.grab_set()
 
-    # елементи меню
-    height = 3
-    width = 23
+        # елементи меню
+        height = 3
+        width = 23
 
-    coin_name_lbl = tk.Label(buy_menu, text="ім'я монети", height=height, width=width, )
-    coin_name_combo = ttk.Combobox(buy_menu, width=width, values=get_all_coin_name())
-    coin_name_combo.current(0)
+        fr = tk.Frame(buy_menu)
+        fr.pack()
 
-    coin_value_lbl = tk.Label(buy_menu, text="кількість монет", height=height, width=width, )
-    coin_value_entry = tk.Entry(buy_menu, width=width, )
+        coin_name_lbl = tk.Label(fr, text="ім'я монети", height=height, width=width, )
+        coin_name_lbl.grid(row=0, column=0, sticky='NSEW')
 
-    usd_value_lbl = tk.Label(buy_menu, text="витрачено usd", height=height, width=width, )
-    usd_value_entry = tk.Entry(buy_menu, width=width, )
+        coin_name_combo = ttk.Combobox(fr, width=width, values=get_all_coin_name())
+        coin_name_combo.current(0)
+        coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
-    info_lbl = tk.Label(buy_menu, text='')
-    buy_menu_btn = tk.Button(buy_menu, text='зробити запис про продаж', command=entry_value)
+        coin_value_lbl = tk.Label(fr, text="кількість монет", height=height, width=width, )
+        coin_value_lbl.grid(row=0, column=1, sticky='NSEW')
 
-    # розташування елементів меню
-    coin_name_lbl.grid(row=0, column=0, sticky='NSEW')
-    coin_name_combo.grid(row=1, column=0, sticky='NSEW')
+        coin_value_entry = tk.Entry(fr, width=width, )
+        coin_value_entry.grid(row=1, column=1, sticky='NSEW')
 
-    coin_value_lbl.grid(row=0, column=1, sticky='NSEW')
-    coin_value_entry.grid(row=1, column=1, sticky='NSEW')
+        usd_value_lbl = tk.Label(fr, text="витрачено usd", height=height, width=width, )
+        usd_value_lbl.grid(row=0, column=2, sticky='NSEW')
 
-    usd_value_lbl.grid(row=0, column=2, sticky='NSEW')
-    usd_value_entry.grid(row=1, column=2, sticky='NSEW')
+        usd_value_entry = tk.Entry(fr, width=width, )
+        usd_value_entry.grid(row=1, column=2, sticky='NSEW')
 
-    info_lbl.grid(row=2, column=0, sticky='NSEW', columnspan=3)
-    buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
+        info_lbl = tk.Label(fr, text='')
+        info_lbl.grid(row=2, column=0, sticky='NSEW', columnspan=3)
+
+        buy_menu_btn = tk.Button(fr, text='зробити запис про купівлю', command=entry_value)
+        buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
+
+    except Exception:
+        coin_name_lbl.config(text="в портфелі немає жодної монети", width=50, height=5, fg='white',
+                             background=menu_bg_colour)
 
 
 def redact_buy_operation():
@@ -267,7 +288,7 @@ def redact_buy_operation():
 
         operations = []
 
-        coin_operation_combo = ttk.Combobox(red_buy_menu, values=[''])
+        coin_operation_combo = ttk.Combobox(fr, values=[''])
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
         for count, item in enumerate(get_curent_coin_operation(coin_name_conbo.get())):
@@ -285,8 +306,9 @@ def redact_buy_operation():
             coin_operation_combo.config(values=operations[-10:])
             coin_operation_combo.current(0)
 
-        del_btn = tk.Button(red_buy_menu, text='видалити')
-        del_btn.config(command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
+        del_btn = tk.Button(fr, text='видалити')
+        del_btn.config(
+            command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
         del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
 
     # параметри вікна програми
@@ -300,12 +322,20 @@ def redact_buy_operation():
     red_buy_menu.config(background=menu_bg_colour)
     red_buy_menu.grab_set()
 
-    coin_name_conbo = ttk.Combobox(red_buy_menu, width=50, values=get_all_coin_name())
-    coin_name_conbo.current(0)
-    btn0 = tk.Button(red_buy_menu, text="знайти операції", width=15, command=activate)
+    fr = tk.Frame(red_buy_menu)
+    fr.pack(side='top', pady=10, padx=10, )
 
-    coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
-    btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
+    if not get_all_coin_name():
+        err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
+                           background=menu_bg_colour)
+        err_lbl.pack()
+    else:
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
+        coin_name_conbo.current(0)
+        coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
+
+        btn0 = tk.Button(fr, text="знайти операції", width=15, command=activate)
+        btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
 
 
 def redact_sell_operation():
@@ -328,7 +358,7 @@ def redact_sell_operation():
 
         operations = []
 
-        coin_operation_combo = ttk.Combobox(red_buy_menu, values=[''])
+        coin_operation_combo = ttk.Combobox(fr, values=[''])
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
         for count, item in enumerate(get_curent_coin_operation(coin_name_conbo.get())):
@@ -346,8 +376,9 @@ def redact_sell_operation():
             coin_operation_combo.config(values=operations[-10:])
             coin_operation_combo.current(0)
 
-        del_btn = tk.Button(red_buy_menu, text='видалити')
-        del_btn.config(command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
+        del_btn = tk.Button(fr, text='видалити')
+        del_btn.config(
+            command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
         del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
 
     # параметри вікна програми
@@ -361,15 +392,25 @@ def redact_sell_operation():
     red_buy_menu.config(background=menu_bg_colour)
     red_buy_menu.grab_set()
 
-    coin_name_conbo = ttk.Combobox(red_buy_menu, width=50, values=get_all_coin_name())
-    coin_name_conbo.current(0)
-    btn0 = tk.Button(red_buy_menu, text="знайти операції", width=15, command=activate)
+    fr = tk.Frame(red_buy_menu)
+    fr.pack(side='top', pady=10, padx=10, )
 
-    coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
-    btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
+    if not get_all_coin_name():
+        err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
+                           background=menu_bg_colour)
+        err_lbl.pack()
+    else:
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
+        coin_name_conbo.current(0)
+        btn0 = tk.Button(fr, text="знайти операції", width=15, command=activate)
+
+        coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
+        btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
 
 
 if __name__ == '__main__':
+    create_db()
+
     # параметри вікна програми
     x = (dispx // 2) - (appx // 2)
     y = (dispy // 2) - (appy // 2)
@@ -424,15 +465,15 @@ if __name__ == '__main__':
     lbl8 = tk.Label(fr1, text="баланс", wraplength=80, width=15, height=3, background=balance_colour1, )
     lbl8.grid(row=1, column=7, rowspan=2, sticky='NSEW', )
 
-    btn1 = tk.Button(fr1, text="+", wraplength=110, width=20, background=name_colour2, borderwidth=1,
+    btn1 = tk.Button(fr1, text="+", wraplength=110, width=20, background=name_colour1, borderwidth=1,
                      command=add_coin_menu)
     btn1.grid(row=2, column=0, sticky='NSEW')
 
-    btn2 = tk.Button(fr1, text="+", wraplength=110, width=15, background=by_color2, borderwidth=1,
+    btn2 = tk.Button(fr1, text="+", wraplength=110, width=15, background=by_color1, borderwidth=1,
                      command=buy_coin_menu)
     btn2.grid(row=2, column=1, columnspan=3, sticky='NSEW', )
 
-    btn3 = tk.Button(fr1, text="+", wraplength=110, width=15, background=sell_color2, borderwidth=1,
+    btn3 = tk.Button(fr1, text="+", wraplength=110, width=15, background=sell_color1, borderwidth=1,
                      command=sell_coin_menu)
     btn3.grid(row=2, column=4, columnspan=3, sticky='NSEW')
 
