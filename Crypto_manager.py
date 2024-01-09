@@ -9,6 +9,7 @@ from gui_config import *
 def show_coin_in_portfolio():
     fr11 = tk.Frame(fr1, background=menu_bg_colour)
     fr11.grid(row=3, column=0, columnspan=8, sticky='NSEW')
+    fr11.config(pady=5)
 
     for count, name in enumerate(get_all_coin_operation()):
         (tk.Label(fr11, text=f'{str(name).upper()}', width=20, height=1, background=name_colour2, )
@@ -384,14 +385,12 @@ if __name__ == '__main__':
     lbl7 = tk.Label(fr1, text="середня ціна продажу", wraplength=80, width=15, height=3, background=sell_color1, )
     lbl8 = tk.Label(fr1, text="баланс", wraplength=80, width=15, height=3, background=balance_colour1, )
 
-    fr2 = tk.Frame(menu, background=menu_bg_colour)
-
-    btn1 = tk.Button(fr2, text="додати нову монету", wraplength=110, width=25, background=name_colour1, borderwidth=0.5,
+    btn1 = tk.Button(fr1, text="+", wraplength=110, width=20, background=name_colour2, borderwidth=0,
                      command=add_coin_menu)
-    btn2 = tk.Button(fr2, text="внести дані про купівлю монети", wraplength=110, width=25, background=by_color1,
-                     borderwidth=0.5, command=buy_coin_menu)
-    btn3 = tk.Button(fr2, text="внести дані про продаж монети", wraplength=110, width=25, background=sell_color1,
-                     borderwidth=0.5, command=sell_coin_menu)
+    btn2 = tk.Button(fr1, text="+", wraplength=110, width=15, background=by_color2, borderwidth=0,
+                     command=buy_coin_menu)
+    btn3 = tk.Button(fr1, text="+", wraplength=110, width=15, background=sell_color2, borderwidth=0,
+                     command=sell_coin_menu)
 
     # розташування елементів меню
 
@@ -406,13 +405,11 @@ if __name__ == '__main__':
     lbl5.grid(row=1, column=4, sticky='NSEW')
     lbl6.grid(row=1, column=5, sticky='NSEW')
     lbl7.grid(row=1, column=6, sticky='NSEW')
-    lbl8.grid(row=1, column=7, sticky='NSEW')
+    lbl8.grid(row=1, column=7, rowspan=2, sticky='NSEW', )
     show_coin_in_portfolio()
 
-    fr2.pack(side='top', padx=10, fill='y')
-
-    btn1.grid(row=0, column=0, sticky='NSEW')
-    btn2.grid(row=0, column=1, columnspan=3, sticky='NSEW')
-    btn3.grid(row=0, column=4, columnspan=3, sticky='NSEW')
+    btn1.grid(row=2, column=0, sticky='NSEW')
+    btn2.grid(row=2, column=1, columnspan=3, sticky='NSEW', )
+    btn3.grid(row=2, column=4, columnspan=3, sticky='NSEW')
 
     menu.mainloop()
