@@ -12,6 +12,10 @@ def add_coin_to_db(coin_name):
     db.commit()
 
 
+def dell_coin_in_db(coin_name):
+    cursor.execute(f"DROP TABLE IF EXISTS {coin_name}")
+
+
 def by_coin(coin_name, coin_amount, usd_amount):
     # купуємо монету
     date = str(datetime.datetime.now().strftime("%d-%m-%Y"))
