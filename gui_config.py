@@ -21,5 +21,4 @@ balance_colour2 = '#A0CED9'
 
 menu_bg_colour = '#1E1F22'
 
-
-
+element_width = 15

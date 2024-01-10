@@ -12,29 +12,42 @@ def show_coin_in_portfolio(frame):
     fr.grid(row=3, column=0, columnspan=8, sticky='NSEW')
     fr.config(pady=5)
 
-    for count, name in enumerate(get_all_coin_operation()):
-        (tk.Label(fr, text=f'{str(name).upper()}', width=20, height=1, background=name_colour2, )
+    for count, name in enumerate(get_coin_info(get_all_coin_name())):
+        (tk.Label(fr, text=f'    $ {name[2]}', anchor="w", width=element_width, height=1,
+                  background=name_colour2, )
          .grid(row=count + 2, column=0, sticky='NSEW'))
 
-        # Покупка
-        (tk.Label(fr, text=f'{get_buy_summ(name)[0]}', width=15, height=1, background=by_color2)
+        (tk.Label(fr, text=f'    {name[0]} {name[1]}', anchor="w", width=element_width,
+                  height=1, background=name_colour2, )
          .grid(row=count + 2, column=1, sticky='NSEW'))
-        (tk.Label(fr, text=f'{get_buy_summ(name)[1]}', width=15, height=1, background=by_color2)
+
+        # Покупка
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0]}', width=element_width, height=1, background=by_color2)
          .grid(row=count + 2, column=2, sticky='NSEW'))
-        (tk.Label(fr, text=f'{get_buy_summ(name)[2]}', width=15, height=1, background=by_color2)
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[1]}', width=element_width, height=1, background=by_color2)
          .grid(row=count + 2, column=3, sticky='NSEW'))
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[2]}', width=element_width, height=1, background=by_color2)
+         .grid(row=count + 2, column=4, sticky='NSEW'))
 
         # Продаж
-        (tk.Label(fr, text=f'{get_sell_summ(name)[0]}', width=15, height=1, background=sell_color2)
-         .grid(row=count + 2, column=4, sticky='NSEW'))
-        (tk.Label(fr, text=f'{get_sell_summ(name)[1]}', width=15, height=1, background=sell_color2)
+        (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0]}', width=element_width, height=1,
+                  background=sell_color2)
          .grid(row=count + 2, column=5, sticky='NSEW'))
-        (tk.Label(fr, text=f'{get_sell_summ(name)[2]}', width=15, height=1, background=sell_color2)
+        (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[1]}', width=element_width, height=1,
+                  background=sell_color2)
          .grid(row=count + 2, column=6, sticky='NSEW'))
+        (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[2]}', width=element_width, height=1,
+                  background=sell_color2)
+         .grid(row=count + 2, column=7, sticky='NSEW'))
 
         # залишок
-        (tk.Label(fr, text=f'{get_buy_summ(name)[0] - get_sell_summ(name)[0]}',
-                  width=15, height=1, background=balance_colour2).grid(row=count + 2, column=7, sticky='NSEW'))
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]} {name[1]}',
+                  width=element_width, height=1, background=balance_colour2).grid(row=count + 2, column=8,
+                                                                                  sticky='NSEW'))
+        (tk.Label(fr,
+                  text=f'$ {round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 3)}',
+                  width=element_width, height=1, background=balance_colour2).grid(row=count + 2, column=9,
+                                                                                  sticky='NSEW'))
 
 
 def add_coin_menu():
@@ -42,7 +55,7 @@ def add_coin_menu():
     def get_entry():
         # Отримуємо значення з поля для введення
         value = str(entry_coin_name.get())
-        if get_coin_info(value):
+        if check_for_exis_coin(value):
             add_coin_to_db(value)
             label2.config(text="монету додано успішно", background='green')
             entry_coin_name.delete(0, END)
@@ -417,7 +430,7 @@ if __name__ == '__main__':
     menu = tk.Tk()
     menu.geometry(f"+{x}+{y}")
     menu.title('CRYPTO MANAGER')
-    menu.resizable(True, True)
+    menu.resizable(False, False)
     menu.minsize(appx, appy)
     menu.config(background=menu_bg_colour)
     try:
@@ -435,53 +448,69 @@ if __name__ == '__main__':
 
     # ______________________________________________FRAME 0______________________________________________
     fr0 = tk.Frame(menu, background=menu_bg_colour)
-    fr0.pack(side='top', pady=10, padx=10, )
+
+    fr0.pack(side='top', pady=10, padx=10, fill='x')
 
     # ______________________________________________FRAME 1______________________________________________
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
 
-    lbl1 = tk.Button(fr1, text="монета", width=20, height=3, borderwidth=0, background=name_colour1,
-                     command=lambda: show_coin_in_portfolio(fr2))
-    lbl1.grid(row=1, column=0, sticky='NSEW')
+    lbl1 = tk.Label(fr1, text="курс", width=element_width, height=3, borderwidth=0, background=name_colour1, )
+    lbl1.grid(row=1, column=0, rowspan=2, sticky='NSEW')
 
-    lbl2 = tk.Label(fr1, text="куплено", wraplength=80, width=15, height=3, background=by_color1, )
-    lbl2.grid(row=1, column=1, sticky='NSEW')
+    lbl1 = tk.Label(fr1, text="монета", width=element_width, height=3, borderwidth=0, background=name_colour1, )
+    lbl1.grid(row=1, column=1, sticky='NSEW')
 
-    lbl3 = tk.Label(fr1, text="витрачено USD", wraplength=75, width=15, height=3, background=by_color1, )
-    lbl3.grid(row=1, column=2, sticky='NSEW')
+    lbl2 = tk.Label(fr1, text="куплено", wraplength=80, width=element_width, height=3, background=by_color1, )
+    lbl2.grid(row=1, column=2, sticky='NSEW')
 
-    lbl4 = tk.Label(fr1, text="середня ціна купівлі", wraplength=80, width=15, height=3, background=by_color1, )
-    lbl4.grid(row=1, column=3, sticky='NSEW')
+    lbl3 = tk.Label(fr1, text="витрачено USD", wraplength=75, width=element_width, height=3, background=by_color1, )
+    lbl3.grid(row=1, column=3, sticky='NSEW')
 
-    lbl5 = tk.Label(fr1, text="продано", wraplength=80, width=15, height=3, background=sell_color1, )
-    lbl5.grid(row=1, column=4, sticky='NSEW')
+    lbl4 = tk.Label(fr1, text="середня ціна купівлі", wraplength=80, width=element_width, height=3,
+                    background=by_color1, )
+    lbl4.grid(row=1, column=4, sticky='NSEW')
 
-    lbl6 = tk.Label(fr1, text="отримано USD", wraplength=75, width=15, height=3, background=sell_color1, )
-    lbl6.grid(row=1, column=5, sticky='NSEW')
+    lbl5 = tk.Label(fr1, text="продано", wraplength=80, width=element_width, height=3, background=sell_color1, )
+    lbl5.grid(row=1, column=5, sticky='NSEW')
 
-    lbl7 = tk.Label(fr1, text="середня ціна продажу", wraplength=80, width=15, height=3, background=sell_color1, )
-    lbl7.grid(row=1, column=6, sticky='NSEW')
+    lbl6 = tk.Label(fr1, text="отримано USD", wraplength=75, width=element_width, height=3, background=sell_color1, )
+    lbl6.grid(row=1, column=6, sticky='NSEW')
 
-    lbl8 = tk.Label(fr1, text="баланс", wraplength=80, width=15, height=3, background=balance_colour1, )
-    lbl8.grid(row=1, column=7, rowspan=2, sticky='NSEW', )
+    lbl7 = tk.Label(fr1, text="середня ціна продажу", wraplength=80, width=element_width, height=3,
+                    background=sell_color1, )
+    lbl7.grid(row=1, column=7, sticky='NSEW')
 
-    btn1 = tk.Button(fr1, text="+", wraplength=110, width=20, background=name_colour1, borderwidth=1,
+    lbl8 = tk.Label(fr1, text="баланс", wraplength=80, width=element_width, height=3, background=balance_colour1, )
+    lbl8.grid(row=1, column=8, rowspan=2, sticky='NSEW', )
+
+    lbl9 = tk.Label(fr1, text="еквівалент $", wraplength=80, width=element_width, height=3,
+                    background=balance_colour1, )
+    lbl9.grid(row=1, column=9, rowspan=2, sticky='NSEW', )
+
+    btn1 = tk.Button(fr1, text="+", wraplength=110, width=element_width, background=name_colour1, borderwidth=1,
                      command=add_coin_menu)
-    btn1.grid(row=2, column=0, sticky='NSEW')
+    btn1.grid(row=2, column=1, sticky='NSEW')
 
-    btn2 = tk.Button(fr1, text="+", wraplength=110, width=15, background=by_color1, borderwidth=1,
+    btn2 = tk.Button(fr1, text="+", wraplength=110, width=element_width, background=by_color1, borderwidth=1,
                      command=buy_coin_menu)
-    btn2.grid(row=2, column=1, columnspan=3, sticky='NSEW', )
+    btn2.grid(row=2, column=2, columnspan=3, sticky='NSEW', )
 
-    btn3 = tk.Button(fr1, text="+", wraplength=110, width=15, background=sell_color1, borderwidth=1,
+    btn3 = tk.Button(fr1, text="+", wraplength=110, width=element_width, background=sell_color1, borderwidth=1,
                      command=sell_coin_menu)
-    btn3.grid(row=2, column=4, columnspan=3, sticky='NSEW')
+    btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
-    fr1.pack()
+    fr1.pack(fill='x')
 
     # ______________________________________________FRAME 2______________________________________________
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
-    show_coin_in_portfolio(fr2)
-    fr2.pack()
+    fr2.pack(fill='x')
+
+    # ______________________________________________FRAME 3______________________________________________
+
+    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1,
+                     command=lambda: show_coin_in_portfolio(fr2))
+    btn4.pack(fill='x')
+
+    # show_coin_in_portfolio(fr2)
 
     menu.mainloop()
