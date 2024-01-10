@@ -21,7 +21,7 @@ def get_coin_info(coin_name_list):
                 coin_name = coin_info[0]
                 coin_symbol = coin_info[2]
                 list1.append([coin_name, coin_symbol, coin_price])
-        return list1
+        return sorted(list1)
     except AttributeError:
         return False
 

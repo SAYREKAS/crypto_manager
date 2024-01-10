@@ -534,6 +534,6 @@ if __name__ == '__main__':
                      command=lambda: show_coin_in_portfolio(fr2))
     btn4.pack(fill='x')
 
-    # show_coin_in_portfolio(fr2)
+    show_coin_in_portfolio(fr2)
 
     menu.mainloop()

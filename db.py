@@ -58,7 +58,7 @@ def get_all_coin_name():
     table_names = cursor.fetchall()
     for name in table_names:
         coin_name.append(*name)
-    return coin_name
+    return sorted(coin_name)
 
 
 def get_all_coin_operation():
