@@ -11,49 +11,65 @@ from gui_config import *
 # виводимо віджети з інформацією про портфоліо в головне меню
 def show_coin_in_portfolio(frame):
     fr = tk.Frame(frame, background=menu_bg_colour)
-    fr.grid(row=3, column=0, columnspan=8, sticky='NSEW')
+    fr.grid(row=0, column=0)
     fr.config(pady=5)
 
     balance_summ = 0
+    profit_loss = 0
 
     for count, name in enumerate(get_coin_info(get_all_coin_name())):
-        (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1,
-                  background=name_colour2, )
+        # курс________________________________________________________________________________
+        (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1, background=name_colour2, )
          .grid(row=count + 2, column=0, sticky='NSEW'))
-
-        (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width,
-                  height=1, background=name_colour2, )
+        # монета________________________________________________________________________________
+        (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width, height=1, background=name_colour1, )
          .grid(row=count + 2, column=1, sticky='NSEW'))
 
-        # Покупка
+        # куплено________________________________________________________________________________
         (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0]}', width=element_width, height=1, background=by_color2)
          .grid(row=count + 2, column=2, sticky='NSEW'))
+        # витрачено________________________________________________________________________________
         (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[1]}', width=element_width, height=1, background=by_color2)
          .grid(row=count + 2, column=3, sticky='NSEW'))
+        # середня ціна________________________________________________________________________________
         (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[2]}', width=element_width, height=1, background=by_color2)
          .grid(row=count + 2, column=4, sticky='NSEW'))
 
-        # Продаж
+        # продано________________________________________________________________________________
         (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0]}', width=element_width, height=1,
                   background=sell_color2)
          .grid(row=count + 2, column=5, sticky='NSEW'))
+        # отримано________________________________________________________________________________
         (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[1]}', width=element_width, height=1,
                   background=sell_color2)
          .grid(row=count + 2, column=6, sticky='NSEW'))
+        # середня ціна________________________________________________________________________________
         (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[2]}', width=element_width, height=1,
                   background=sell_color2)
          .grid(row=count + 2, column=7, sticky='NSEW'))
 
-        # залишок
+        # баланс________________________________________________________________________________
         (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]} {name[1]}',
-                  width=element_width, height=1, background=balance_colour2).grid(row=count + 2, column=8,
+                  width=element_width, height=1, background=balance_colour1).grid(row=count + 2, column=8,
                                                                                   sticky='NSEW'))
+        # еквівалент________________________________________________________________________________
         (tk.Label(fr,
                   text=f'{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 2)} $',
                   width=element_width, height=1, background=balance_colour2).grid(row=count + 2, column=9,
                                                                                   sticky='NSEW'))
         balance_summ += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+
+        # прибуток/збиток________________________________________________________________________________
+        (tk.Label(fr,
+                  text=f"{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) -
+                                (get_buy_summ(name[0].lower())[1]), 2)}",
+                  width=element_width, height=1, background=balance_colour1)
+         .grid(row=count + 2, column=10, sticky='NSEW'))
+        profit_loss += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) - (
+            get_buy_summ(name[0].lower())[1]))
+
     lbl10.config(text=f"{round(balance_summ, 2)} $")
+    lbl12.config(text=f"{round(profit_loss, 2)} $")
 
 
 # -------------------------------------------------------------------------------------------------------
@@ -472,57 +488,64 @@ if __name__ == '__main__':
 
     # ______________________________________________FRAME 1__________________________________________________
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
+    fr1.pack(fill='x')
 
-    lbl1 = tk.Label(fr1, text="курс", width=element_width, height=3, borderwidth=0, background=name_colour1, )
+    lbl1 = tk.Label(fr1, text="курс", width=element_width, height=3, background=name_colour2, )
     lbl1.grid(row=1, column=0, rowspan=2, sticky='NSEW')
 
-    lbl1 = tk.Label(fr1, text="монета", width=element_width, height=3, borderwidth=0, background=name_colour1, )
+    lbl1 = tk.Label(fr1, text="монета", width=element_width, height=3, background=name_colour1, )
     lbl1.grid(row=1, column=1, sticky='NSEW')
 
-    lbl2 = tk.Label(fr1, text="куплено", wraplength=80, width=element_width, height=3, background=by_color1, )
+    lbl2 = tk.Label(fr1, text="куплено", width=element_width, height=3, background=by_color1, )
     lbl2.grid(row=1, column=2, sticky='NSEW')
 
-    lbl3 = tk.Label(fr1, text="витрачено USD", wraplength=75, width=element_width, height=3, background=by_color1, )
+    lbl3 = tk.Label(fr1, text="витрачено\nUSD", width=element_width, height=3, background=by_color1, )
     lbl3.grid(row=1, column=3, sticky='NSEW')
 
-    lbl4 = tk.Label(fr1, text="середня ціна купівлі", wraplength=80, width=element_width, height=3,
+    lbl4 = tk.Label(fr1, text="середня ціна\nкупівлі", width=element_width, height=3,
                     background=by_color1, )
     lbl4.grid(row=1, column=4, sticky='NSEW')
 
-    lbl5 = tk.Label(fr1, text="продано", wraplength=80, width=element_width, height=3, background=sell_color1, )
+    lbl5 = tk.Label(fr1, text="продано", width=element_width, height=3, background=sell_color1, )
     lbl5.grid(row=1, column=5, sticky='NSEW')
 
-    lbl6 = tk.Label(fr1, text="отримано USD", wraplength=75, width=element_width, height=3, background=sell_color1, )
+    lbl6 = tk.Label(fr1, text="отримано\nUSD", width=element_width, height=3, background=sell_color1, )
     lbl6.grid(row=1, column=6, sticky='NSEW')
 
-    lbl7 = tk.Label(fr1, text="середня ціна продажу", wraplength=80, width=element_width, height=3,
+    lbl7 = tk.Label(fr1, text="середня ціна\nпродажу", width=element_width, height=3,
                     background=sell_color1, )
     lbl7.grid(row=1, column=7, sticky='NSEW')
 
-    lbl8 = tk.Label(fr1, text="баланс", wraplength=80, width=element_width, height=3, background=balance_colour1, )
+    lbl8 = tk.Label(fr1, text="баланс", width=element_width, height=3, background=balance_colour1, )
     lbl8.grid(row=1, column=8, rowspan=2, sticky='NSEW', )
 
-    lbl9 = tk.Label(fr1, text="еквівалент USD", wraplength=80, width=element_width, height=3,
-                    background=balance_colour1, )
+    lbl9 = tk.Label(fr1, text="еквівалент\nUSD", width=element_width, height=3,
+                    background=balance_colour2, )
     lbl9.grid(row=1, column=9, sticky='NSEW', )
 
-    lbl10 = tk.Label(fr1, text="", wraplength=80, width=element_width,
-                     background=balance_colour1, )
+    lbl10 = tk.Label(fr1, text="", width=element_width,
+                     background=balance_colour2, )
     lbl10.grid(row=2, column=9, sticky='NSEW', )
 
-    btn1 = tk.Button(fr1, text="+", wraplength=110, width=element_width, background=name_colour1, borderwidth=1,
+    lbl11 = tk.Label(fr1, text="прибуток\nзбиток", width=element_width,
+                     background=balance_colour1, )
+    lbl11.grid(row=1, column=10, sticky='NSEW', )
+
+    lbl12 = tk.Label(fr1, text="", width=element_width,
+                     background=balance_colour1, )
+    lbl12.grid(row=2, column=10, sticky='NSEW', )
+
+    btn1 = tk.Button(fr1, text="+", background=name_colour1, borderwidth=0,
                      command=add_coin_menu)
     btn1.grid(row=2, column=1, sticky='NSEW')
 
-    btn2 = tk.Button(fr1, text="+", wraplength=110, width=element_width, background=by_color1, borderwidth=1,
+    btn2 = tk.Button(fr1, text="+", background=by_color1, borderwidth=0,
                      command=buy_coin_menu)
     btn2.grid(row=2, column=2, columnspan=3, sticky='NSEW', )
 
-    btn3 = tk.Button(fr1, text="+", wraplength=110, width=element_width, background=sell_color1, borderwidth=1,
+    btn3 = tk.Button(fr1, text="+", background=sell_color1, borderwidth=0,
                      command=sell_coin_menu)
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
-
-    fr1.pack(fill='x')
 
     # ______________________________________________FRAME 2__________________________________________________
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
