@@ -1,3 +1,4 @@
+import time
 from tkinter import ttk
 from tkinter import messagebox as mb
 from tkinter import END
@@ -10,6 +11,9 @@ from gui_config import *
 # -------------------------------------------------------------------------------------------------------
 # виводимо віджети з інформацією про портфоліо в головне меню
 def show_coin_in_portfolio(frame):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
     fr = tk.Frame(frame, background=menu_bg_colour)
     fr.grid(row=0, column=0)
     fr.config(pady=5)
@@ -17,7 +21,7 @@ def show_coin_in_portfolio(frame):
     balance_summ = 0
     profit_loss = 0
 
-    for count, name in enumerate(get_coin_info(get_all_coin_name())):
+    for count, name in enumerate(asyncio.run(get_coin_info(get_all_coin_name()))):
         # курс________________________________________________________________________________
         (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1, background=name_colour2, )
          .grid(row=count + 2, column=0, sticky='NSEW'))
@@ -84,7 +88,7 @@ def add_coin_menu():
             label2.config(text="монету додано успішно", background='green')
             entry_coin_name.delete(0, END)
             show_coin_in_portfolio(fr2)
-        elif not get_coin_info(value):
+        elif not asyncio.run(get_coin_info(value)):
             label2.config(text="монети не існує", background='red')
 
     # параметри вікна програми
