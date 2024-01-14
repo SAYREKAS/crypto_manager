@@ -25,32 +25,26 @@ def dell_coin_in_db(coin_name):
 def by_coin(coin_name, coin_amount, usd_amount):
     db = sqlite3.connect('crypto_manager.db')
     cursor = db.cursor()
-    if ((coin_amount.replace(',', '').replace('.', '').isdigit()) and
-            (usd_amount.replace(',', '').replace('.', '').isdigit())):
-        date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
-        time = str(datetime.datetime.now().strftime("%H:%M"))
-        cursor.execute(
-            f"INSERT INTO {coin_name} (DATE, TIME, BUY, BUY_USD) VALUES (?, ?, ?, ?)",
-            (date, time,
-             coin_amount.replace(',', '.'),
-             usd_amount.replace(',', '.')
-             ))
-        db.commit()
+
+    # купуємо монету
+    date = str(datetime.datetime.now().strftime("%d-%m-%Y"))
+    time = str(datetime.datetime.now().strftime("%H:%M"))
+    cursor.execute(
+        f"INSERT INTO {coin_name} (DATE, TIME, BUY, BUY_USD) VALUES (?, ?, ?, ?)",
+        (date, time, coin_amount, usd_amount))
+    db.commit()
 
 
 def sell_coin(coin_name, coin_amount, usd_amount):
     db = sqlite3.connect('crypto_manager.db')
     cursor = db.cursor()
-    if ((coin_amount.replace(',', '').replace('.', '').isdigit()) and
-            (usd_amount.replace(',', '').replace('.', '').isdigit())):
-        date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
-        time = str(datetime.datetime.now().strftime("%H:%M"))
-        cursor.execute(
-            f"INSERT INTO {coin_name} (DATE, TIME, SELL, SELL_USD) VALUES (?, ?, ?, ?)",
-            (date, time,
-             coin_amount.replace(',', '.'),
-             usd_amount.replace(',', '.')
-             ))
+
+    # продаємо монету
+    date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
+    time = str(datetime.datetime.now().strftime("%H:%M"))
+    cursor.execute(
+        f"INSERT INTO {coin_name} (DATE, TIME, SELL, SELL_USD) VALUES (?, ?, ?, ?)",
+        (date, time, coin_amount, usd_amount))
     db.commit()
 
 
@@ -63,8 +57,7 @@ def get_all_coin_name():
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     table_names = cursor.fetchall()
     for name in table_names:
-        if 'tether' not in name:
-            coin_name.append(*name)
+        coin_name.append(*name)
     return sorted(coin_name)
 
 

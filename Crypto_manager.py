@@ -22,59 +22,55 @@ def show_coin_in_portfolio(frame):
     profit_loss = 0
 
     for count, name in enumerate(asyncio.run(get_coin_info(get_all_coin_name()))):
-        if name[0] != 'Tether':
-            # курс________________________________________________________________________________
-            (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1, background=name_colour2, )
-             .grid(row=count + 2, column=0, sticky='NSEW'))
-            # монета________________________________________________________________________________
-            (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width, height=1, background=name_colour1, )
-             .grid(row=count + 2, column=1, sticky='NSEW'))
+        # курс________________________________________________________________________________
+        (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1, background=name_colour2, )
+         .grid(row=count + 2, column=0, sticky='NSEW'))
+        # монета________________________________________________________________________________
+        (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width, height=1, background=name_colour1, )
+         .grid(row=count + 2, column=1, sticky='NSEW'))
 
-            # куплено________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0]}', width=element_width, height=1,
-                      background=by_color2)
-             .grid(row=count + 2, column=2, sticky='NSEW'))
-            # витрачено________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[1]}', width=element_width, height=1,
-                      background=by_color2)
-             .grid(row=count + 2, column=3, sticky='NSEW'))
-            # середня ціна________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[2]}', width=element_width, height=1,
-                      background=by_color2)
-             .grid(row=count + 2, column=4, sticky='NSEW'))
+        # куплено________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0]}', width=element_width, height=1, background=by_color2)
+         .grid(row=count + 2, column=2, sticky='NSEW'))
+        # витрачено________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[1]}', width=element_width, height=1, background=by_color2)
+         .grid(row=count + 2, column=3, sticky='NSEW'))
+        # середня ціна________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[2]}', width=element_width, height=1, background=by_color2)
+         .grid(row=count + 2, column=4, sticky='NSEW'))
 
-            # продано________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0]}', width=element_width, height=1,
-                      background=sell_color2)
-             .grid(row=count + 2, column=5, sticky='NSEW'))
-            # отримано________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[1]}', width=element_width, height=1,
-                      background=sell_color2)
-             .grid(row=count + 2, column=6, sticky='NSEW'))
-            # середня ціна________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[2]}', width=element_width, height=1,
-                      background=sell_color2)
-             .grid(row=count + 2, column=7, sticky='NSEW'))
+        # продано________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0]}', width=element_width, height=1,
+                  background=sell_color2)
+         .grid(row=count + 2, column=5, sticky='NSEW'))
+        # отримано________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[1]}', width=element_width, height=1,
+                  background=sell_color2)
+         .grid(row=count + 2, column=6, sticky='NSEW'))
+        # середня ціна________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[2]}', width=element_width, height=1,
+                  background=sell_color2)
+         .grid(row=count + 2, column=7, sticky='NSEW'))
 
-            # баланс________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]} {name[1]}',
-                      width=element_width, height=1, background=balance_colour1).grid(row=count + 2, column=8,
-                                                                                      sticky='NSEW'))
-            # еквівалент________________________________________________________________________________
-            (tk.Label(fr,
-                      text=f'{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 2)} $',
-                      width=element_width, height=1, background=balance_colour2).grid(row=count + 2, column=9,
-                                                                                      sticky='NSEW'))
-            balance_summ += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+        # баланс________________________________________________________________________________
+        (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]} {name[1]}',
+                  width=element_width, height=1, background=balance_colour1).grid(row=count + 2, column=8,
+                                                                                  sticky='NSEW'))
+        # еквівалент________________________________________________________________________________
+        (tk.Label(fr,
+                  text=f'{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 2)} $',
+                  width=element_width, height=1, background=balance_colour2).grid(row=count + 2, column=9,
+                                                                                  sticky='NSEW'))
+        balance_summ += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
 
-            # прибуток/збиток________________________________________________________________________________
-            (tk.Label(fr,
-                      text=f"{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) -
-                                    (get_buy_summ(name[0].lower())[1]), 2)}",
-                      width=element_width, height=1, background=balance_colour1)
-             .grid(row=count + 2, column=10, sticky='NSEW'))
-            profit_loss += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) - (
-                get_buy_summ(name[0].lower())[1]))
+        # прибуток/збиток________________________________________________________________________________
+        (tk.Label(fr,
+                  text=f"{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) -
+                                (get_buy_summ(name[0].lower())[1]), 2)}",
+                  width=element_width, height=1, background=balance_colour1)
+         .grid(row=count + 2, column=10, sticky='NSEW'))
+        profit_loss += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) - (
+            get_buy_summ(name[0].lower())[1]))
 
     lbl10.config(text=f"{round(balance_summ, 2)} $")
     lbl12.config(text=f"{round(profit_loss, 2)} $")
@@ -87,16 +83,13 @@ def add_coin_menu():
     def get_entry():
         # Отримуємо значення з поля для введення
         value = str(entry_coin_name.get())
-        if value != 'tether':
-            if check_for_exis_coin(value):
-                add_coin_to_db(value)
-                label2.config(text="монету додано успішно", background='green')
-                entry_coin_name.delete(0, END)
-                show_coin_in_portfolio(fr2)
-            elif not asyncio.run(get_coin_info(value)):
-                label2.config(text="монети не існує", background='red')
-        else:
-            label2.config(text="монета USDT є у окремому пункті меню", background='yellow')
+        if check_for_exis_coin(value):
+            add_coin_to_db(value)
+            label2.config(text="монету додано успішно", background='green')
+            entry_coin_name.delete(0, END)
+            show_coin_in_portfolio(fr2)
+        elif not asyncio.run(get_coin_info(value)):
+            label2.config(text="монети не існує", background='red')
 
     # параметри вікна програми
     add_coin = tk.Toplevel(menu)
@@ -181,12 +174,12 @@ def buy_coin_menu():
         cval = coin_value_entry.get()
         uval = usd_value_entry.get()
 
-        if ((cval.replace(',', '').replace('.', '').isdigit()) and
-                (uval.replace(',', '').replace('.', '').isdigit())):
+        if (cval.replace(',', '').replace('.', '').isdigit()
+                and uval.replace(',', '').replace('.', '').isdigit()):
 
             by_coin(coin_name=name,
-                    coin_amount=cval,
-                    usd_amount=uval)
+                    coin_amount=cval.replace(',', '.'),
+                    usd_amount=uval.replace(',', '.'))
 
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
@@ -329,11 +322,11 @@ def sell_coin_menu():
         cval = coin_value_entry.get()
         uval = usd_value_entry.get()
 
-        if ((cval.replace(',', '').replace('.', '').isdigit()) and
-                (uval.replace(',', '').replace('.', '').isdigit())):
+        if (cval.replace(',', '').replace('.', '').isdigit()
+                and uval.replace(',', '').replace('.', '').isdigit()):
             sell_coin(coin_name=name,
-                      coin_amount=cval,
-                      usd_amount=uval)
+                      coin_amount=cval.replace(',', '.'),
+                      usd_amount=uval.replace(',', '.'))
 
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
@@ -469,7 +462,6 @@ def redact_sell_operation():
 
 if __name__ == '__main__':
     create_db()
-    add_coin_to_db('tether')
 
     # параметри вікна програми
     x = (dispx // 2) - (appx // 2)
@@ -494,13 +486,11 @@ if __name__ == '__main__':
     menu.configure(menu=menu_bar)
 
     # ______________________________________________FRAME 0__________________________________________________
-
     fr0 = tk.Frame(menu, background=menu_bg_colour)
 
     fr0.pack(side='top', pady=10, padx=10, fill='x')
 
     # ______________________________________________FRAME 1__________________________________________________
-
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
     fr1.pack(fill='x')
 
@@ -562,67 +552,15 @@ if __name__ == '__main__':
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
     # ______________________________________________FRAME 2__________________________________________________
-
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
     fr2.pack(fill='x')
-    show_coin_in_portfolio(fr2)
 
     # ______________________________________________FRAME 3__________________________________________________
 
-    fr3 = tk.Frame(fr0, background=menu_bg_colour)
     btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1,
                      command=lambda: show_coin_in_portfolio(fr2))
     btn4.pack(fill='x')
-    fr3.pack(fill='x')
 
-    # ______________________________________________FRAME 4__________________________________________________
+    show_coin_in_portfolio(fr2)
 
-    fr4 = tk.Frame(fr0, background=menu_bg_colour)
-    fr4.pack(side='top', pady=40, fill='x')
-
-    lbl13 = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
-    lbl13.grid(row=0, column=0, )
-
-    lbl14 = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]), 2),
-                     background='gray', fg='white', font='size=10')
-    lbl14.grid(row=0, column=1, )
-
-    lbl15 = tk.Entry(fr4, borderwidth=0)
-    btn7 = tk.Button(fr4, text='add', borderwidth=0)
-
-    btn5 = tk.Button(fr4, width=3, text='+', background='gray', borderwidth=0.5, fg='green',
-                     command=lambda: (btn5.grid_forget(),
-                                      btn6.grid_forget(),
-                                      lbl15.grid(row=0, column=2, sticky='NSEW'),
-                                      btn7.grid(row=0, column=3, sticky='NSEW'),
-
-                                      btn7.config(command=lambda: (
-                                          by_coin('tether', lbl15.get(), lbl15.get()),
-                                          lbl14.config(
-                                              text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
-                                                         2)), lbl15.delete(0, END), lbl15.grid_forget(),
-                                          btn7.grid_forget(),
-                                          btn5.grid(row=0, column=2, ),
-                                          btn6.grid(row=0, column=3, )))))
-    btn5.grid(row=0, column=2, )
-
-    btn6 = tk.Button(fr4, width=3, text='-', background='gray', borderwidth=0.5, fg='red',
-                     command=lambda: (lbl15.grid(row=0, column=2, sticky='NSEW'),
-                                      btn7.grid(row=0, column=3, sticky='NSEW'),
-                                      btn5.grid_forget(),
-                                      btn6.grid_forget(),
-
-                                      btn7.config(command=lambda: (
-                                          sell_coin('tether', lbl15.get(),
-                                                    lbl15.get()),
-                                          lbl14.config(
-                                              text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
-                                                         2)), lbl15.delete(0, END),
-                                          lbl15.grid_forget(),
-                                          btn7.grid_forget(),
-                                          btn5.grid(row=0, column=2, ),
-                                          btn6.grid(row=0, column=3, )))))
-    btn6.grid(row=0, column=3, )
-
-    # -------------------------------------------------------------------------------------------------------
     menu.mainloop()
