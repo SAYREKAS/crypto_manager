@@ -150,3 +150,4 @@ def get_sell_summ(coin_name):
     except ZeroDivisionError:
         avg = 0
     return round(coin, 4), round(usd, 4), round(avg, 4)
+# -------------------------------------------------------------------------------------------------------
