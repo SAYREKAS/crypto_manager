@@ -481,7 +481,7 @@ if __name__ == '__main__':
     menu.minsize(appx, appy)
     menu.config(background=menu_bg_colour)
     try:
-        menu.iconphoto(False, tk.PhotoImage(file='media/main logo.png'))
+        menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
     except Exception:
         print("no file img")
 
@@ -626,4 +626,3 @@ if __name__ == '__main__':
 
     # -------------------------------------------------------------------------------------------------------
     menu.mainloop()
-    # -------------------------------------------------------------------------------------------------------
