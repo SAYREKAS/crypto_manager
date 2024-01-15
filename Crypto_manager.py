@@ -92,7 +92,6 @@ def show_coin_in_portfolio(frame):
                     get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
 
             # нереалізований прибуток
-
             (tk.Label(fr,
                       text=f"{round((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
                                     ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
@@ -101,26 +100,30 @@ def show_coin_in_portfolio(frame):
                       height=1,
                       background=balance_colour2)
              .grid(row=count + 2, column=11, sticky='NSEW'))
+
             unrealized_profit_count += (
                     (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
                     ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
                      get_buy_summ(name[0].lower())[2]))
+
             # прибуток
             (tk.Label(fr,
-                      text=f"{(get_sell_summ(name[0].lower())[1] - (
+                      text=f"{round((get_sell_summ(name[0].lower())[1] - (
                               get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])) + (
-                                      (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
-                                      ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
-                                       get_buy_summ(name[0].lower())[2]))}",
+                                            (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
+                                            ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
+                                             get_buy_summ(name[0].lower())[2])), 2)}",
                       width=element_width,
                       height=1,
                       background=balance_colour1)
              .grid(row=count + 2, column=12, sticky='NSEW'))
+
             profit_count += ((get_sell_summ(name[0].lower())[1] - (
-                              get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])) + (
-                                      (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
-                                      ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
-                                       get_buy_summ(name[0].lower())[2])))
+                    get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])) + (
+                                     (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[
+                                         0])) -
+                                     ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
+                                      get_buy_summ(name[0].lower())[2])))
 
             # Продано у %
             if get_sell_summ(name[0].lower())[0] != 0:
@@ -136,7 +139,12 @@ def show_coin_in_portfolio(frame):
 
     usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
     realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
-    sell_persent.config(text=f"{round(sell_persent_count / sell_count)} %")
+
+    if sell_count != 0:
+        sell_persent.config(text=f"{round(sell_persent_count / sell_count)} %")
+    else:
+        sell_persent.config(text=f"0 %")
+
     unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
     profit.config(text=f"{round(profit_count, 2)} $")
 
@@ -579,7 +587,7 @@ if __name__ == '__main__':
         ("реалізований\nдохід", balance_colour1, element_width),
         ("нереалізований\nдохід", balance_colour2, element_width),
         ("прибуток", balance_colour1, element_width),
-        ("продано %", sell_color2, element_width - 4)
+        ("продано %", sell_color2, element_width - 4),
     ]
 
     for num, (text, bg_colour, widtg) in enumerate(element_fr1):
