@@ -3,7 +3,7 @@ dispx = 1920
 dispy = 1080
 
 #  розмір вікна програми
-appx = 1390
+appx = 1450
 appy = 720
 
 # main menu
@@ -21,4 +21,4 @@ balance_colour2 = '#A0CED9'
 
 menu_bg_colour = '#1E1F22'
 
-element_width = 17
+element_width = 16
