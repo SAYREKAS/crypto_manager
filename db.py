@@ -4,6 +4,7 @@ import sqlite3
 
 def create_db():
     db = sqlite3.connect('crypto_manager.db')
+    pass
 
 
 # додаємо монету в базу даних
