@@ -7,7 +7,6 @@ from db import *
 from gui_config import *
 
 
-# -------------------------------------------------------------------------------------------------------
 # виводимо віджети з інформацією про портфоліо в головне меню
 def show_coin_in_portfolio(frame):
     for widget in frame.winfo_children():
@@ -26,20 +25,19 @@ def show_coin_in_portfolio(frame):
 
     for count, name in enumerate(asyncio.run(get_coin_info(get_all_coin_name()))):
         if name[0] != 'Tether':
-            # курс________________________________________________________________________________
+            # курс__________________________________________________________________________________
             (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1,
                       background=name_colour2, )
              .grid(row=count + 2, column=0, sticky='NSEW'))
-            # монета________________________________________________________________________________
+            # монета__________________________________________________________________________________
             (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width, height=1,
                       background=name_colour1, )
              .grid(row=count + 2, column=1, sticky='NSEW'))
-
-            # куплено________________________________________________________________________________
+            # куплено_________________________________________________________________________________
             (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0]}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=count + 2, column=2, sticky='NSEW'))
-            # витрачено________________________________________________________________________________
+            # витрачено_________________________________________________________________________________
             (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[1]}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=count + 2, column=3, sticky='NSEW'))
@@ -47,24 +45,20 @@ def show_coin_in_portfolio(frame):
             (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[2]}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=count + 2, column=4, sticky='NSEW'))
-
-            # продано________________________________________________________________________________
+            # продано___________________________________________________________________________________
             (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0]}', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=count + 2, column=5, sticky='NSEW'))
-
-            # отримано________________________________________________________________________________
+            # отримано_________________________________________________________________________________
             (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[1]}', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=count + 2, column=6, sticky='NSEW'))
-
-            # середня ціна________________________________________________________________________________
+            # середня ціна______________________________________________________________________________
             (tk.Label(fr,
                       text=f'{get_sell_summ(name[0].lower())[2]}', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=count + 2, column=7, sticky='NSEW'))
-
-            # баланс________________________________________________________________________________
+            # баланс____________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]} {name[1]}',
                       width=element_width,
@@ -72,8 +66,7 @@ def show_coin_in_portfolio(frame):
                       background=balance_colour1)
              .grid(row=count + 2, column=8,
                    sticky='NSEW'))
-
-            # еквівалент________________________________________________________________________________
+            # еквівалент_________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 2)} $',
                       width=element_width,
@@ -82,15 +75,14 @@ def show_coin_in_portfolio(frame):
              .grid(row=count + 2, column=9, sticky='NSEW'))
 
             balance_summ_count += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
-
             # реалізований прибуток________________________________________________________________________________
             (tk.Label(fr,
                       text=f"{get_sell_summ(name[0].lower())[1] - (get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])}",
                       width=element_width, height=1, background=balance_colour1)
              .grid(row=count + 2, column=10, sticky='NSEW'))
-            realized_profit_count += (get_sell_summ(name[0].lower())[1] - (
-                    get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
 
+            realized_profit_count += (get_sell_summ(name[0].lower())[1] -
+                                      (get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
             # нереалізований прибуток
             (tk.Label(fr,
                       text=f"{round((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
@@ -102,17 +94,16 @@ def show_coin_in_portfolio(frame):
              .grid(row=count + 2, column=11, sticky='NSEW'))
 
             unrealized_profit_count += (
-                    (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
-                    ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
-                     get_buy_summ(name[0].lower())[2]))
-
+                    (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+                    - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
+                       * get_buy_summ(name[0].lower())[2]))
             # прибуток
             (tk.Label(fr,
-                      text=f"{round((get_sell_summ(name[0].lower())[1] - (
-                              get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])) + (
-                                            (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
-                                            ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
-                                             get_buy_summ(name[0].lower())[2])), 2)}",
+                      text=f"{round((get_sell_summ(name[0].lower())[1]
+                                     - (get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
+                                    + ((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+                                       - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
+                                          * get_buy_summ(name[0].lower())[2])), 2)}",
                       width=element_width,
                       height=1,
                       background=balance_colour1)
@@ -120,11 +111,9 @@ def show_coin_in_portfolio(frame):
 
             profit_count += ((get_sell_summ(name[0].lower())[1] - (
                     get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])) + (
-                                     (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[
-                                         0])) -
-                                     ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
-                                      get_buy_summ(name[0].lower())[2])))
-
+                                     (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+                                     - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
+                                        * get_buy_summ(name[0].lower())[2])))
             # Продано у %
             if get_sell_summ(name[0].lower())[0] != 0:
                 (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0]}%',
@@ -139,17 +128,14 @@ def show_coin_in_portfolio(frame):
 
     usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
     realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
-
+    unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
     if sell_count != 0:
         sell_persent.config(text=f"{round(sell_persent_count / sell_count)} %")
     else:
         sell_persent.config(text=f"0 %")
-
-    unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
     profit.config(text=f"{round(profit_count, 2)} $")
 
 
-# -------------------------------------------------------------------------------------------------------
 # додаємо монети
 def add_coin_menu():
     # Меню додавання монети в БД
@@ -180,15 +166,16 @@ def add_coin_menu():
 
     # елементи меню
     label1 = tk.Label(add_coin, text='Введіть ім`я монети', width=30)
-    label2 = tk.Label(add_coin, text='', )
-    entry_coin_name = tk.Entry(add_coin, width=30)
-    button = tk.Button(add_coin, text='Додати', command=get_entry)
-
-    # розташування елементів меню
     label1.grid(row=0, column=0, sticky="nsew")
-    entry_coin_name.grid(row=0, column=1, sticky="nsew")
-    button.grid(row=2, column=0, columnspan=2, sticky="nsew")
+
+    label2 = tk.Label(add_coin, text='', )
     label2.grid(row=3, column=0, columnspan=2, sticky="nsew")
+
+    entry_coin_name = tk.Entry(add_coin, width=30)
+    entry_coin_name.grid(row=0, column=1, sticky="nsew")
+
+    button = tk.Button(add_coin, text='Додати', command=get_entry)
+    button.grid(row=2, column=0, columnspan=2, sticky="nsew")
 
 
 # видаляємо монети
@@ -196,8 +183,7 @@ def dell_coin_menu():
     global label1
 
     def del_message(coin_name):
-        question = mb.askquestion('DELETE MENU',
-                                  f'ви впевнені що хочете видалити монету {coin_name} ?')
+        question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити монету {coin_name} ?')
         if question == 'yes':
             dell_coin.destroy()
             dell_coin_in_db(coin_name)
@@ -206,18 +192,15 @@ def dell_coin_menu():
             dell_coin.destroy()
 
     try:
-        # параметри вікна програми
-        x = 1
-        y = 110
         dell_coin = tk.Toplevel(menu)
         dell_coin.title('DELL COIN')
         dell_coin.geometry("400x70")
-        xx = (1920 // 2) - (x // 2)
-        yy = (1080 // 2) - (y // 2)
+        xx = (1920 // 2) - (1 // 2)
+        yy = (1080 // 2) - (110 // 2)
         dell_coin.geometry(f"+{xx}+{yy}")
         dell_coin.resizable(False, False)
         dell_coin.config(background=menu_bg_colour)
-        dell_coin.minsize(x, y)
+        dell_coin.minsize(1, 110)
         dell_coin.grab_set()
 
         # елементи меню
@@ -239,8 +222,6 @@ def dell_coin_menu():
                       background=menu_bg_colour)
 
 
-# -------------------------------------------------------------------------------------------------------
-
 # додаємо запис про купівлю монети
 def buy_coin_menu():
     global coin_name_lbl
@@ -250,12 +231,9 @@ def buy_coin_menu():
         cval = coin_value_entry.get()
         uval = usd_value_entry.get()
 
-        if ((cval.replace(',', '').replace('.', '').isdigit()) and
-                (uval.replace(',', '').replace('.', '').isdigit())):
+        if (cval.replace(',', '').replace('.', '').isdigit()) and (uval.replace(',', '').replace('.', '').isdigit()):
 
-            by_coin(coin_name=name,
-                    coin_amount=cval,
-                    usd_amount=uval)
+            by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=True)
 
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
@@ -266,43 +244,37 @@ def buy_coin_menu():
             info_lbl.config(text=f"помилка в данних", background='red')
 
     try:
-        # параметри вікна програми
         buy_menu = tk.Toplevel(menu)
         buy_menu.title('BUY MENU')
-        xx = 500
-        yy = 100
-        resx = (dispx // 2) - (xx // 2)
-        resy = (dispy // 2) - (yy // 2)
+        resx = (dispx // 2) - (500 // 2)
+        resy = (dispy // 2) - (100 // 2)
         buy_menu.geometry(f"+{resx}+{resy}")
         buy_menu.resizable(False, False)
-        buy_menu.minsize(xx, yy)
+        buy_menu.minsize(500, 100)
         buy_menu.config(background=menu_bg_colour)
         buy_menu.grab_set()
 
         # елементи меню
-        height = 3
-        width = 23
-
         fr = tk.Frame(buy_menu)
         fr.pack()
 
-        coin_name_lbl = tk.Label(fr, text="ім'я монети", height=height, width=width, )
-        coin_name_lbl.grid(row=0, column=0, sticky='NSEW')
+        elements = [
+            "ім'я монети",
+            "куплено монет",
+            "витрачено usd",
+        ]
 
-        coin_name_combo = ttk.Combobox(fr, width=width, values=get_all_coin_name())
+        for num, text in enumerate(elements):
+            (tk.Label(fr, text=text, width=23, height=3, ).grid(row=0, column=num, rowspan=1, sticky='NSEW', ))
+
+        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
-        coin_value_lbl = tk.Label(fr, text="кількість монет", height=height, width=width, )
-        coin_value_lbl.grid(row=0, column=1, sticky='NSEW')
-
-        coin_value_entry = tk.Entry(fr, width=width, )
+        coin_value_entry = tk.Entry(fr, width=23, )
         coin_value_entry.grid(row=1, column=1, sticky='NSEW')
 
-        usd_value_lbl = tk.Label(fr, text="витрачено usd", height=height, width=width, )
-        usd_value_lbl.grid(row=0, column=2, sticky='NSEW')
-
-        usd_value_entry = tk.Entry(fr, width=width, )
+        usd_value_entry = tk.Entry(fr, width=23, )
         usd_value_entry.grid(row=1, column=2, sticky='NSEW')
 
         info_lbl = tk.Label(fr, text='')
@@ -318,12 +290,8 @@ def buy_coin_menu():
 
 # видаляємо запис про купівлю монети
 def redact_buy_operation():
-    xx = 50
-    yy = 10
-
     def del_message(coin_name, operation_id):
-        question = mb.askquestion('DELETE MENU',
-                                  'ви впевнені що хочете видалити?')
+        question = mb.askquestion('DELETE MENU', 'ви впевнені що хочете видалити?')
 
         if question == 'yes':
             del_curent_coin_operation(coin_name, operation_id)
@@ -356,18 +324,17 @@ def redact_buy_operation():
             coin_operation_combo.current(0)
 
         del_btn = tk.Button(fr, text='видалити')
-        del_btn.config(
-            command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
+        del_btn.config(command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
         del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
 
     # параметри вікна програми
     red_buy_menu = tk.Toplevel(menu)
     red_buy_menu.title(f"{'REDACT BUY'}")
-    resx = (dispx // 2) - (xx // 2)
-    resy = (dispy // 2) - (yy // 2)
+    resx = (dispx // 2) - (50 // 2)
+    resy = (dispy // 2) - (10 // 2)
     red_buy_menu.geometry(f"+{resx}+{resy}")
     red_buy_menu.resizable(False, False)
-    red_buy_menu.minsize(xx, yy)
+    red_buy_menu.minsize(50, 10)
     red_buy_menu.config(background=menu_bg_colour)
     red_buy_menu.grab_set()
 
@@ -387,8 +354,6 @@ def redact_buy_operation():
         btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
 
 
-# -------------------------------------------------------------------------------------------------------
-
 # додаємо запис про продаж монети
 def sell_coin_menu():
     global coin_name_lbl
@@ -398,11 +363,8 @@ def sell_coin_menu():
         cval = coin_value_entry.get()
         uval = usd_value_entry.get()
 
-        if ((cval.replace(',', '').replace('.', '').isdigit()) and
-                (uval.replace(',', '').replace('.', '').isdigit())):
-            sell_coin(coin_name=name,
-                      coin_amount=cval,
-                      usd_amount=uval)
+        if (cval.replace(',', '').replace('.', '').isdigit()) and (uval.replace(',', '').replace('.', '').isdigit()):
+            by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=False)
 
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
@@ -411,45 +373,42 @@ def sell_coin_menu():
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
+
         # параметри вікна програми
 
     try:
         buy_menu = tk.Toplevel(menu)
         buy_menu.title('SELL MENU')
-        xx = 500
-        yy = 100
-        resx = (dispx // 2) - (xx // 2)
-        resy = (dispy // 2) - (yy // 2)
+        resx = (dispx // 2) - (500 // 2)
+        resy = (dispy // 2) - (100 // 2)
         buy_menu.geometry(f"+{resx}+{resy}")
         buy_menu.resizable(False, False)
-        buy_menu.minsize(xx, yy)
+        buy_menu.minsize(500, 100)
         buy_menu.config(background=menu_bg_colour)
         buy_menu.grab_set()
 
         # елементи меню
-        height = 3
-        width = 23
 
         fr = tk.Frame(buy_menu)
         fr.pack()
 
-        coin_name_lbl = tk.Label(fr, text="ім'я монети", height=height, width=width, )
-        coin_name_lbl.grid(row=0, column=0, sticky='NSEW')
+        elements = [
+            "ім'я монети",
+            "куплено монет",
+            "витрачено usd",
+        ]
 
-        coin_name_combo = ttk.Combobox(fr, width=width, values=get_all_coin_name())
+        for num, text in enumerate(elements):
+            (tk.Label(fr, text=text, width=23, height=3, ).grid(row=0, column=num, rowspan=1, sticky='NSEW', ))
+
+        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
-        coin_value_lbl = tk.Label(fr, text="кількість монет", height=height, width=width, )
-        coin_value_lbl.grid(row=0, column=1, sticky='NSEW')
-
-        coin_value_entry = tk.Entry(fr, width=width, )
+        coin_value_entry = tk.Entry(fr, width=23, )
         coin_value_entry.grid(row=1, column=1, sticky='NSEW')
 
-        usd_value_lbl = tk.Label(fr, text="витрачено usd", height=height, width=width, )
-        usd_value_lbl.grid(row=0, column=2, sticky='NSEW')
-
-        usd_value_entry = tk.Entry(fr, width=width, )
+        usd_value_entry = tk.Entry(fr, width=23, )
         usd_value_entry.grid(row=1, column=2, sticky='NSEW')
 
         info_lbl = tk.Label(fr, text='')
@@ -469,8 +428,7 @@ def redact_sell_operation():
     yy = 10
 
     def del_message(coin_name, operation_id):
-        question = mb.askquestion('DELETE MENU',
-                                  'ви впевнені що хочете видалити?')
+        question = mb.askquestion('DELETE MENU', 'ви впевнені що хочете видалити?')
 
         if question == 'yes':
             del_curent_coin_operation(coin_name, operation_id)
@@ -503,8 +461,7 @@ def redact_sell_operation():
             coin_operation_combo.current(0)
 
         del_btn = tk.Button(fr, text='видалити')
-        del_btn.config(
-            command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
+        del_btn.config(command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
         del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
 
     # параметри вікна програми
@@ -528,13 +485,11 @@ def redact_sell_operation():
     else:
         coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
         coin_name_conbo.current(0)
-        btn0 = tk.Button(fr, text="знайти операції", width=15, command=activate)
-
         coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
+
+        btn0 = tk.Button(fr, text="знайти операції", width=15, command=activate)
         btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
 
-
-# -------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     create_db()
@@ -573,9 +528,9 @@ if __name__ == '__main__':
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
     fr1.pack(fill='x')
 
-    element_fr1 = [
+    widget_lbl = [
         ("курс", name_colour2, element_width),
-        ("монета", name_colour1, element_width),
+        ("монета", name_colour1, element_width,),
         ("куплено", by_color1, element_width - 4),
         ("витрачено\nUSD", by_color1, element_width - 4),
         ("середня ціна\nкупівлі", by_color1, element_width - 4),
@@ -589,8 +544,7 @@ if __name__ == '__main__':
         ("прибуток", balance_colour1, element_width),
         ("продано %", sell_color2, element_width - 4),
     ]
-
-    for num, (text, bg_colour, widtg) in enumerate(element_fr1):
+    for num, (text, bg_colour, widtg) in enumerate(widget_lbl):
         if text == "курс" or text == "баланс":
             (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
              .grid(row=1, column=num, rowspan=2, sticky='NSEW', ))
@@ -613,31 +567,29 @@ if __name__ == '__main__':
     sell_persent = tk.Label(fr1, text="", width=element_width - 4, background=sell_color2, )
     sell_persent.grid(row=2, column=13, sticky='NSEW', )
 
-    btn1 = tk.Button(fr1, text="+", background=name_colour1, borderwidth=0,
-                     command=add_coin_menu)
+    btn1 = tk.Button(fr1, text="+", background=name_colour1, borderwidth=0, command=add_coin_menu)
     btn1.grid(row=2, column=1, sticky='NSEW')
 
-    btn2 = tk.Button(fr1, text="+", background=by_color1, borderwidth=0,
-                     command=buy_coin_menu)
+    btn2 = tk.Button(fr1, text="+", background=by_color1, borderwidth=0, command=buy_coin_menu)
     btn2.grid(row=2, column=2, columnspan=3, sticky='NSEW', )
 
-    btn3 = tk.Button(fr1, text="+", background=sell_color1, borderwidth=0,
-                     command=sell_coin_menu)
+    btn3 = tk.Button(fr1, text="+", background=sell_color1, borderwidth=0, command=sell_coin_menu)
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
     # ______________________________________________FRAME 2__________________________________________________
 
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
     fr2.pack(fill='x')
+
     show_coin_in_portfolio(fr2)
 
     # ______________________________________________FRAME 3__________________________________________________
 
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
-    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1,
-                     command=lambda: show_coin_in_portfolio(fr2))
-    btn4.pack(fill='x')
     fr3.pack(fill='x')
+
+    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1, command=lambda: show_coin_in_portfolio(fr2))
+    btn4.pack(fill='x')
 
     # ______________________________________________FRAME 4__________________________________________________
 
@@ -647,44 +599,47 @@ if __name__ == '__main__':
     lbl13 = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
     lbl13.grid(row=0, column=0, )
 
-    lbl14 = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]), 2),
-                     background='gray', fg='white', font='size=10')
-    lbl14.grid(row=0, column=1, )
+    usdt_balance = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]), 2),
+                            background='gray', fg='white', font='size=10')
+    usdt_balance.grid(row=0, column=1, )
 
     entry = tk.Entry(fr4, borderwidth=0)
-    btn7 = tk.Button(fr4, text='add', borderwidth=0)
+    add_btn = tk.Button(fr4, text='add', borderwidth=0)
 
+    # додаємо usdt
     btn5 = tk.Button(fr4, width=3, text='+', background='gray', borderwidth=0.5, fg='green',
                      command=lambda: (btn5.grid_forget(),
                                       btn6.grid_forget(),
-                                      entry.grid(row=0, column=2, sticky='NSEW'),
-                                      btn7.grid(row=0, column=3, sticky='NSEW'),
-                                      btn7.config(command=lambda: (
-                                          by_coin('tether', entry.get(), entry.get()),
-                                          lbl14.config(
-                                              text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
-                                                         2)), entry.delete(0, END), entry.grid_forget(),
-                                          btn7.grid_forget(),
-                                          btn5.grid(row=0, column=2, ),
-                                          btn6.grid(row=0, column=3, )))))
-    btn5.grid(row=0, column=2, )
 
-    btn6 = tk.Button(fr4, width=3, text='-', background='gray', borderwidth=0.5, fg='red',
-                     command=lambda: (entry.grid(row=0, column=2, sticky='NSEW'),
-                                      btn7.grid(row=0, column=3, sticky='NSEW'),
-                                      btn5.grid_forget(),
-                                      btn6.grid_forget(),
-                                      btn7.config(command=lambda: (
-                                          sell_coin('tether', entry.get(),
-                                                    entry.get()),
-                                          lbl14.config(
+                                      entry.grid(row=0, column=2, sticky='NSEW'),
+                                      add_btn.grid(row=0, column=3, sticky='NSEW'),
+                                      add_btn.config(command=lambda: (
+                                          by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=True),
+                                          usdt_balance.config(
                                               text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
                                                          2)), entry.delete(0, END),
                                           entry.grid_forget(),
-                                          btn7.grid_forget(),
-                                          btn5.grid(row=0, column=2, ),
-                                          btn6.grid(row=0, column=3, )))))
-    btn6.grid(row=0, column=3, )
+                                          add_btn.grid_forget(),
+                                          btn5.grid(row=0, column=2),
+                                          btn6.grid(row=0, column=3)))))
+    btn5.grid(row=0, column=2)
 
-    # -------------------------------------------------------------------------------------------------------
+    # віднімаємо usdt
+    btn6 = tk.Button(fr4, width=3, text='-', background='gray', borderwidth=0.5, fg='red',
+                     command=lambda: (btn5.grid_forget(),
+                                      btn6.grid_forget(),
+                                      entry.grid(row=0, column=2, sticky='NSEW'),
+                                      add_btn.grid(row=0, column=3, sticky='NSEW'),
+
+                                      add_btn.config(command=lambda: (
+                                          by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=False),
+                                          usdt_balance.config(
+                                              text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
+                                                         2)), entry.delete(0, END),
+                                          entry.grid_forget(),
+                                          add_btn.grid_forget(),
+                                          btn5.grid(row=0, column=2),
+                                          btn6.grid(row=0, column=3)))))
+    btn6.grid(row=0, column=3)
+
     menu.mainloop()
