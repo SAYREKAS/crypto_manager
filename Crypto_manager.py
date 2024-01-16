@@ -13,7 +13,7 @@ def show_coin_in_portfolio(frame):
         widget.destroy()
 
     fr = tk.Frame(frame, background=menu_bg_colour)
-    fr.grid(row=0, column=0)
+    fr.pack()
     fr.config(pady=5)
 
     balance_summ_count = 0
@@ -521,12 +521,12 @@ if __name__ == '__main__':
 
     fr0 = tk.Frame(menu, background=menu_bg_colour)
 
-    fr0.pack(side='top', pady=10, padx=10, fill='x')
+    fr0.pack( pady=10, padx=10,)
 
     # ______________________________________________FRAME 1__________________________________________________
 
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
-    fr1.pack(fill='x')
+    fr1.pack()
 
     widget_lbl = [
         ("курс", name_colour2, element_width),
@@ -579,14 +579,14 @@ if __name__ == '__main__':
     # ______________________________________________FRAME 2__________________________________________________
 
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
-    fr2.pack(fill='x')
+    fr2.pack()
 
     show_coin_in_portfolio(fr2)
 
     # ______________________________________________FRAME 3__________________________________________________
 
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
-    fr3.pack(fill='x')
+    fr3.pack()
 
     btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1, command=lambda: show_coin_in_portfolio(fr2))
     btn4.pack(fill='x')
@@ -594,7 +594,7 @@ if __name__ == '__main__':
     # ______________________________________________FRAME 4__________________________________________________
 
     fr4 = tk.Frame(fr0, background=menu_bg_colour)
-    fr4.pack(side='top', pady=40, fill='x')
+    fr4.pack(side='top', pady=40,)
 
     lbl13 = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
     lbl13.grid(row=0, column=0, )
@@ -610,7 +610,6 @@ if __name__ == '__main__':
     btn5 = tk.Button(fr4, width=3, text='+', background='gray', borderwidth=0.5, fg='green',
                      command=lambda: (btn5.grid_forget(),
                                       btn6.grid_forget(),
-
                                       entry.grid(row=0, column=2, sticky='NSEW'),
                                       add_btn.grid(row=0, column=3, sticky='NSEW'),
                                       add_btn.config(command=lambda: (
@@ -630,7 +629,6 @@ if __name__ == '__main__':
                                       btn6.grid_forget(),
                                       entry.grid(row=0, column=2, sticky='NSEW'),
                                       add_btn.grid(row=0, column=3, sticky='NSEW'),
-
                                       add_btn.config(command=lambda: (
                                           by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=False),
                                           usdt_balance.config(
