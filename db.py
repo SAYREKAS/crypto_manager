@@ -12,10 +12,10 @@ def add_coin_to_db(coin_name):
     with sqlite3.connect('crypto_manager.db') as db:
         cursor = db.cursor()
         cursor.execute(
-            f"CREATE TABLE IF NOT EXISTS {coin_name} (id INTEGER PRIMARY KEY, DATE TEXT, TIME TEXT, BUY INTEGER, BUY_USD INTEGER, SELL INTEGER, SELL_USD INTEGER)")
+            f"CREATE TABLE IF NOT EXISTS {str(coin_name).lower()} (id INTEGER PRIMARY KEY, DATE TEXT, TIME TEXT, BUY INTEGER, BUY_USD INTEGER, SELL INTEGER, SELL_USD INTEGER)")
         db.commit()
         if coin_name != 'tether':
-            print(f"{coin_name} додано в БД")
+            print(f"{str(coin_name).lower()} додано в БД")
 
 
 # видаляємо монету з бази даних

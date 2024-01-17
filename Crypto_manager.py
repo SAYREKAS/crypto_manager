@@ -23,8 +23,11 @@ def show_coin_in_portfolio(frame):
     sell_count = 0
     profit_count = 0
 
-    for count, name in enumerate(asyncio.run(get_coin_info(get_all_coin_name()))):
-        if name[0] != 'Tether':
+    if not get_all_coin_name():
+        print("В портфелі немає монет")
+        add_coin_menu()
+    else:
+        for count, name in enumerate(asyncio.run(get_coin_info(get_all_coin_name()))):
             # курс__________________________________________________________________________________
             (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1,
                       background=name_colour2, )
@@ -61,17 +64,13 @@ def show_coin_in_portfolio(frame):
             # баланс____________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]} {name[1]}',
-                      width=element_width,
-                      height=1,
-                      background=balance_colour1)
+                      width=element_width, height=1, background=balance_colour1)
              .grid(row=count + 2, column=8,
                    sticky='NSEW'))
             # еквівалент_________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 2)} $',
-                      width=element_width,
-                      height=1,
-                      background=balance_colour2)
+                      width=element_width, height=1, background=balance_colour2)
              .grid(row=count + 2, column=9, sticky='NSEW'))
 
             balance_summ_count += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
@@ -88,9 +87,7 @@ def show_coin_in_portfolio(frame):
                       text=f"{round((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
                                     ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
                                      get_buy_summ(name[0].lower())[2]), 2)}",
-                      width=element_width,
-                      height=1,
-                      background=balance_colour2)
+                      width=element_width, height=1, background=balance_colour2)
              .grid(row=count + 2, column=11, sticky='NSEW'))
 
             unrealized_profit_count += (
@@ -104,16 +101,14 @@ def show_coin_in_portfolio(frame):
                                     + ((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
                                        - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
                                           * get_buy_summ(name[0].lower())[2])), 2)}",
-                      width=element_width,
-                      height=1,
-                      background=balance_colour1)
+                      width=element_width, height=1, background=balance_colour1)
              .grid(row=count + 2, column=12, sticky='NSEW'))
 
             profit_count += ((get_sell_summ(name[0].lower())[1] - (
-                    get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2])) + (
-                                     (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
-                                     - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
-                                        * get_buy_summ(name[0].lower())[2])))
+                    get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
+                             + ((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+                                - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
+                                   * get_buy_summ(name[0].lower())[2])))
             # Продано у %
             if get_sell_summ(name[0].lower())[0] != 0:
                 (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0]}%',
@@ -126,14 +121,14 @@ def show_coin_in_portfolio(frame):
                 (tk.Label(fr, text='0%', width=element_width - 4, height=1, background=sell_color2)
                  .grid(row=count + 2, column=13, sticky='NSEW'))
 
-    usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
-    realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
-    unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
-    if sell_count != 0:
-        sell_persent.config(text=f"{round(sell_persent_count / sell_count)} %")
-    else:
-        sell_persent.config(text=f"0 %")
-    profit.config(text=f"{round(profit_count, 2)} $")
+        usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
+        realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
+        unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
+        if sell_count != 0:
+            sell_persent.config(text=f"{round(sell_persent_count / sell_count)} %")
+        else:
+            sell_persent.config(text=f"0 %")
+        profit.config(text=f"{round(profit_count, 2)} $")
 
 
 # додаємо монети
@@ -142,7 +137,7 @@ def add_coin_menu():
     def get_entry():
         # Отримуємо значення з поля для введення
         value = str(entry_coin_name.get())
-        if value != 'tether':
+        if value != 'tether' and value != 'usd' and value != 'usdt' and value != 'usdc':
             if check_for_exis_coin(value):
                 add_coin_to_db(value)
                 label2.config(text="монету додано успішно", background='green')
@@ -151,7 +146,8 @@ def add_coin_menu():
             elif not asyncio.run(get_coin_info(value)):
                 label2.config(text="монети не існує", background='red')
         else:
-            label2.config(text="монета USDT є у окремому пункті меню", background='yellow')
+            label2.config(text="стейбли знаходяться у окремому пункті меню", background='yellow')
+            entry_coin_name.delete(0, END)
 
     # параметри вікна програми
     add_coin = tk.Toplevel(menu)
@@ -521,7 +517,7 @@ if __name__ == '__main__':
 
     fr0 = tk.Frame(menu, background=menu_bg_colour)
 
-    fr0.pack( pady=10, padx=10,)
+    fr0.pack(pady=10, padx=10, )
 
     # ______________________________________________FRAME 1__________________________________________________
 
@@ -552,19 +548,19 @@ if __name__ == '__main__':
             (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
              .grid(row=1, column=num, rowspan=1, sticky='NSEW', ))
 
-    usd_equal = tk.Label(fr1, text="", width=element_width, background=balance_colour2, )
+    usd_equal = tk.Label(fr1, text="-", width=element_width, background=balance_colour2, )
     usd_equal.grid(row=2, column=9, sticky='NSEW', )
 
-    realized_profit = tk.Label(fr1, text="", width=element_width, background=balance_colour1, )
+    realized_profit = tk.Label(fr1, text="-", width=element_width, background=balance_colour1, )
     realized_profit.grid(row=2, column=10, sticky='NSEW', )
 
-    unrealized_profit = tk.Label(fr1, text="", width=element_width - 4, background=balance_colour2, )
+    unrealized_profit = tk.Label(fr1, text="-", width=element_width - 4, background=balance_colour2, )
     unrealized_profit.grid(row=2, column=11, sticky='NSEW', )
 
-    profit = tk.Label(fr1, text="!!!", width=element_width - 4, background=balance_colour1, )
+    profit = tk.Label(fr1, text="-", width=element_width - 4, background=balance_colour1, )
     profit.grid(row=2, column=12, sticky='NSEW', )
 
-    sell_persent = tk.Label(fr1, text="", width=element_width - 4, background=sell_color2, )
+    sell_persent = tk.Label(fr1, text="-", width=element_width - 4, background=sell_color2, )
     sell_persent.grid(row=2, column=13, sticky='NSEW', )
 
     btn1 = tk.Button(fr1, text="+", background=name_colour1, borderwidth=0, command=add_coin_menu)
@@ -594,14 +590,14 @@ if __name__ == '__main__':
     # ______________________________________________FRAME 4__________________________________________________
 
     fr4 = tk.Frame(fr0, background=menu_bg_colour)
-    fr4.pack(side='top', pady=40,)
+    fr4.pack(side='left', pady=40, )
 
-    lbl13 = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
-    lbl13.grid(row=0, column=0, )
+    lbl = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
+    lbl.grid(row=0, column=0, )
 
-    usdt_balance = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]), 2),
-                            background='gray', fg='white', font='size=10')
-    usdt_balance.grid(row=0, column=1, )
+    balance = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]), 2),
+                       background='gray', fg='white', font='size=10')
+    balance.grid(row=0, column=1, )
 
     entry = tk.Entry(fr4, borderwidth=0)
     add_btn = tk.Button(fr4, text='add', borderwidth=0)
@@ -614,9 +610,10 @@ if __name__ == '__main__':
                                       add_btn.grid(row=0, column=3, sticky='NSEW'),
                                       add_btn.config(command=lambda: (
                                           by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=True),
-                                          usdt_balance.config(
-                                              text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
-                                                         2)), entry.delete(0, END),
+                                          balance.config(
+                                              text=round(
+                                                  abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
+                                                  2)), entry.delete(0, END),
                                           entry.grid_forget(),
                                           add_btn.grid_forget(),
                                           btn5.grid(row=0, column=2),
@@ -631,9 +628,10 @@ if __name__ == '__main__':
                                       add_btn.grid(row=0, column=3, sticky='NSEW'),
                                       add_btn.config(command=lambda: (
                                           by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=False),
-                                          usdt_balance.config(
-                                              text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
-                                                         2)), entry.delete(0, END),
+                                          balance.config(
+                                              text=round(
+                                                  abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
+                                                  2)), entry.delete(0, END),
                                           entry.grid_forget(),
                                           add_btn.grid_forget(),
                                           btn5.grid(row=0, column=2),
