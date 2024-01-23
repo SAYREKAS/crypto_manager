@@ -1,9 +1,9 @@
 import requests
-from fake_useragent import UserAgent
 from db import add_coin_to_db
 
-ua = UserAgent()
-headers = {'User-Agent': ua.random}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+}
 
 url = (f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/'
        f'listing?start=1&limit=200&sortBy=market_cap&sortType=desc&convert=USD,BTC,'
