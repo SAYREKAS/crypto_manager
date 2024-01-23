@@ -12,18 +12,18 @@ def add_coin_to_db(coin_name):
     with sqlite3.connect('crypto_manager.db') as db:
         cursor = db.cursor()
         cursor.execute(
-            f"CREATE TABLE IF NOT EXISTS {str(coin_name).lower()} (id INTEGER PRIMARY KEY, DATE TEXT, TIME TEXT, BUY INTEGER, BUY_USD INTEGER, SELL INTEGER, SELL_USD INTEGER)")
+            f"CREATE TABLE IF NOT EXISTS {str(coin_name).lower().replace(' ', '_')} (id INTEGER PRIMARY KEY, DATE TEXT, TIME TEXT, BUY INTEGER, BUY_USD INTEGER, SELL INTEGER, SELL_USD INTEGER)")
         db.commit()
         if coin_name != 'tether':
-            print(f"{str(coin_name).lower()} додано в БД")
+            print(f"{str(coin_name).lower().replace(' ', '_')} додано в БД")
 
 
 # видаляємо монету з бази даних
 def dell_coin_in_db(coin_name):
     with sqlite3.connect('crypto_manager.db') as db:
         cursor = db.cursor()
-        cursor.execute(f"DROP TABLE IF EXISTS {coin_name}")
-        print(f"{coin_name} видалено з БД")
+        cursor.execute(f"DROP TABLE IF EXISTS {coin_name.replace(' ', '_')}")
+        print(f"{coin_name.replace(' ', '_')} видалено з БД")
 
 
 # Додаємо запис про купівлю чи продаж монети в БД
@@ -36,10 +36,10 @@ def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
             time = str(datetime.datetime.now().strftime("%H:%M"))
             buy_sell = "BUY" if is_buy else "SELL"
             cursor.execute(
-                f"INSERT INTO {coin_name} (DATE, TIME, {buy_sell}, {buy_sell}_USD) VALUES (?, ?, ?, ?)",
+                f"INSERT INTO {coin_name.replace(' ', '_')} (DATE, TIME, {buy_sell}, {buy_sell}_USD) VALUES (?, ?, ?, ?)",
                 (date, time, float(coin_amount.replace(',', '.')), float(usd_amount.replace(',', '.'))))
             db.commit()
-            print(f"{coin_name} {'куплено' if is_buy else 'продано'} {coin_amount} на {usd_amount}")
+            print(f"{coin_name.replace(' ', '_')} {'куплено' if is_buy else 'продано'} {coin_amount} на {usd_amount}")
 
 
 # отримуємо імена всіх криптовалют із БД в вигляді списка ['bitcoin', 'cardano', 'ethereum']
@@ -51,7 +51,7 @@ def get_all_coin_name():
         table_names = cursor.fetchall()
         for name in table_names:
             if 'tether' not in name:
-                coin_name.append(*name)
+                coin_name.append(str(*name).replace('_', ' '))
     return sorted(coin_name)
 
 
@@ -78,7 +78,7 @@ def get_all_coin_operation():
 # отримуємо всі операції по конкретній монеті
 def get_curent_coin_operation(coin_name):
     main_list = []
-    item = get_all_coin_operation()[coin_name]
+    item = get_all_coin_operation()[coin_name.replace(' ', '_')]
     for f in item:
         main_list.append(f)
     return main_list
@@ -88,9 +88,9 @@ def get_curent_coin_operation(coin_name):
 def del_curent_coin_operation(coin_name, operation_id):
     with sqlite3.connect('crypto_manager.db') as db:
         cursor = db.cursor()
-        cursor.execute(f"DELETE FROM {coin_name} WHERE id = ?;", (operation_id,))
+        cursor.execute(f"DELETE FROM {coin_name.replace(' ', '_')} WHERE id = ?;", (operation_id,))
         db.commit()
-        print(f"DELETE FROM {coin_name} WHERE id = {operation_id};")
+        print(f"DELETE FROM {coin_name.replace(' ', '_')} WHERE id = {operation_id};")
 
 
 # сума куплених монет та usd по конкретній криптовалюті у вигляді (0.50, 300.0, 600 ) (монети, долари, середня ціна)
@@ -98,12 +98,12 @@ def get_buy_summ(coin_name):
     coin = 0
     usd = 0
 
-    for f in get_curent_coin_operation(coin_name):
+    for f in get_curent_coin_operation(coin_name.replace(' ', '_')):
         if f[3] is None:
             continue
         else:
             coin += float(f[3])
-    for f in get_curent_coin_operation(coin_name):
+    for f in get_curent_coin_operation(coin_name.replace(' ', '_')):
         if f[4] is None:
             continue
         else:
@@ -120,12 +120,12 @@ def get_sell_summ(coin_name):
     coin = 0
     usd = 0
 
-    for f in get_curent_coin_operation(coin_name):
+    for f in get_curent_coin_operation(coin_name.replace(' ', '_')):
         if f[5] is None:
             continue
         else:
             coin += float(f[5])
-    for f in get_curent_coin_operation(coin_name):
+    for f in get_curent_coin_operation(coin_name.replace(' ', '_')):
         if f[6] is None:
             continue
         else:

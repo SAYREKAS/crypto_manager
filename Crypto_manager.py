@@ -27,13 +27,13 @@ def show_coin_in_portfolio(frame):
         print("В портфелі немає монет")
         add_coin_menu()
     else:
-        for count, name in enumerate(asyncio.run(get_coin_info(get_all_coin_name()))):
+        for count, name in enumerate(get_coin_info(get_all_coin_name())):
             # курс__________________________________________________________________________________
-            (tk.Label(fr, text=f'{name[2]} $', width=element_width, height=1,
+            (tk.Label(fr, text=f'{name[2]} $', width=element_width - 5, height=1,
                       background=name_colour2, )
              .grid(row=count + 2, column=0, sticky='NSEW'))
             # монета__________________________________________________________________________________
-            (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width, height=1,
+            (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width + 5, height=1,
                       background=name_colour1, )
              .grid(row=count + 2, column=1, sticky='NSEW'))
             # куплено_________________________________________________________________________________
@@ -112,20 +112,20 @@ def show_coin_in_portfolio(frame):
             # Продано у %
             if get_sell_summ(name[0].lower())[0] != 0:
                 (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0]}%',
-                          width=element_width - 4, height=1, background=sell_color2)
+                          width=element_width, height=1, background=sell_color2)
                  .grid(row=count + 2, column=13, sticky='NSEW'))
 
                 sell_persent_count += (get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0])
                 sell_count += 1
             else:
-                (tk.Label(fr, text='0%', width=element_width - 4, height=1, background=sell_color2)
+                (tk.Label(fr, text='0%', width=element_width, height=1, background=sell_color2)
                  .grid(row=count + 2, column=13, sticky='NSEW'))
 
         usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
         realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
         unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
         if sell_count != 0:
-            sell_persent.config(text=f"{round(sell_persent_count / sell_count)} %")
+            sell_persent.config(text=f"{round(sell_persent_count / sell_count, 2)} %")
         else:
             sell_persent.config(text=f"0 %")
         profit.config(text=f"{round(profit_count, 2)} $")
@@ -139,11 +139,11 @@ def add_coin_menu():
         value = str(entry_coin_name.get())
         if value != 'tether' and value != 'usd' and value != 'usdt' and value != 'usdc':
             if check_for_exis_coin(value):
-                add_coin_to_db(value)
+                show_coin_in_portfolio(fr2)
                 label2.config(text="монету додано успішно", background='green')
                 entry_coin_name.delete(0, END)
-                show_coin_in_portfolio(fr2)
-            elif not asyncio.run(get_coin_info(value)):
+
+            elif not get_coin_info(value):
                 label2.config(text="монети не існує", background='red')
         else:
             label2.config(text="стейбли знаходяться у окремому пункті меню", background='yellow')
@@ -161,7 +161,7 @@ def add_coin_menu():
     add_coin.grab_set()
 
     # елементи меню
-    label1 = tk.Label(add_coin, text='Введіть ім`я монети', width=30)
+    label1 = tk.Label(add_coin, text='Введіть ім`я або символ монети', width=30)
     label1.grid(row=0, column=0, sticky="nsew")
 
     label2 = tk.Label(add_coin, text='', )
@@ -525,8 +525,8 @@ if __name__ == '__main__':
     fr1.pack()
 
     widget_lbl = [
-        ("курс", name_colour2, element_width),
-        ("монета", name_colour1, element_width,),
+        ("курс", name_colour2, element_width - 5),
+        ("монета", name_colour1, element_width + 5),
         ("куплено", by_color1, element_width - 4),
         ("витрачено\nUSD", by_color1, element_width - 4),
         ("середня ціна\nкупівлі", by_color1, element_width - 4),
@@ -538,7 +538,7 @@ if __name__ == '__main__':
         ("реалізований\nдохід", balance_colour1, element_width),
         ("нереалізований\nдохід", balance_colour2, element_width),
         ("прибуток", balance_colour1, element_width),
-        ("продано %", sell_color2, element_width - 4),
+        ("продано %", sell_color2, element_width),
     ]
     for num, (text, bg_colour, widtg) in enumerate(widget_lbl):
         if text == "курс" or text == "баланс":
