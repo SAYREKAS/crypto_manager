@@ -24,7 +24,7 @@ dispx = screen_res.width
 dispy = screen_res.height
 
 #  розмір вікна програми
-appx = 1500
+appx = 1400
 appy = 650
 
 # main menu
