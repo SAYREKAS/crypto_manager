@@ -76,8 +76,8 @@ def show_coin_in_portfolio(frame):
             balance_summ_count += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
             # реалізований прибуток________________________________________________________________________________
             (tk.Label(fr,
-                      text=f"{round(get_sell_summ(name[0].lower())[1] - (get_sell_summ(name[0].lower())[0] 
-                                                                         * get_buy_summ(name[0].lower())[2]),2)}",
+                      text=f"{round(get_sell_summ(name[0].lower())[1] - (get_sell_summ(name[0].lower())[0]
+                                                                         * get_buy_summ(name[0].lower())[2]), 2)}",
                       width=element_width - 3, height=1, background=balance_colour1)
              .grid(row=count + 2, column=10, sticky='NSEW'))
 
@@ -112,7 +112,8 @@ def show_coin_in_portfolio(frame):
                                    * get_buy_summ(name[0].lower())[2])))
             # Продано у %
             if get_sell_summ(name[0].lower())[0] != 0:
-                (tk.Label(fr, text=f'{round(get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0],2)}%',
+                (tk.Label(fr,
+                          text=f'{round(get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0], 2)}%',
                           width=element_width - 3, height=1, background=sell_color2)
                  .grid(row=count + 2, column=13, sticky='NSEW'))
 
