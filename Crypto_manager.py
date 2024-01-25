@@ -1,10 +1,11 @@
-from tkinter import ttk
+from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
+                create_db, add_coin_to_db, del_curent_coin_operation, get_curent_coin_operation)
+from parser import get_coin_info, check_for_exis_coin
 from tkinter import messagebox as mb
+from gui_config import *
+from tkinter import ttk
 from tkinter import END
 import tkinter as tk
-from parser import *
-from db import *
-from gui_config import *
 
 
 # виводимо віджети з інформацією про портфоліо в головне меню
