@@ -57,31 +57,31 @@ def get_all_coin_name():
 
 # отримуємо всі операції по всім монетам у вигляді словника типу {монета: [(операція1), (операція2),]}
 def get_all_coin_operation():
-    coin_dict = {}
+    operations = {}
     with sqlite3.connect('crypto_manager.db') as db:
         cursor = db.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         table_names = cursor.fetchall()
         for name in table_names:
             for item in name:
-                coin_dict[item] = ''
+                operations[item] = ''
                 read_date = f"SELECT * FROM `{item}`"
                 cursor.execute(read_date)
                 rows = cursor.fetchall()
                 operation = []
                 for rows in rows:
                     operation.append(rows)
-                    coin_dict[item] = operation
-    return coin_dict
+                    operations[item] = operation
+    return operations
 
 
 # отримуємо всі операції по конкретній монеті
 def get_curent_coin_operation(coin_name):
-    main_list = []
+    operations = []
     item = get_all_coin_operation()[coin_name.replace(' ', '_')]
     for f in item:
-        main_list.append(f)
-    return main_list
+        operations.append(f)
+    return operations
 
 
 # видаляємо запис про купівлю/продаж по айді операції
@@ -93,7 +93,7 @@ def del_curent_coin_operation(coin_name, operation_id):
         print(f"DELETE FROM {coin_name.replace(' ', '_')} WHERE id = {operation_id};")
 
 
-# сума куплених монет та usd по конкретній криптовалюті у вигляді (0.50, 300.0, 600 ) (монети, долари, середня ціна)
+# сума куплених монет та usd по конкретній криптовалюті у вигляді {'coins': 41.81, 'usd': 774.1, 'avg': 18.5147}
 def get_buy_summ(coin_name):
     coin = 0
     usd = 0
@@ -112,10 +112,10 @@ def get_buy_summ(coin_name):
         avg = (usd / coin)
     except ZeroDivisionError:
         avg = 0
-    return round(coin, 4), round(usd, 4), round(avg, 4)
+    return {'coins': round(coin, 4), 'usd': round(usd, 4), 'avg': round(avg, 4)}
 
 
-# сума проданих монет та usd по конкретній криптовалюті у вигляді (0.50, 300.0, 600 ) (монети, долари, середня ціна)
+# сума проданих монет та usd по конкретній криптовалюті у вигляді {'coins': 41.81, 'usd': 774.1, 'avg': 18.5147}
 def get_sell_summ(coin_name):
     coin = 0
     usd = 0
@@ -134,4 +134,4 @@ def get_sell_summ(coin_name):
         avg = (usd / coin)
     except ZeroDivisionError:
         avg = 0
-    return round(coin, 4), round(usd, 4), round(avg, 4)
+    return {'coins': round(coin, 4), 'usd': round(usd, 4), 'avg': round(avg, 4)}

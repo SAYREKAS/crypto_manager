@@ -38,108 +38,114 @@ def show_coin_in_portfolio(frame):
                       background=name_colour1, )
              .grid(row=num + 2, column=1, sticky='NSEW'))
             # куплено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())[0]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['coins']}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=2, sticky='NSEW'))
             # витрачено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())[1]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['usd']}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=3, sticky='NSEW'))
             # середня ціна________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())[2]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['avg']}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=4, sticky='NSEW'))
             # продано___________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())[0]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())['coins']}', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=5, sticky='NSEW'))
             # отримано_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())[1]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())['usd']}', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=6, sticky='NSEW'))
             # середня ціна______________________________________________________________________________
             (tk.Label(fr,
-                      text=f'{get_sell_summ(coin['name'].lower())[2]}', width=element_width - 4, height=1,
+                      text=f'{get_sell_summ(coin['name'].lower())['avg']}', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=7, sticky='NSEW'))
             # баланс____________________________________________________________________________________
             (tk.Label(fr,
-                      text=f'{round(get_buy_summ(coin['name'].lower())[0]
-                                    - get_sell_summ(coin['name'].lower())[0], 5)} {coin['symbol']}',
+                      text=f'{round(get_buy_summ(coin['name'].lower())['coins']
+                                    - get_sell_summ(coin['name'].lower())['coins'], 5)} {coin['symbol']}',
                       width=element_width, height=1, background=balance_colour1)
              .grid(row=num + 2, column=8, sticky='NSEW'))
             # еквівалент_________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{round(coin['price']
-                                    * (get_buy_summ(coin['name'].lower())[0]
-                                       - get_sell_summ(coin['name'].lower())[0]), 2)} $',
+                                    * (get_buy_summ(coin['name'].lower())['coins']
+                                       - get_sell_summ(coin['name'].lower())['coins']), 2)} $',
                       width=element_width - 3, height=1, background=balance_colour2)
              .grid(row=num + 2, column=9, sticky='NSEW'))
 
             balance_summ_count += (coin['price']
-                                   * (get_buy_summ(coin['name'].lower())[0]
-                                      - get_sell_summ(coin['name'].lower())[0]))
+                                   * (get_buy_summ(coin['name'].lower())['coins']
+                                      - get_sell_summ(coin['name'].lower())['coins']))
             # реалізований прибуток________________________________________________________________________________
             (tk.Label(fr,
-                      text=f"{round(get_sell_summ(coin['name'].lower())[1]
-                                    - (get_sell_summ(coin['name'].lower())[0]
-                                       * get_buy_summ(coin['name'].lower())[2]), 2)}",
+                      text=f"{round(get_sell_summ(coin['name'].lower())['usd']
+                                    - (get_sell_summ(coin['name'].lower())['coins']
+                                       * get_buy_summ(coin['name'].lower())['avg']), 2)}",
                       width=element_width - 3, height=1, background=balance_colour1)
              .grid(row=num + 2, column=10, sticky='NSEW'))
 
-            realized_profit_count += (get_sell_summ(coin['name'].lower())[1]
-                                      - (get_sell_summ(coin['name'].lower())[0]
-                                         * get_buy_summ(coin['name'].lower())[2]))
+            realized_profit_count += (get_sell_summ(coin['name'].lower())['usd']
+                                      - (get_sell_summ(coin['name'].lower())['coins']
+                                         * get_buy_summ(coin['name'].lower())['avg']))
             # нереалізований прибуток
             (tk.Label(fr,
                       text=f"{round((coin['price']
-                                     * (get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
-                                    - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
-                                       * get_buy_summ(coin['name'].lower())[2]), 2)}",
+                                     * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins']))
+                                    - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins'])
+                                       * get_buy_summ(coin['name'].lower())['avg']), 2)}",
                       width=element_width - 3, height=1, background=balance_colour2)
              .grid(row=num + 2, column=11, sticky='NSEW'))
 
             unrealized_profit_count += (
-                    (coin['price'] * (get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
-                    - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
-                       * get_buy_summ(coin['name'].lower())[2]))
+                    (coin['price'] * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins']))
+                    - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins'])
+                       * get_buy_summ(coin['name'].lower())['avg']))
             # прибуток
             (tk.Label(fr,
-                      text=f"{round((get_sell_summ(coin['name'].lower())[1]
-                                     - (get_sell_summ(coin['name'].lower())[0] * get_buy_summ(coin['name'].lower())[2]))
-                                    + ((coin['price'] * (get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
-                                       - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
-                                          * get_buy_summ(coin['name'].lower())[2])), 2)}",
+                      text=f"{round((get_sell_summ(coin['name'].lower())['usd']
+                                     - (get_sell_summ(coin['name'].lower())['coins'] * get_buy_summ(coin['name'].lower())['avg']))
+                                    + ((coin['price'] * (get_buy_summ(coin['name'].lower())['coins']
+                                                         - get_sell_summ(coin['name'].lower())['coins']))
+                                       - ((get_buy_summ(coin['name'].lower())['coins']
+                                           - get_sell_summ(coin['name'].lower())['coins'])
+                                          * get_buy_summ(coin['name'].lower())['avg'])), 2)}",
                       width=element_width - 3, height=1, background=balance_colour1)
              .grid(row=num + 2, column=12, sticky='NSEW'))
 
-            profit_count += ((get_sell_summ(coin['name'].lower())[1] - (
-                    get_sell_summ(coin['name'].lower())[0] * get_buy_summ(coin['name'].lower())[2]))
-                             + ((coin['price'] * (
-                            get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
-                                - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
-                                   * get_buy_summ(coin['name'].lower())[2])))
+            profit_count += ((get_sell_summ(coin['name'].lower())['usd'] - (
+                    get_sell_summ(coin['name'].lower())['coins'] * get_buy_summ(coin['name'].lower())['avg']))
+                             + ((coin['price']
+                                 * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins']))
+                                - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins'])
+                                   * get_buy_summ(coin['name'].lower())['avg'])))
             # Продано у %
-            if get_sell_summ(coin['name'].lower())[0] != 0:
-                (tk.Label(fr,
-                          text=f'{round(get_sell_summ(coin['name'].lower())[0] * 100 / get_buy_summ(coin['name'].lower())[0], 2)}%',
+            if get_sell_summ(coin['name'].lower())['coins'] != 0:
+                (tk.Label(fr, text=f'{round(get_sell_summ(coin['name'].lower())['coins']
+                                            * 100 / get_buy_summ(coin['name'].lower())['coins'], 2)}%',
                           width=element_width - 3, height=1, background=sell_color2)
                  .grid(row=num + 2, column=13, sticky='NSEW'))
 
-                sell_persent_count += (
-                        get_sell_summ(coin['name'].lower())[0] * 100 / get_buy_summ(coin['name'].lower())[0])
+                sell_persent_count += (get_sell_summ(coin['name'].lower())['coins']
+                                       * 100 / get_buy_summ(coin['name'].lower())['coins'])
                 sell_count += 1
             else:
                 (tk.Label(fr, text='0%', width=element_width - 3, height=1, background=sell_color2)
                  .grid(row=num + 2, column=13, sticky='NSEW'))
 
         usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
+
         realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
+
         unrealized_profit.config(text=f"{round(unrealized_profit_count, 2)} $")
+
         if sell_count != 0:
             sell_persent.config(text=f"{round(sell_persent_count / sell_count, 2)} %")
         else:
             sell_persent.config(text=f"0 %")
+
         profit.config(text=f"{round(profit_count, 2)} $")
 
 
@@ -607,7 +613,7 @@ if __name__ == '__main__':
     lbl = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
     lbl.grid(row=0, column=0, )
 
-    balance = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]), 2),
+    balance = tk.Label(fr4, width=10, text=round(abs(get_sell_summ('tether')['coins'] - get_buy_summ('tether')['coins']), 2),
                        background='gray', fg='white', font='size=10')
     balance.grid(row=0, column=1, )
 
@@ -624,7 +630,7 @@ if __name__ == '__main__':
                                           by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=True),
                                           balance.config(
                                               text=round(
-                                                  abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
+                                                  abs(get_sell_summ('tether')['coins'] - get_buy_summ('tether')['coins']),
                                                   2)), entry.delete(0, END),
                                           entry.grid_forget(),
                                           add_btn.grid_forget(),
@@ -642,7 +648,7 @@ if __name__ == '__main__':
                                           by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=False),
                                           balance.config(
                                               text=round(
-                                                  abs(get_sell_summ('tether')[0] - get_buy_summ('tether')[0]),
+                                                  abs(get_sell_summ('tether')['coins'] - get_buy_summ('tether')['coins']),
                                                   2)), entry.delete(0, END),
                                           entry.grid_forget(),
                                           add_btn.grid_forget(),

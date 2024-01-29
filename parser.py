@@ -22,6 +22,16 @@ def response():
         print(f"помилка при підключенні, статус код - {req.status_code}")
 
 
+def check_for_exis_coin(coin_name_or_symbol):
+    for coin in response()['data']['cryptoCurrencyList']:
+        if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
+            add_coin_to_db(coin['name'])
+            return True
+        else:
+            continue
+    return False
+
+
 def get_coin_info(coin_name_list):
     coin_data = []
 
@@ -34,13 +44,3 @@ def get_coin_info(coin_name_list):
             coin_data.append({'name': name, 'symbol': symbol, 'price': price})
 
     return coin_data
-
-
-def check_for_exis_coin(coin_name_or_symbol):
-    for coin in response()['data']['cryptoCurrencyList']:
-        if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-            add_coin_to_db(coin['name'])
-            return True
-        else:
-            continue
-    return False
