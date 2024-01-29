@@ -28,101 +28,110 @@ def show_coin_in_portfolio(frame):
         print("В портфелі немає монет")
         add_coin_menu()
     else:
-        for count, name in enumerate(get_coin_info(get_all_coin_name())):
+        for num, coin in enumerate(get_coin_info(get_all_coin_name())):
             # курс__________________________________________________________________________________
-            (tk.Label(fr, text=f'{name[2]} $', width=element_width - 5, height=1,
+            (tk.Label(fr, text=f'{coin['price']} $', width=element_width - 5, height=1,
                       background=name_colour2, )
-             .grid(row=count + 2, column=0, sticky='NSEW'))
+             .grid(row=num + 2, column=0, sticky='NSEW'))
             # монета__________________________________________________________________________________
-            (tk.Label(fr, text=f'{name[0]} {name[1]}', width=element_width + 5, height=1,
+            (tk.Label(fr, text=f'{coin['name']} {coin['symbol']}', width=element_width + 5, height=1,
                       background=name_colour1, )
-             .grid(row=count + 2, column=1, sticky='NSEW'))
+             .grid(row=num + 2, column=1, sticky='NSEW'))
             # куплено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[0]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())[0]}', width=element_width - 4, height=1,
                       background=by_color2)
-             .grid(row=count + 2, column=2, sticky='NSEW'))
+             .grid(row=num + 2, column=2, sticky='NSEW'))
             # витрачено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[1]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())[1]}', width=element_width - 4, height=1,
                       background=by_color2)
-             .grid(row=count + 2, column=3, sticky='NSEW'))
+             .grid(row=num + 2, column=3, sticky='NSEW'))
             # середня ціна________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(name[0].lower())[2]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())[2]}', width=element_width - 4, height=1,
                       background=by_color2)
-             .grid(row=count + 2, column=4, sticky='NSEW'))
+             .grid(row=num + 2, column=4, sticky='NSEW'))
             # продано___________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[0]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())[0]}', width=element_width - 4, height=1,
                       background=sell_color2)
-             .grid(row=count + 2, column=5, sticky='NSEW'))
+             .grid(row=num + 2, column=5, sticky='NSEW'))
             # отримано_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(name[0].lower())[1]}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())[1]}', width=element_width - 4, height=1,
                       background=sell_color2)
-             .grid(row=count + 2, column=6, sticky='NSEW'))
+             .grid(row=num + 2, column=6, sticky='NSEW'))
             # середня ціна______________________________________________________________________________
             (tk.Label(fr,
-                      text=f'{get_sell_summ(name[0].lower())[2]}', width=element_width - 4, height=1,
+                      text=f'{get_sell_summ(coin['name'].lower())[2]}', width=element_width - 4, height=1,
                       background=sell_color2)
-             .grid(row=count + 2, column=7, sticky='NSEW'))
+             .grid(row=num + 2, column=7, sticky='NSEW'))
             # баланс____________________________________________________________________________________
             (tk.Label(fr,
-                      text=f'{round(get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0], 5)} {name[1]}',
+                      text=f'{round(get_buy_summ(coin['name'].lower())[0]
+                                    - get_sell_summ(coin['name'].lower())[0], 5)} {coin['symbol']}',
                       width=element_width, height=1, background=balance_colour1)
-             .grid(row=count + 2, column=8,
-                   sticky='NSEW'))
+             .grid(row=num + 2, column=8, sticky='NSEW'))
             # еквівалент_________________________________________________________________________________
             (tk.Label(fr,
-                      text=f'{round(name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]), 2)} $',
+                      text=f'{round(coin['price']
+                                    * (get_buy_summ(coin['name'].lower())[0]
+                                       - get_sell_summ(coin['name'].lower())[0]), 2)} $',
                       width=element_width - 3, height=1, background=balance_colour2)
-             .grid(row=count + 2, column=9, sticky='NSEW'))
+             .grid(row=num + 2, column=9, sticky='NSEW'))
 
-            balance_summ_count += (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
+            balance_summ_count += (coin['price']
+                                   * (get_buy_summ(coin['name'].lower())[0]
+                                      - get_sell_summ(coin['name'].lower())[0]))
             # реалізований прибуток________________________________________________________________________________
             (tk.Label(fr,
-                      text=f"{round(get_sell_summ(name[0].lower())[1] - (get_sell_summ(name[0].lower())[0]
-                                                                         * get_buy_summ(name[0].lower())[2]), 2)}",
+                      text=f"{round(get_sell_summ(coin['name'].lower())[1]
+                                    - (get_sell_summ(coin['name'].lower())[0]
+                                       * get_buy_summ(coin['name'].lower())[2]), 2)}",
                       width=element_width - 3, height=1, background=balance_colour1)
-             .grid(row=count + 2, column=10, sticky='NSEW'))
+             .grid(row=num + 2, column=10, sticky='NSEW'))
 
-            realized_profit_count += (get_sell_summ(name[0].lower())[1] -
-                                      (get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
+            realized_profit_count += (get_sell_summ(coin['name'].lower())[1]
+                                      - (get_sell_summ(coin['name'].lower())[0]
+                                         * get_buy_summ(coin['name'].lower())[2]))
             # нереалізований прибуток
             (tk.Label(fr,
-                      text=f"{round((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])) -
-                                    ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]) *
-                                     get_buy_summ(name[0].lower())[2]), 2)}",
+                      text=f"{round((coin['price']
+                                     * (get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
+                                    - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
+                                       * get_buy_summ(coin['name'].lower())[2]), 2)}",
                       width=element_width - 3, height=1, background=balance_colour2)
-             .grid(row=count + 2, column=11, sticky='NSEW'))
+             .grid(row=num + 2, column=11, sticky='NSEW'))
 
             unrealized_profit_count += (
-                    (name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
-                    - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
-                       * get_buy_summ(name[0].lower())[2]))
+                    (coin['price'] * (get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
+                    - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
+                       * get_buy_summ(coin['name'].lower())[2]))
             # прибуток
             (tk.Label(fr,
-                      text=f"{round((get_sell_summ(name[0].lower())[1]
-                                     - (get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
-                                    + ((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
-                                       - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
-                                          * get_buy_summ(name[0].lower())[2])), 2)}",
+                      text=f"{round((get_sell_summ(coin['name'].lower())[1]
+                                     - (get_sell_summ(coin['name'].lower())[0] * get_buy_summ(coin['name'].lower())[2]))
+                                    + ((coin['price'] * (get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
+                                       - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
+                                          * get_buy_summ(coin['name'].lower())[2])), 2)}",
                       width=element_width - 3, height=1, background=balance_colour1)
-             .grid(row=count + 2, column=12, sticky='NSEW'))
+             .grid(row=num + 2, column=12, sticky='NSEW'))
 
-            profit_count += ((get_sell_summ(name[0].lower())[1] - (
-                    get_sell_summ(name[0].lower())[0] * get_buy_summ(name[0].lower())[2]))
-                             + ((name[2] * (get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0]))
-                                - ((get_buy_summ(name[0].lower())[0] - get_sell_summ(name[0].lower())[0])
-                                   * get_buy_summ(name[0].lower())[2])))
+            profit_count += ((get_sell_summ(coin['name'].lower())[1] - (
+                    get_sell_summ(coin['name'].lower())[0] * get_buy_summ(coin['name'].lower())[2]))
+                             + ((coin['price'] * (
+                            get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0]))
+                                - ((get_buy_summ(coin['name'].lower())[0] - get_sell_summ(coin['name'].lower())[0])
+                                   * get_buy_summ(coin['name'].lower())[2])))
             # Продано у %
-            if get_sell_summ(name[0].lower())[0] != 0:
+            if get_sell_summ(coin['name'].lower())[0] != 0:
                 (tk.Label(fr,
-                          text=f'{round(get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0], 2)}%',
+                          text=f'{round(get_sell_summ(coin['name'].lower())[0] * 100 / get_buy_summ(coin['name'].lower())[0], 2)}%',
                           width=element_width - 3, height=1, background=sell_color2)
-                 .grid(row=count + 2, column=13, sticky='NSEW'))
+                 .grid(row=num + 2, column=13, sticky='NSEW'))
 
-                sell_persent_count += (get_sell_summ(name[0].lower())[0] * 100 / get_buy_summ(name[0].lower())[0])
+                sell_persent_count += (
+                        get_sell_summ(coin['name'].lower())[0] * 100 / get_buy_summ(coin['name'].lower())[0])
                 sell_count += 1
             else:
                 (tk.Label(fr, text='0%', width=element_width - 3, height=1, background=sell_color2)
-                 .grid(row=count + 2, column=13, sticky='NSEW'))
+                 .grid(row=num + 2, column=13, sticky='NSEW'))
 
         usd_equal.config(text=f"{round(balance_summ_count, 2)} $")
         realized_profit.config(text=f"{round(realized_profit_count, 2)} $")
