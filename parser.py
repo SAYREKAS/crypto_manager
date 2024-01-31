@@ -1,46 +1,77 @@
+import json
+import time
 import requests
 from db import add_coin_to_db
 
+coin_limit: int = 200
+update_period: int = 60
+
+url = (f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={coin_limit}&sortBy=market_cap'
+       f'&sortType=desc&convert=USD,BTC,ETH&cryptoType=all&audited=false')
+
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                         'Chrome/120.0.0.0 Safari/537.36'}
+
+last_update: float = time.time() - update_period
+
 
 def response():
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/'
-                             '537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+    global last_update
 
-    url = (f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/'
-           f'listing?start=1&limit=200&sortBy=market_cap&sortType=desc&convert=USD,BTC,'
-           f'ETH&cryptoType=all&tagType=all&audited=false&aux=ath,atl,high24h,low24h,num_market_pairs,'
-           f'cmc_rank,date_added,max_supply,circulating_supply,total_supply,volume_7d,volume_30d,'
-           f'self_reported_circulating_supply,self_reported_market_cap')
+    if time.time() - last_update >= update_period:
+        req = requests.get(url, headers=headers)
+        last_update = time.time()
 
-    req = requests.get(url, headers=headers)
+        if req.status_code == 200:
+            print(f"дані про монети отримано, статус код - {req.status_code}")
+            with open('coin info.json', 'w', encoding='utf8') as f:
+                f.write(req.text)
+                print('файл перезаписано')
+            return req.json()
 
-    if req.status_code == 200:
-        print(f"дані про монети отримано, статус код - {req.status_code}")
-        return req.json()
+        else:
+            print(f"помилка при підключенні, статус код - {req.status_code}")
+            with open('coin info.json', 'r', encoding='utf8') as f:
+                data_file = json.load(f)
+            return data_file
 
     else:
-        print(f"помилка при підключенні, статус код - {req.status_code}")
+        print('час не прийшов')
+        try:
+            with open('coin info.json', 'r', encoding='utf8') as f:
+                data_file = json.load(f)
+            return data_file
+        except FileNotFoundError:
+            return {}
 
 
 def check_for_exis_coin(coin_name_or_symbol):
-    for coin in response()['data']['cryptoCurrencyList']:
-        if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-            add_coin_to_db(coin['name'])
-            return True
-        else:
-            continue
-    return False
+    try:
+        for coin in response()['data']['cryptoCurrencyList']:
+
+            if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
+                add_coin_to_db(coin['name'])
+                return True
+            else:
+                continue
+
+        return False
+
+    except KeyError:
+        return False
 
 
 def get_coin_info(coin_name_list):
     coin_data = []
+    try:
+        for coin_info in response()['data']['cryptoCurrencyList']:
+            name = coin_info['name']
+            symbol = coin_info['symbol']
+            price = round(float(coin_info['quotes'][2]["price"]), 2)
 
-    for coin_info in response()['data']['cryptoCurrencyList']:
-        name = coin_info['name']
-        symbol = coin_info['symbol']
-        price = round(float(coin_info['quotes'][2]["price"]), 2)
+            if name.lower() in coin_name_list:
+                coin_data.append({'name': name, 'symbol': symbol, 'price': price})
 
-        if name.lower() in coin_name_list:
-            coin_data.append({'name': name, 'symbol': symbol, 'price': price})
-
-    return coin_data
+        return coin_data
+    except KeyError:
+        return []
