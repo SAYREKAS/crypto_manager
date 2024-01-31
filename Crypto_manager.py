@@ -1,6 +1,6 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
                 create_db, add_coin_to_db, del_curent_coin_operation, get_curent_coin_operation)
-from parser import get_coin_info, check_for_exis_coin
+from parser import get_coin_info, check_for_exis_coin, get_percent_change
 from tkinter import messagebox as mb
 from gui_config import *
 from tkinter import END
@@ -9,11 +9,11 @@ import tkinter as tk
 
 
 # виводимо віджети з інформацією про портфоліо в головне меню
-def show_coin_in_portfolio(frame):
-    for widget in frame.winfo_children():
+def show_coin_in_portfolio():
+    for widget in fr2.winfo_children():
         widget.destroy()
 
-    fr = tk.Frame(frame, background=menu_bg_colour)
+    fr = tk.Frame(fr2, background=menu_bg_colour)
     fr.pack()
     fr.config(pady=5)
 
@@ -42,11 +42,11 @@ def show_coin_in_portfolio(frame):
                       background=by_color2)
              .grid(row=num + 2, column=2, sticky='NSEW'))
             # витрачено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['usd']}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['usd']:.2f} $', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=3, sticky='NSEW'))
             # середня ціна________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['avg']}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['avg']} $', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=4, sticky='NSEW'))
             # продано___________________________________________________________________________________
@@ -54,25 +54,25 @@ def show_coin_in_portfolio(frame):
                       background=sell_color2)
              .grid(row=num + 2, column=5, sticky='NSEW'))
             # отримано_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())['usd']}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())['usd']:.2f} $', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=6, sticky='NSEW'))
             # середня ціна______________________________________________________________________________
             (tk.Label(fr,
-                      text=f'{get_sell_summ(coin['name'].lower())['avg']}', width=element_width - 4, height=1,
+                      text=f'{get_sell_summ(coin['name'].lower())['avg']} $', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=7, sticky='NSEW'))
             # баланс____________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{(get_buy_summ(coin['name'].lower())['coins']
-                                    - get_sell_summ(coin['name'].lower())['coins']):.2f} {coin['symbol']}',
+                               - get_sell_summ(coin['name'].lower())['coins']):.2f} {coin['symbol']}',
                       width=element_width, height=1, background=balance_colour1)
              .grid(row=num + 2, column=8, sticky='NSEW'))
             # еквівалент_________________________________________________________________________________
             (tk.Label(fr,
                       text=f'{(coin['price']
-                                    * (get_buy_summ(coin['name'].lower())['coins']
-                                       - get_sell_summ(coin['name'].lower())['coins'])):.2f} $',
+                               * (get_buy_summ(coin['name'].lower())['coins']
+                                  - get_sell_summ(coin['name'].lower())['coins'])):.2f} $',
                       width=element_width - 3, height=1, background=balance_colour2)
              .grid(row=num + 2, column=9, sticky='NSEW'))
 
@@ -83,7 +83,7 @@ def show_coin_in_portfolio(frame):
             (tk.Label(fr,
                       text=f"{(get_sell_summ(coin['name'].lower())['usd']
                                - (get_sell_summ(coin['name'].lower())['coins']
-                                  * get_buy_summ(coin['name'].lower())['avg'])):.2f}",
+                                  * get_buy_summ(coin['name'].lower())['avg'])):.2f} $",
                       width=element_width - 3, height=1, background=balance_colour1)
              .grid(row=num + 2, column=10, sticky='NSEW'))
 
@@ -95,7 +95,7 @@ def show_coin_in_portfolio(frame):
                       text=f"{((coin['price']
                                 * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins']))
                                - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins'])
-                                  * get_buy_summ(coin['name'].lower())['avg'])):.2f}",
+                                  * get_buy_summ(coin['name'].lower())['avg'])):.2f} $",
                       width=element_width - 3, height=1, background=balance_colour2)
              .grid(row=num + 2, column=11, sticky='NSEW'))
 
@@ -112,7 +112,7 @@ def show_coin_in_portfolio(frame):
                                                     - get_sell_summ(coin['name'].lower())['coins']))
                                   - ((get_buy_summ(coin['name'].lower())['coins']
                                       - get_sell_summ(coin['name'].lower())['coins'])
-                                     * get_buy_summ(coin['name'].lower())['avg']))):.2f}",
+                                     * get_buy_summ(coin['name'].lower())['avg']))):.2f} $",
                       width=element_width - 3, height=1, background=balance_colour1)
              .grid(row=num + 2, column=12, sticky='NSEW'))
 
@@ -152,6 +152,29 @@ def show_coin_in_portfolio(frame):
         profit.config(text=f"{profit_count:.2f} $")
 
 
+def show_percent_change():
+    for widget in fr5.winfo_children():
+        widget.destroy()
+
+    (tk.Label(fr5, text='зміни в цінах', font='size=10')
+     .grid(row=0, column=0, columnspan=7, sticky='NSEW', ))
+
+    # малюємо заголовкі стовпців
+    for num1, f in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
+        (tk.Label(fr5, text=f, background=menu_bg_colour, fg='white')
+         .grid(row=1, column=num1, sticky='NSEW', ))
+
+    # малюємо рядки з іменем монети
+    for num2, coin in enumerate(get_all_coin_name()):
+        (tk.Label(fr5, text=coin, background=menu_bg_colour, fg='white')
+         .grid(row=num2 + 2, column=0, sticky='NSEW', ))
+
+        # малюємо рядки зі змінами в ціні за різні періоди
+        for num3, f in enumerate(get_percent_change(coin)):
+            (tk.Label(fr5, text=f, background=menu_bg_colour, fg='white')
+             .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
+
+
 # додаємо монети
 def add_coin_menu():
     # Меню додавання монети в БД
@@ -160,7 +183,8 @@ def add_coin_menu():
         value = str(entry_coin_name.get())
         if value != 'tether' and value != 'usd' and value != 'usdt' and value != 'usdc':
             if check_for_exis_coin(value):
-                show_coin_in_portfolio(fr2)
+                show_coin_in_portfolio()
+                show_percent_change()
                 label2.config(text="монету додано успішно", background='green')
                 entry_coin_name.delete(0, END)
 
@@ -204,7 +228,8 @@ def dell_coin_menu():
         if question == 'yes':
             dell_coin.destroy()
             dell_coin_in_db(coin_name)
-            show_coin_in_portfolio(fr2)
+            show_coin_in_portfolio()
+            show_percent_change()
         else:
             dell_coin.destroy()
 
@@ -255,7 +280,8 @@ def buy_coin_menu():
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
 
-            show_coin_in_portfolio(fr2)
+            show_coin_in_portfolio()
+            show_percent_change()
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -312,7 +338,8 @@ def redact_buy_operation():
 
         if question == 'yes':
             del_curent_coin_operation(coin_name, operation_id)
-            show_coin_in_portfolio(fr2)
+            show_coin_in_portfolio()
+            show_percent_change()
             activate()
 
         else:
@@ -386,7 +413,8 @@ def sell_coin_menu():
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
 
-            show_coin_in_portfolio(fr2)
+            show_coin_in_portfolio()
+            show_percent_change()
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -449,7 +477,8 @@ def redact_sell_operation():
 
         if question == 'yes':
             del_curent_coin_operation(coin_name, operation_id)
-            show_coin_in_portfolio(fr2)
+            show_coin_in_portfolio()
+            show_percent_change()
             activate()
 
         else:
@@ -545,7 +574,7 @@ if __name__ == '__main__':
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
     fr1.pack()
 
-    widget_lbl = [
+    widget_fr1 = [
         ("курс", name_colour2, element_width - 5),
         ("монета", name_colour1, element_width + 5),
         ("куплено", by_color1, element_width - 4),
@@ -561,7 +590,7 @@ if __name__ == '__main__':
         ("прибуток", balance_colour1, element_width - 3),
         ("продано %", sell_color2, element_width - 3),
     ]
-    for num, (text, bg_colour, widtg) in enumerate(widget_lbl):
+    for num, (text, bg_colour, widtg) in enumerate(widget_fr1):
 
         if text == "курс" or text == "баланс":
             (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
@@ -598,20 +627,21 @@ if __name__ == '__main__':
 
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
     fr2.pack()
-    show_coin_in_portfolio(fr2)
+    show_coin_in_portfolio()
 
     # ______________________________________________FRAME 3__________________________________________________
 
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
     fr3.pack()
 
-    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1, command=lambda: show_coin_in_portfolio(fr2))
+    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1, command=lambda: (show_coin_in_portfolio(),
+                                                                                          show_percent_change()))
     btn4.pack(fill='x')
 
     # ______________________________________________FRAME 4__________________________________________________
 
     fr4 = tk.Frame(fr0, background=menu_bg_colour)
-    fr4.pack(side='left', pady=20, )
+    fr4.pack(side='left', anchor='n', pady=20, padx=10)
 
     lbl = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
     lbl.grid(row=0, column=0, )
@@ -659,5 +689,11 @@ if __name__ == '__main__':
                                           btn5.grid(row=0, column=2),
                                           btn6.grid(row=0, column=3)))))
     btn6.grid(row=0, column=3)
+
+    # ______________________________________________FRAME 5__________________________________________________
+    fr5 = tk.Frame(fr0, background=menu_bg_colour)
+    fr5.pack(side='left', anchor='n', pady=20, padx=10)
+
+    show_percent_change()
 
     menu.mainloop()

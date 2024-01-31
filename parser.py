@@ -46,32 +46,60 @@ def response():
 
 
 def check_for_exis_coin(coin_name_or_symbol):
+    response()
     try:
-        for coin in response()['data']['cryptoCurrencyList']:
+        with open('coin info.json', 'r', encoding='utf8') as file:
+            data: dict = json.load(file)
+            for coin in data['data']['cryptoCurrencyList']:
 
-            if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-                add_coin_to_db(coin['name'])
-                return True
-            else:
-                continue
+                if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
+                    add_coin_to_db(coin['name'])
+                    return True
+                else:
+                    continue
 
-        return False
+            return False
 
     except KeyError:
         return False
 
 
 def get_coin_info(coin_name_list):
+    response()
     coin_data = []
     try:
-        for coin_info in response()['data']['cryptoCurrencyList']:
-            name = coin_info['name']
-            symbol = coin_info['symbol']
-            price = round(float(coin_info['quotes'][2]["price"]), 2)
+        with open('coin info.json', 'r', encoding='utf8') as file:
+            data: dict = json.load(file)
+            for coin_info in data['data']['cryptoCurrencyList']:
+                name = coin_info['name']
+                symbol = coin_info['symbol']
+                price = round(float(coin_info['quotes'][2]["price"]), 2)
 
-            if name.lower() in coin_name_list:
-                coin_data.append({'name': name, 'symbol': symbol, 'price': price})
+                if name.lower() in coin_name_list:
+                    coin_data.append({'name': name, 'symbol': symbol, 'price': price})
 
         return coin_data
     except KeyError:
         return []
+
+
+def get_percent_change(coin_name):
+    coin_data = ()
+    with open('coin info.json', 'r', encoding='utf8') as file:
+        data = json.load(file)
+        for f in data["data"]["cryptoCurrencyList"]:
+
+            if str(f['name']).lower() != str(coin_name).replace('_', ' ').lower():
+                continue
+            for n in f["quotes"]:
+                if n['name'] != 'USD':
+                    continue
+                coin_data = (
+                    f"{float(n['percentChange1h']):.1f}%",
+                    f"{float(n['percentChange24h']):.1f}%",
+                    f"{float(n['percentChange7d']):.1f}%",
+                    f"{float(n['percentChange30d']):.1f}%",
+                    f"{float(n['percentChange60d']):.1f}%",
+                    f"{float(n['percentChange90d']):.1f}%",
+                )
+    return coin_data

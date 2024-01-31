@@ -52,7 +52,7 @@ def get_all_coin_name():
         for name in table_names:
             if 'tether' not in name:
                 coin_name.append(str(*name).replace('_', ' '))
-    return sorted(coin_name)
+    return coin_name
 
 
 # отримуємо всі операції по всім монетам у вигляді словника типу {монета: [(операція1), (операція2),]}
