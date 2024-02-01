@@ -509,12 +509,14 @@ if __name__ == '__main__':
         menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
         print('ok')
     except Exception as e:
-        file_id = '1T6CzadYdlO_r5ZgrMVybJ1EGmlf-L2r8'
-        destination = os.path.join('media', 'logo.png')
-        download_file_from_google_drive(id=file_id, destination=destination)
-        menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
-        print('not ok')
-
+        try:
+            file_id = '1T6CzadYdlO_r5ZgrMVybJ1EGmlf-L2r8'
+            destination = os.path.join('media', 'logo.png')
+            download_file_from_google_drive(id=file_id, destination=destination)
+            menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
+            print('not ok')
+        except Exception as e:
+            print(e)
     # ______________________________________________SETTING BAR______________________________________________
 
     menu_bar = tk.Menu(menu, selectcolor='#1E1F22')
