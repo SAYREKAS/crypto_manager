@@ -17,162 +17,138 @@ def show_coin_in_portfolio():
     fr.pack()
     fr.config(pady=5)
 
-    balance_summ_count = 0
-    realized_profit_count = 0
-    unrealized_profit_count = 0
-    sell_persent_count = 0
     sell_count = 0
     profit_count = 0
+    balance_summ_count = 0
+    sell_persent_count = 0
+    realized_profit_count = 0
+    unrealized_profit_count = 0
 
     if not get_all_coin_name():
         print("В портфелі немає монет")
         add_coin_menu()
     else:
         for num, coin in enumerate(get_coin_info(get_all_coin_name())):
+            crypto_exchange = coin['price']
+            coin_name = coin['name']
+            coin_symbol = coin['symbol']
+
+            buy_summ = get_buy_summ(coin['name'].lower())['coins']
+            buy_spent_summ = get_buy_summ(coin['name'].lower())['usd']
+            buy_avg = get_buy_summ(coin['name'].lower())['avg']
+
+            sell_summ = get_sell_summ(coin['name'].lower())['coins']
+            sell_spent_summ = get_sell_summ(coin['name'].lower())['usd']
+            sell_avg = get_sell_summ(coin['name'].lower())['avg']
+
+            balance = buy_summ - sell_summ
+            equivalent = crypto_exchange * balance
+            realized_profitt = sell_spent_summ - (sell_summ * buy_avg)
+            unrealized_profit = equivalent - (balance * buy_avg)
+            profit = realized_profitt + unrealized_profit
+            sell_persent = sell_summ * 100 / buy_summ
+
             # курс__________________________________________________________________________________
-            (tk.Label(fr, text=f'{coin['price']} $', width=element_width - 5, height=1,
+            (tk.Label(fr, text=f'{crypto_exchange} $', width=element_width - 5, height=1,
                       background=name_colour2, )
              .grid(row=num + 2, column=0, sticky='NSEW'))
             # монета__________________________________________________________________________________
-            (tk.Label(fr, text=f'{coin['name']} {coin['symbol']}', width=element_width + 5, height=1,
+            (tk.Label(fr, text=f'{coin_name} {coin_symbol}', width=element_width + 5, height=1,
                       background=name_colour1, )
              .grid(row=num + 2, column=1, sticky='NSEW'))
             # куплено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['coins']}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{buy_summ}', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=2, sticky='NSEW'))
             # витрачено_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['usd']:.2f} $', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{buy_spent_summ} $', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=3, sticky='NSEW'))
             # середня ціна________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_buy_summ(coin['name'].lower())['avg']} $', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{buy_avg} $', width=element_width - 4, height=1,
                       background=by_color2)
              .grid(row=num + 2, column=4, sticky='NSEW'))
             # продано___________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())['coins']}', width=element_width - 4, height=1,
+            (tk.Label(fr, text=sell_summ, width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=5, sticky='NSEW'))
             # отримано_________________________________________________________________________________
-            (tk.Label(fr, text=f'{get_sell_summ(coin['name'].lower())['usd']:.2f} $', width=element_width - 4, height=1,
+            (tk.Label(fr, text=f'{sell_spent_summ} $', width=element_width - 4, height=1,
                       background=sell_color2)
              .grid(row=num + 2, column=6, sticky='NSEW'))
             # середня ціна______________________________________________________________________________
-            (tk.Label(fr,
-                      text=f'{get_sell_summ(coin['name'].lower())['avg']} $', width=element_width - 4, height=1,
-                      background=sell_color2)
+            (tk.Label(fr, text=f'{sell_avg} $', width=element_width - 4, height=1, background=sell_color2)
              .grid(row=num + 2, column=7, sticky='NSEW'))
             # баланс____________________________________________________________________________________
-            (tk.Label(fr,
-                      text=f'{(get_buy_summ(coin['name'].lower())['coins']
-                               - get_sell_summ(coin['name'].lower())['coins']):.2f} {coin['symbol']}',
-                      width=element_width, height=1, background=balance_colour1)
+            (tk.Label(fr, text=f'{balance:.4f} {coin_symbol}', width=element_width, height=1,
+                      background=balance_colour1)
              .grid(row=num + 2, column=8, sticky='NSEW'))
             # еквівалент_________________________________________________________________________________
-            (tk.Label(fr,
-                      text=f'{(coin['price']
-                               * (get_buy_summ(coin['name'].lower())['coins']
-                                  - get_sell_summ(coin['name'].lower())['coins'])):.2f} $',
-                      width=element_width - 3, height=1, background=balance_colour2)
+            (tk.Label(fr, text=f'{equivalent:.2f} $', width=element_width - 3, height=1, background=balance_colour2)
              .grid(row=num + 2, column=9, sticky='NSEW'))
 
-            balance_summ_count += (coin['price']
-                                   * (get_buy_summ(coin['name'].lower())['coins']
-                                      - get_sell_summ(coin['name'].lower())['coins']))
+            balance_summ_count += equivalent
             # реалізований прибуток________________________________________________________________________________
-            (tk.Label(fr,
-                      text=f"{(get_sell_summ(coin['name'].lower())['usd']
-                               - (get_sell_summ(coin['name'].lower())['coins']
-                                  * get_buy_summ(coin['name'].lower())['avg'])):.2f} $",
-                      width=element_width - 3, height=1, background=balance_colour1)
+            (tk.Label(fr, text=f"{realized_profitt:.2f} $", width=element_width - 3, height=1,
+                      background=balance_colour1)
              .grid(row=num + 2, column=10, sticky='NSEW'))
-
-            realized_profit_count += (get_sell_summ(coin['name'].lower())['usd']
-                                      - (get_sell_summ(coin['name'].lower())['coins']
-                                         * get_buy_summ(coin['name'].lower())['avg']))
+            realized_profit_count += realized_profitt
             # нереалізований прибуток
-            (tk.Label(fr,
-                      text=f"{((coin['price']
-                                * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins']))
-                               - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins'])
-                                  * get_buy_summ(coin['name'].lower())['avg'])):.2f} $",
-                      width=element_width - 3, height=1, background=balance_colour2)
+            (tk.Label(fr, text=f"{unrealized_profit:.2f} $", width=element_width - 3, height=1,
+                      background=balance_colour2)
              .grid(row=num + 2, column=11, sticky='NSEW'))
-
-            unrealized_profit_count += (
-                    (coin['price'] * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())[
-                        'coins']))
-                    - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())['coins'])
-                       * get_buy_summ(coin['name'].lower())['avg']))
+            unrealized_profit_count += unrealized_profit
             # прибуток
-            (tk.Label(fr,
-                      text=f"{((get_sell_summ(coin['name'].lower())['usd']
-                                - (get_sell_summ(coin['name'].lower())['coins'] * get_buy_summ(coin['name'].lower())['avg']))
-                               + ((coin['price'] * (get_buy_summ(coin['name'].lower())['coins']
-                                                    - get_sell_summ(coin['name'].lower())['coins']))
-                                  - ((get_buy_summ(coin['name'].lower())['coins']
-                                      - get_sell_summ(coin['name'].lower())['coins'])
-                                     * get_buy_summ(coin['name'].lower())['avg']))):.2f} $",
-                      width=element_width - 3, height=1, background=balance_colour1)
+            (tk.Label(fr, text=f"{profit:.2f} $", width=element_width - 3, height=1, background=balance_colour1)
              .grid(row=num + 2, column=12, sticky='NSEW'))
-
-            profit_count += ((get_sell_summ(coin['name'].lower())['usd'] - (
-                    get_sell_summ(coin['name'].lower())['coins'] * get_buy_summ(coin['name'].lower())['avg']))
-                             + ((coin['price']
-                                 * (get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())[
-                                'coins']))
-                                - ((get_buy_summ(coin['name'].lower())['coins'] - get_sell_summ(coin['name'].lower())[
-                                'coins'])
-                                   * get_buy_summ(coin['name'].lower())['avg'])))
+            profit_count += profit
             # Продано у %
-            if get_sell_summ(coin['name'].lower())['coins'] != 0:
-                (tk.Label(fr, text=f'{(get_sell_summ(coin['name'].lower())['coins']
-                                       * 100 / get_buy_summ(coin['name'].lower())['coins']):.2f}%',
-                          width=element_width - 3, height=1, background=sell_color2)
+            if sell_summ != 0:
+                (tk.Label(fr, text=f'{sell_persent:.2f}%', width=element_width - 3, height=1, background=sell_color2)
                  .grid(row=num + 2, column=13, sticky='NSEW'))
-
-                sell_persent_count += (get_sell_summ(coin['name'].lower())['coins']
-                                       * 100 / get_buy_summ(coin['name'].lower())['coins'])
+                sell_persent_count += sell_persent
                 sell_count += 1
             else:
                 (tk.Label(fr, text='0%', width=element_width - 3, height=1, background=sell_color2)
                  .grid(row=num + 2, column=13, sticky='NSEW'))
 
-        usd_equal.config(text=f"{balance_summ_count:.2f} $")
-
-        realized_profit.config(text=f"{realized_profit_count:.2f} $")
-
-        unrealized_profit.config(text=f"{unrealized_profit_count:.2f} $")
-
-        if sell_count != 0:
-            sell_persent.config(text=f"{(sell_persent_count / sell_count):.2f} %")
-        else:
-            sell_persent.config(text=f"0 %")
-
-        profit.config(text=f"{profit_count:.2f} $")
+    usd_equal_lbl.config(text=f"{balance_summ_count:.2f} $")
+    realized_profit_lbl.config(text=f"{realized_profit_count:.2f} $")
+    unrealized_profit_lbl.config(text=f"{unrealized_profit_count:.2f} $")
+    if sell_count != 0:
+        sell_persent_lbl.config(text=f"{(sell_persent_count / sell_count):.2f} %")
+    else:
+        sell_persent_lbl.config(text=f"0 %")
+    profit_lbl.config(text=f"{profit_count:.2f} $")
 
 
 def show_percent_change():
+    # знищуємо старі віджети
     for widget in fr5.winfo_children():
         widget.destroy()
 
-    (tk.Label(fr5, text='зміни в цінах', font='size=10')
-     .grid(row=0, column=0, columnspan=7, sticky='NSEW', ))
+    # малюємо шапку
+    (tk.Label(fr5, text='зміни в цінах', font='size=10', fg='white', background='#808080', width=49)
+     .grid(row=0, column=0, columnspan=7, sticky='NSEW'))
 
     # малюємо заголовкі стовпців
     for num1, f in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
-        (tk.Label(fr5, text=f, background=menu_bg_colour, fg='white')
+        (tk.Label(fr5, text=f, fg='white', pady=10, background=menu_bg_colour)
          .grid(row=1, column=num1, sticky='NSEW', ))
 
     # малюємо рядки з іменем монети
     for num2, coin in enumerate(get_all_coin_name()):
-        (tk.Label(fr5, text=coin, background=menu_bg_colour, fg='white')
+        (tk.Label(fr5, text=coin.upper(), fg='white', background=menu_bg_colour)
          .grid(row=num2 + 2, column=0, sticky='NSEW', ))
 
         # малюємо рядки зі змінами в ціні за різні періоди
         for num3, f in enumerate(get_percent_change(coin)):
-            (tk.Label(fr5, text=f, background=menu_bg_colour, fg='white')
-             .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
+            if f > 0:
+                (tk.Label(fr5, text=f"{f}%", fg='green', background=menu_bg_colour)
+                 .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
+            elif f <= 0:
+                (tk.Label(fr5, text=f"{f}%", fg='red', background=menu_bg_colour)
+                 .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
 
 
 # додаємо монети
@@ -566,14 +542,12 @@ if __name__ == '__main__':
     # ______________________________________________FRAME 0__________________________________________________
 
     fr0 = tk.Frame(menu, background=menu_bg_colour)
-
     fr0.pack(pady=20, padx=20, )
 
     # ______________________________________________FRAME 1__________________________________________________
 
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
     fr1.pack()
-
     widget_fr1 = [
         ("курс", name_colour2, element_width - 5),
         ("монета", name_colour1, element_width + 5),
@@ -588,8 +562,8 @@ if __name__ == '__main__':
         ("реалізований\nдохід", balance_colour1, element_width - 3),
         ("нереалізований\nдохід", balance_colour2, element_width - 3),
         ("прибуток", balance_colour1, element_width - 3),
-        ("продано %", sell_color2, element_width - 3),
-    ]
+        ("продано %", sell_color2, element_width - 3), ]
+
     for num, (text, bg_colour, widtg) in enumerate(widget_fr1):
 
         if text == "курс" or text == "баланс":
@@ -599,20 +573,20 @@ if __name__ == '__main__':
             (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
              .grid(row=1, column=num, rowspan=1, sticky='NSEW', ))
 
-    usd_equal = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour2, )
-    usd_equal.grid(row=2, column=9, sticky='NSEW', )
+    usd_equal_lbl = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour2, )
+    usd_equal_lbl.grid(row=2, column=9, sticky='NSEW', )
 
-    realized_profit = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour1, )
-    realized_profit.grid(row=2, column=10, sticky='NSEW', )
+    realized_profit_lbl = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour1, )
+    realized_profit_lbl.grid(row=2, column=10, sticky='NSEW', )
 
-    unrealized_profit = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour2, )
-    unrealized_profit.grid(row=2, column=11, sticky='NSEW', )
+    unrealized_profit_lbl = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour2, )
+    unrealized_profit_lbl.grid(row=2, column=11, sticky='NSEW', )
 
-    profit = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour1, )
-    profit.grid(row=2, column=12, sticky='NSEW', )
+    profit_lbl = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour1, )
+    profit_lbl.grid(row=2, column=12, sticky='NSEW', )
 
-    sell_persent = tk.Label(fr1, text="-", width=element_width - 3, background=sell_color2, )
-    sell_persent.grid(row=2, column=13, sticky='NSEW', )
+    sell_persent_lbl = tk.Label(fr1, text="-", width=element_width - 3, background=sell_color2, )
+    sell_persent_lbl.grid(row=2, column=13, sticky='NSEW', )
 
     btn1 = tk.Button(fr1, text="+", background=name_colour1, borderwidth=0, command=add_coin_menu)
     btn1.grid(row=2, column=1, sticky='NSEW')
@@ -634,8 +608,8 @@ if __name__ == '__main__':
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
     fr3.pack()
 
-    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1, command=lambda: (show_coin_in_portfolio(),
-                                                                                          show_percent_change()))
+    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1,
+                     command=lambda: (show_coin_in_portfolio(), show_percent_change()))
     btn4.pack(fill='x')
 
     # ______________________________________________FRAME 4__________________________________________________
@@ -691,8 +665,9 @@ if __name__ == '__main__':
     btn6.grid(row=0, column=3)
 
     # ______________________________________________FRAME 5__________________________________________________
-    fr5 = tk.Frame(fr0, background=menu_bg_colour)
-    fr5.pack(side='left', anchor='n', pady=20, padx=10)
+
+    fr5 = tk.Frame(fr0, background=menu_bg_colour, )
+    fr5.pack(side='left', anchor='n', pady=20, padx=10, )
 
     show_percent_change()
 

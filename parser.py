@@ -95,11 +95,11 @@ def get_percent_change(coin_name):
                 if n['name'] != 'USD':
                     continue
                 coin_data = (
-                    f"{float(n['percentChange1h']):.1f}%",
-                    f"{float(n['percentChange24h']):.1f}%",
-                    f"{float(n['percentChange7d']):.1f}%",
-                    f"{float(n['percentChange30d']):.1f}%",
-                    f"{float(n['percentChange60d']):.1f}%",
-                    f"{float(n['percentChange90d']):.1f}%",
+                    round(float(n['percentChange1h']), 2),
+                    round(float(n['percentChange24h']), 2),
+                    round(float(n['percentChange7d']), 2),
+                    round(float(n['percentChange30d']), 2),
+                    round(float(n['percentChange60d']), 2),
+                    round(float(n['percentChange90d']), 2),
                 )
     return coin_data
