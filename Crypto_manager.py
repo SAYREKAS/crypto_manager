@@ -1,6 +1,6 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
                 add_coin_to_db, del_current_coin_operation, get_current_coin_operation)
-from parser import get_coin_info, check_for_exis_coin, get_percent_change
+from parser import get_coin_info, check_for_exist_coin, get_percent_change
 from tkinter import messagebox as mb
 from gui_config import *
 from tkinter import END
@@ -140,7 +140,7 @@ def add_coin_menu():
         # Отримуємо значення з поля для введення
         value = str(entry_coin_name.get())
         if value != 'tether' and value != 'usd' and value != 'usdt' and value != 'usdc':
-            if check_for_exis_coin(value):
+            if check_for_exist_coin(value):
                 show_coin_in_portfolio()
                 show_percent_change()
                 label2.config(text="монету додано успішно", background='green')

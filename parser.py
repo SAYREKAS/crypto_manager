@@ -25,7 +25,7 @@ def response():
         if req.status_code == 200:
             print(f"дані про монети отримано, статус код - {req.status_code}")
             with open('coin info.json', 'w', encoding='utf8') as f:
-                f.write(req.text)
+                json.dump(req.json(), f)
                 print('файл перезаписано')
             return req.json()
 
@@ -45,49 +45,34 @@ def response():
             return {}
 
 
-def check_for_exis_coin(coin_name_or_symbol):
-    response()
-    try:
-        with open('coin info.json', 'r', encoding='utf8') as file:
-            data: dict = json.load(file)
-            for coin in data['data']['cryptoCurrencyList']:
-
-                if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-                    add_coin_to_db(coin['name'])
-                    return True
-                else:
-                    continue
-
-            return False
-
-    except KeyError:
-        return False
+def check_for_exist_coin(coin_name_or_symbol):
+    data = response()
+    for coin in data.get('data', {}).get('cryptoCurrencyList', []):
+        if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
+            add_coin_to_db(coin['name'])
+            return True
+    return False
 
 
 def get_coin_info(coin_name_list):
-    response()
+    data = response()
     coin_data = []
-    try:
-        with open('coin info.json', 'r', encoding='utf8') as file:
-            data: dict = json.load(file)
-            for coin_info in data['data']['cryptoCurrencyList']:
-                name = coin_info['name']
-                symbol = coin_info['symbol']
-                price = round(float(coin_info['quotes'][2]["price"]), 2)
+    for coin_info in data.get('data', {}).get('cryptoCurrencyList', []):
+        name = coin_info['name']
+        symbol = coin_info['symbol']
+        price = round(float(coin_info['quotes'][2]["price"]), 2)
 
-                if name.lower() in coin_name_list:
-                    coin_data.append({'name': name, 'symbol': symbol, 'price': price})
+        if name.lower() in coin_name_list:
+            coin_data.append({'name': name, 'symbol': symbol, 'price': price})
 
-        return coin_data
-    except KeyError:
-        return []
+    return coin_data
 
 
 def get_percent_change(coin_name):
     coin_data = ()
     with open('coin info.json', 'r', encoding='utf8') as file:
         data = json.load(file)
-        for f in data["data"]["cryptoCurrencyList"]:
+        for f in data.get("data", {}).get("cryptoCurrencyList", []):
 
             if str(f['name']).lower() != str(coin_name).replace('_', ' ').lower():
                 continue
