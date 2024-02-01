@@ -17,15 +17,14 @@ def get_screen_resolution():
     return resolution
 
 
-screen_res = get_screen_resolution()
-
 #  розширення монітора
+screen_res = get_screen_resolution()
 dispx = screen_res.width
 dispy = screen_res.height
 
 #  розмір вікна програми
 appx = 1400
-appy = 650
+appy = 750
 
 # main menu
 name_colour1 = '#ff9947'

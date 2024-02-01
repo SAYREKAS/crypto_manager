@@ -1,11 +1,13 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
                 add_coin_to_db, del_current_coin_operation, get_current_coin_operation)
 from parser import get_coin_info, check_for_exist_coin, get_percent_change
+from media_downloader import download_file_from_google_drive
 from tkinter import messagebox as mb
 from gui_config import *
 from tkinter import END
 from tkinter import ttk
 import tkinter as tk
+import os
 
 
 def show_coin_in_portfolio():
@@ -49,7 +51,7 @@ def show_coin_in_portfolio():
             profit = realized_profit + unrealized_profit
             sell_percent = sell_summ * 100 / buy_summ if buy_summ > 0 else 0
 
-            # курс__________________________________________________________________________________
+            # курс____________________________________________________________________________________
             (tk.Label(fr, text=f'{crypto_exchange} $', width=element_width - 5, height=1,
                       background=name_colour2, ).grid(row=enum + 2, column=0, sticky='NSEW'))
             # монета__________________________________________________________________________________
@@ -58,34 +60,34 @@ def show_coin_in_portfolio():
             # куплено_________________________________________________________________________________
             (tk.Label(fr, text=f'{buy_summ}', width=element_width - 4, height=1,
                       background=by_color2).grid(row=enum + 2, column=2, sticky='NSEW'))
-            # витрачено_________________________________________________________________________________
+            # витрачено_______________________________________________________________________________
             (tk.Label(fr, text=f'{buy_spent_summ} $', width=element_width - 4, height=1,
                       background=by_color2).grid(row=enum + 2, column=3, sticky='NSEW'))
-            # середня ціна________________________________________________________________________________
+            # середня ціна____________________________________________________________________________
             (tk.Label(fr, text=f'{buy_avg} $', width=element_width - 4, height=1,
                       background=by_color2).grid(row=enum + 2, column=4, sticky='NSEW'))
-            # продано___________________________________________________________________________________
+            # продано_________________________________________________________________________________
             (tk.Label(fr, text=sell_summ, width=element_width - 4, height=1,
                       background=sell_color2).grid(row=enum + 2, column=5, sticky='NSEW'))
-            # отримано_________________________________________________________________________________
+            # отримано________________________________________________________________________________
             (tk.Label(fr, text=f'{sell_spent_summ} $', width=element_width - 4, height=1,
                       background=sell_color2).grid(row=enum + 2, column=6, sticky='NSEW'))
-            # середня ціна______________________________________________________________________________
+            # середня ціна____________________________________________________________________________
             (tk.Label(fr, text=f'{sell_avg} $', width=element_width - 4, height=1, background=sell_color2)
              .grid(row=enum + 2, column=7, sticky='NSEW'))
-            # баланс____________________________________________________________________________________
+            # баланс__________________________________________________________________________________
             (tk.Label(fr, text=f'{balance:.4f} {coin_symbol}', width=element_width, height=1,
                       background=balance_colour1).grid(row=enum + 2, column=8, sticky='NSEW'))
-            # еквівалент_________________________________________________________________________________
+            # еквівалент______________________________________________________________________________
             (tk.Label(fr, text=f'{equivalent:.2f} $', width=element_width - 3, height=1, background=balance_colour2)
              .grid(row=enum + 2, column=9, sticky='NSEW'))
             balance_summ_count += equivalent
-            # реалізований дохід________________________________________________________________________________
+            # реалізований дохід______________________________________________________________________
             (tk.Label(fr, text=f"{realized_profit:.2f} $", width=element_width - 3, height=1,
                       fg='red' if unrealized_profit < 0 else 'green', background=balance_colour1)
              .grid(row=enum + 2, column=10, sticky='NSEW'))
             realized_profit_count += realized_profit
-            # нереалізований дохід________________________________________________________________________________
+            # нереалізований дохід____________________________________________________________________
             (tk.Label(fr, text=f"{unrealized_profit:.2f} $", width=element_width - 3, height=1,
                       fg='red' if unrealized_profit < 0 else 'green', background=balance_colour2)
              .grid(row=enum + 2, column=11, sticky='NSEW'))
@@ -95,7 +97,7 @@ def show_coin_in_portfolio():
                       fg='red' if unrealized_profit < 0 else 'green', background=balance_colour1)
              .grid(row=enum + 2, column=12, sticky='NSEW'))
             profit_count += profit
-            # Продано у %________________________________________________________________________________
+            # Продано у %_____________________________________________________________________________
             (tk.Label(fr, text=f'{sell_percent:.2f}%' if sell_summ != 0 else '0%', width=element_width - 3, height=1,
                       background=sell_color2).grid(row=enum + 2, column=13, sticky='NSEW'))
             sell_percent_count += sell_percent
@@ -505,8 +507,13 @@ if __name__ == '__main__':
 
     try:
         menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
+        print('ok')
     except Exception as e:
-        print(e)
+        file_id = '1T6CzadYdlO_r5ZgrMVybJ1EGmlf-L2r8'
+        destination = os.path.join('media', 'logo.png')
+        download_file_from_google_drive(id=file_id, destination=destination)
+        menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
+        print('not ok')
 
     # ______________________________________________SETTING BAR______________________________________________
 
