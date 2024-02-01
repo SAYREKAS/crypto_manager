@@ -1,5 +1,5 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
-                create_db, add_coin_to_db, del_curent_coin_operation, get_curent_coin_operation)
+                add_coin_to_db, del_current_coin_operation, get_current_coin_operation)
 from parser import get_coin_info, check_for_exis_coin, get_percent_change
 from tkinter import messagebox as mb
 from gui_config import *
@@ -295,7 +295,7 @@ def redact_buy_operation():
         question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити {coin_name}?')
 
         if question == 'yes':
-            del_curent_coin_operation(coin_name, operation_id)
+            del_current_coin_operation(coin_name, operation_id)
             show_coin_in_portfolio()
             show_percent_change()
             activate()
@@ -308,7 +308,7 @@ def redact_buy_operation():
         coin_operation_combo = ttk.Combobox(fr, values=[''])
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
-        for count, item in enumerate(get_curent_coin_operation(coin_name_conbo.get())):
+        for count, item in enumerate(get_current_coin_operation(coin_name_conbo.get())):
             if item[3]:
                 operations.append(
                     f"{item[0]}:    {item[3]} {coin_name_conbo.get().upper()} {item[4]} USD | {item[1]} {item[2]} ")
@@ -432,7 +432,7 @@ def redact_sell_operation():
         question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити{coin_name}?')
 
         if question == 'yes':
-            del_curent_coin_operation(coin_name, operation_id)
+            del_current_coin_operation(coin_name, operation_id)
             show_coin_in_portfolio()
             show_percent_change()
             activate()
@@ -445,7 +445,7 @@ def redact_sell_operation():
         coin_operation_combo = ttk.Combobox(fr, values=[''])
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
-        for count, item in enumerate(get_curent_coin_operation(coin_name_conbo.get())):
+        for count, item in enumerate(get_current_coin_operation(coin_name_conbo.get())):
             if item[5]:
                 operations.append(
                     f"{item[0]}:    {item[5]} {coin_name_conbo.get().upper()} {item[6]} USD | {item[1]} {item[2]} ")
@@ -491,7 +491,6 @@ def redact_sell_operation():
 
 
 if __name__ == '__main__':
-    create_db()
     add_coin_to_db('tether')
 
     # параметри вікна програми
