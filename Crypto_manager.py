@@ -25,11 +25,11 @@ def show_coin_in_portfolio():
     realized_profit_count = 0
     unrealized_profit_count = 0
 
-    if not get_all_coin_name():
+    if not get_all_coin_name(tether=False):
         print("В портфелі немає монет")
         add_coin_menu()
     else:
-        for enum, coin in enumerate(get_coin_info(get_all_coin_name())):
+        for enum, coin in enumerate(get_coin_info(get_all_coin_name(tether=False))):
             crypto_exchange = coin['price']
             coin_name = coin['name']
             coin_symbol = coin['symbol']
@@ -123,7 +123,7 @@ def show_percent_change():
          .grid(row=1, column=enum, sticky='NSEW', ))
 
     # малюємо рядки з іменем монети
-    for enum, coin in enumerate(get_all_coin_name()):
+    for enum, coin in enumerate(get_all_coin_name(tether=False)):
         (tk.Label(fr5, text=coin.upper(), fg='white', background=menu_bg_colour)
          .grid(row=enum + 2, column=0, sticky='NSEW', ))
 
@@ -211,7 +211,7 @@ def dell_coin_menu():
         label1 = tk.Label(fr, text='виберіть ім`я монети яку потрібно видалити', wraplength=200, width=50, )
         label1.grid(row=0, column=0, sticky="NSEW")
 
-        entry_coin_name = ttk.Combobox(fr, width=30, values=get_all_coin_name())
+        entry_coin_name = ttk.Combobox(fr, width=30, values=get_all_coin_name(tether=False))
         entry_coin_name.current(0)
         entry_coin_name.grid(row=1, column=0, sticky="NSEW")
 
@@ -267,7 +267,7 @@ def buy_coin_menu():
             (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1,
                                                                          sticky='NSEW', ))
 
-        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
+        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name(tether=False))
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
@@ -340,12 +340,12 @@ def redact_buy_operation():
     fr = tk.Frame(red_buy_menu)
     fr.pack(side='top', pady=10, padx=10, )
 
-    if not get_all_coin_name():
+    if not get_all_coin_name(tether=False):
         err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
                            background=menu_bg_colour)
         err_lbl.pack()
     else:
-        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name(tether=False))
         coin_name_conbo.current(0)
         coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
 
@@ -401,7 +401,7 @@ def sell_coin_menu():
             (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1,
                                                                          sticky='NSEW', ))
 
-        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
+        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name(tether=False))
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
@@ -477,12 +477,12 @@ def redact_sell_operation():
     fr = tk.Frame(red_buy_menu)
     fr.pack(side='top', pady=10, padx=10, )
 
-    if not get_all_coin_name():
+    if not get_all_coin_name(tether=False):
         err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
                            background=menu_bg_colour)
         err_lbl.pack()
     else:
-        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name(tether=False))
         coin_name_conbo.current(0)
         coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
 

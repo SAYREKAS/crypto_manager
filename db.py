@@ -40,12 +40,15 @@ def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
             print(f"{coin_name} {'куплено' if is_buy else 'продано'} {coin_amount} на {usd_amount}")
 
 
-def get_all_coin_name():
+def get_all_coin_name(tether=True):
     """отримуємо імена всіх криптовалют із БД в вигляді кортежа ('bitcoin', 'cardano', 'ethereum')"""
 
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     table_names = cursor.fetchall()
-    return tuple(name[0] for name in table_names if 'tether' not in name[0])
+    if tether:
+        return tuple(name[0] for name in table_names)
+    else:
+        return tuple(name[0] for name in table_names if 'tether' not in name[0])
 
 
 def get_all_coin_operation():
