@@ -46,7 +46,7 @@ def show_coin_in_portfolio():
             realized_profitt = sell_spent_summ - (sell_summ * buy_avg)
             unrealized_profit = equivalent - (balance * buy_avg)
             profit = realized_profitt + unrealized_profit
-            sell_persent = sell_summ * 100 / buy_summ
+            sell_persent = sell_summ * 100 / buy_summ if buy_summ > 0 else 0
 
             # курс__________________________________________________________________________________
             (tk.Label(fr, text=f'{crypto_exchange} $', width=element_width - 5, height=1,
@@ -103,22 +103,16 @@ def show_coin_in_portfolio():
              .grid(row=num + 2, column=12, sticky='NSEW'))
             profit_count += profit
             # Продано у %
-            if sell_summ != 0:
-                (tk.Label(fr, text=f'{sell_persent:.2f}%', width=element_width - 3, height=1, background=sell_color2)
-                 .grid(row=num + 2, column=13, sticky='NSEW'))
-                sell_persent_count += sell_persent
-                sell_count += 1
-            else:
-                (tk.Label(fr, text='0%', width=element_width - 3, height=1, background=sell_color2)
-                 .grid(row=num + 2, column=13, sticky='NSEW'))
+
+            (tk.Label(fr, text=f'{sell_persent:.2f}%' if sell_summ != 0 else '0%', width=element_width - 3, height=1,
+                      background=sell_color2).grid(row=num + 2, column=13, sticky='NSEW'))
+            sell_persent_count += sell_persent
+            sell_count += 1
 
     usd_equal_lbl.config(text=f"{balance_summ_count:.2f} $")
     realized_profit_lbl.config(text=f"{realized_profit_count:.2f} $")
     unrealized_profit_lbl.config(text=f"{unrealized_profit_count:.2f} $")
-    if sell_count != 0:
-        sell_persent_lbl.config(text=f"{(sell_persent_count / sell_count):.2f} %")
-    else:
-        sell_persent_lbl.config(text=f"0 %")
+    sell_persent_lbl.config(text=f"{(sell_persent_count / sell_count):.2f} %" if sell_count != 0 else '0 %')
     profit_lbl.config(text=f"{profit_count:.2f} $")
 
 
@@ -143,12 +137,8 @@ def show_percent_change():
 
         # малюємо рядки зі змінами в ціні за різні періоди
         for num3, f in enumerate(get_percent_change(coin)):
-            if f > 0:
-                (tk.Label(fr5, text=f"{f}%", fg='green', background=menu_bg_colour)
-                 .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
-            elif f <= 0:
-                (tk.Label(fr5, text=f"{f}%", fg='red', background=menu_bg_colour)
-                 .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
+            (tk.Label(fr5, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour)
+             .grid(row=num2 + 2, column=num3 + 1, sticky='NSEW', ))
 
 
 # додаємо монети
@@ -565,13 +555,8 @@ if __name__ == '__main__':
         ("продано %", sell_color2, element_width - 3), ]
 
     for num, (text, bg_colour, widtg) in enumerate(widget_fr1):
-
-        if text == "курс" or text == "баланс":
-            (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
-             .grid(row=1, column=num, rowspan=2, sticky='NSEW', ))
-        else:
-            (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
-             .grid(row=1, column=num, rowspan=1, sticky='NSEW', ))
+        (tk.Label(fr1, text=text, width=widtg, height=3, background=bg_colour, )
+         .grid(row=1, column=num, rowspan=2 if text == "курс" or text == "баланс" else 1, sticky='NSEW', ))
 
     usd_equal_lbl = tk.Label(fr1, text="-", width=element_width - 3, background=balance_colour2, )
     usd_equal_lbl.grid(row=2, column=9, sticky='NSEW', )
