@@ -10,10 +10,10 @@ class ScreenResolution(ctypes.Structure):
 # Отримання розширення екрану
 def get_screen_resolution():
     user32 = ctypes.windll.user32
-    user32.SetProcessDPIAware()  # Встановлення DPI-свідомості процесу
+    user32.SetProcessDPIAware()
     resolution = ScreenResolution()
-    resolution.width = user32.GetSystemMetrics(0)  # Ширина екрану
-    resolution.height = user32.GetSystemMetrics(1)  # Висота екрану
+    resolution.width = user32.GetSystemMetrics(0)
+    resolution.height = user32.GetSystemMetrics(1)
     return resolution
 
 

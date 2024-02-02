@@ -507,7 +507,7 @@ if __name__ == '__main__':
         except Exception as e:
             print(e)
 
-    # ______________________________________________SETTING BAR______________________________________________
+    # ______________________________________________SETTING_BAR______________________________________________
 
     menu_bar = tk.Menu(menu, selectcolor='#1E1F22')
     menu_bar.add_command(label="редагувати монети", command=dell_coin_menu)
@@ -520,14 +520,14 @@ if __name__ == '__main__':
     canvas = tk.Canvas(menu, background=menu_bg_colour, highlightbackground=menu_bg_colour)
     canvas.pack(fill="both", expand=True, pady=20, padx=20)
 
-    # ______________________________________________FRAME 0__________________________________________________
+    # ______________________________________________FRAME_0__________________________________________________
 
     fr0 = tk.Frame(canvas, background=menu_bg_colour)
     fr0.pack()
     fr0.bind("<Configure>", lambda x: canvas.configure(scrollregion=canvas.bbox("all")))
     canvas.create_window(canvas.winfo_width() // 2, canvas.winfo_height() // 2, window=fr0, anchor="n")
 
-    # ______________________________________________FRAME 1__________________________________________________
+    # ______________________________________________FRAME_1__________________________________________________
 
     fr1 = tk.Frame(fr0, background=menu_bg_colour)
     fr1.pack()
@@ -575,13 +575,13 @@ if __name__ == '__main__':
     btn3 = tk.Button(fr1, text="+", background=sell_color1, borderwidth=0, command=sell_coin_menu)
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
-    # ______________________________________________FRAME 2__________________________________________________
+    # ______________________________________________FRAME_2__________________________________________________
 
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
     fr2.pack()
     show_coin_in_portfolio()
 
-    # ______________________________________________FRAME 3__________________________________________________
+    # ______________________________________________FRAME_3__________________________________________________
 
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
     fr3.pack()
@@ -590,7 +590,7 @@ if __name__ == '__main__':
                      command=lambda: (show_coin_in_portfolio(), show_percent_change()))
     btn4.pack(fill='x')
 
-    # ______________________________________________FRAME 4__________________________________________________
+    # ______________________________________________FRAME_4__________________________________________________
 
     fr4 = tk.Frame(fr0, background=menu_bg_colour)
     fr4.pack(side='left', anchor='n', pady=20, padx=10)
@@ -642,7 +642,7 @@ if __name__ == '__main__':
                                           btn6.grid(row=0, column=3)))))
     btn6.grid(row=0, column=3)
 
-    # ______________________________________________FRAME 5__________________________________________________
+    # ______________________________________________FRAME_5__________________________________________________
 
     fr5 = tk.Frame(fr0, background=menu_bg_colour, )
     fr5.pack(side='left', anchor='n', pady=20, padx=10, )
