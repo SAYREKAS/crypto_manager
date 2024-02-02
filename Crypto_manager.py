@@ -1,5 +1,5 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
-                add_coin_to_db, del_current_coin_operation, get_current_coin_operation)
+                del_current_coin_operation, get_current_coin_operation)
 from parser import get_coin_info, check_for_exist_coin, get_percent_change
 from media_downloader import download_file_from_google_drive
 from tkinter import messagebox as mb
@@ -10,32 +10,24 @@ import tkinter as tk
 import os
 
 
-def on_mousewheel(event):
-    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-
-def show_coin_in_portfolio():
+def show_coin_in_portfolio(frame):
     """ виводимо віджети з інформацією про портфоліо в головне меню"""
 
-    for widget in fr2.winfo_children():
+    for widget in frame.winfo_children():
         widget.destroy()
-
-    fr = tk.Frame(fr2, background=menu_bg_colour)
-    fr.pack()
-    fr.config(pady=5)
 
     sell_count = 0
     profit_summ = 0
-    balance_summ = 0
+    equivalent_summ = 0
     sell_percent_summ = 0
     realized_income_summ = 0
     unrealized_income_summ = 0
 
-    if not get_all_coin_name(tether=False):
+    if not get_all_coin_name():
         print("В портфелі немає монет")
         add_coin_menu()
     else:
-        for enum, coin in enumerate(get_coin_info(get_all_coin_name(tether=False))):
+        for enum, coin in enumerate(get_coin_info(get_all_coin_name())):
             crypto_exchange = coin['price']
             coin_name = coin['name']
             coin_symbol = coin['symbol']
@@ -57,7 +49,7 @@ def show_coin_in_portfolio():
 
             sell_count += 1 if sell_percent > 0 else 0
             profit_summ += profit
-            balance_summ += equivalent
+            equivalent_summ += equivalent
             sell_percent_summ += sell_percent
             realized_income_summ += realized_income
             unrealized_income_summ += unrealized_income
@@ -97,39 +89,54 @@ def show_coin_in_portfolio():
             ]
 
             for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
-                (tk.Label(fr, text=widget_text, width=widget_width, height=1, background=widget_background,
+                (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
                           fg=font_ground if widget_text != 0 else 'black')
                  .grid(row=enum, column=widget_column, sticky='NSEW'))
 
-    usd_equal_lbl.config(text=f"{balance_summ:.2f} $")
+    usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
     realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
     unrealized_profit_lbl.config(text=f"{unrealized_income_summ:.2f} $")
     sell_percent_lbl.config(text=f"{(sell_percent_summ / sell_count):.2f} %" if sell_count != 0 else '0 %')
     profit_lbl.config(text=f"{profit_summ:.2f} $")
 
 
-def show_percent_change():
-    for widget in fr5.winfo_children():
+def show_percent_change(frame):
+    for widget in frame.winfo_children():
         widget.destroy()
 
     # малюємо шапку
-    (tk.Label(fr5, text='зміни в цінах', font='size=10', fg='white', background='#808080', width=49)
-     .grid(row=0, column=0, columnspan=7, sticky='NSEW'))
+    (tk.Label(frame, text='зміни в цінах', font='size=10', fg='white', background='#808080', width=45)
+     .grid(row=0, column=0, columnspan=7, sticky='NS', pady=(0, 5)))
 
     # малюємо заголовкі стовпців
     for enum, f in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
-        (tk.Label(fr5, text=f, fg='white', pady=10, background=menu_bg_colour)
+        (tk.Label(frame, text=f, fg='white', background=menu_bg_colour, anchor="e")
          .grid(row=1, column=enum, sticky='NSEW', ))
 
     # малюємо рядки з іменем монети
-    for enum, coin in enumerate(get_all_coin_name(tether=False)):
-        (tk.Label(fr5, text=coin.upper(), fg='white', background=menu_bg_colour)
+    for enum, coin in enumerate(get_all_coin_name()):
+        (tk.Label(frame, text=coin.upper(), fg='white', background=menu_bg_colour, anchor="w")
          .grid(row=enum + 2, column=0, sticky='NSEW', ))
 
         # малюємо рядки зі змінами в ціні за різні періоди
         for enum1, f in enumerate(get_percent_change(coin)):
-            (tk.Label(fr5, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour)
+            (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour, anchor="e")
              .grid(row=enum + 2, column=enum1 + 1, sticky='NSEW', ))
+
+
+def show_portfolio_statistic(frame):
+    (tk.Label(frame, text='статистика', font='size=10', fg='white', background='#808080', width=45)
+     .grid(row=0, column=0, columnspan=2, sticky='NS', pady=(0, 5)))
+
+    widget = [
+        ('вартість портфелю', f"**** $"),
+        ('стейбли / криптовалюта', f"**% / **%"),
+    ]
+    for enum, (widget_text, value) in enumerate(widget):
+        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', )
+         .grid(row=enum + 1, column=0, ))
+        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', )
+         .grid(row=enum + 1, column=1, ))
 
 
 def add_coin_menu():
@@ -138,18 +145,14 @@ def add_coin_menu():
     def get_entry():
         # Отримуємо значення з поля для введення
         value = str(entry_coin_name.get())
-        if value != 'tether' and value != 'usd' and value != 'usdt' and value != 'usdc':
-            if check_for_exist_coin(value):
-                show_coin_in_portfolio()
-                show_percent_change()
-                lbl2.config(text="монету додано успішно", background='green')
-                entry_coin_name.delete(0, END)
 
-            elif not get_coin_info(value):
-                lbl2.config(text="монети не існує", background='red')
-        else:
-            lbl2.config(text="стейбли знаходяться у окремому пункті меню", background='yellow')
+        if check_for_exist_coin(value):
+            show_coin_in_portfolio(fr2)
+            show_percent_change(fr4)
+            lbl2.config(text="монету додано успішно", background='green')
             entry_coin_name.delete(0, END)
+        else:
+            lbl2.config(text="монети не існує", background='red')
 
     # параметри вікна програми
     add_coin = tk.Toplevel(menu)
@@ -184,8 +187,8 @@ def dell_coin_menu():
         if question == 'yes':
             dell_coin.destroy()
             dell_coin_in_db(coin_name)
-            show_coin_in_portfolio()
-            show_percent_change()
+            show_coin_in_portfolio(fr2)
+            show_percent_change(fr4)
         else:
             dell_coin.destroy()
 
@@ -208,7 +211,7 @@ def dell_coin_menu():
         label1 = tk.Label(fr, text='виберіть ім`я монети яку потрібно видалити', wraplength=200, width=50, )
         label1.grid(row=0, column=0, sticky="NSEW")
 
-        entry_coin_name = ttk.Combobox(fr, width=30, values=get_all_coin_name(tether=False))
+        entry_coin_name = ttk.Combobox(fr, width=30, values=get_all_coin_name())
         entry_coin_name.current(0)
         entry_coin_name.grid(row=1, column=0, sticky="NSEW")
 
@@ -231,8 +234,8 @@ def buy_coin_menu():
             by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=True)
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
-            show_coin_in_portfolio()
-            show_percent_change()
+            show_coin_in_portfolio(fr2)
+            show_percent_change(fr4)
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -261,7 +264,7 @@ def buy_coin_menu():
             (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1,
                                                                          sticky='NSEW', ))
 
-        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name(tether=False))
+        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
@@ -289,8 +292,8 @@ def redact_buy_operation():
 
         if question == 'yes':
             del_current_coin_operation(coin_name, operation_id)
-            show_coin_in_portfolio()
-            show_percent_change()
+            show_coin_in_portfolio(fr2)
+            show_percent_change(fr4)
             activate()
         else:
             print('no')
@@ -333,12 +336,12 @@ def redact_buy_operation():
     fr = tk.Frame(red_buy_menu)
     fr.pack(side='top', pady=10, padx=10, )
 
-    if not get_all_coin_name(tether=False):
+    if not get_all_coin_name():
         err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
                            background=menu_bg_colour)
         err_lbl.pack()
     else:
-        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name(tether=False))
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
         coin_name_conbo.current(0)
         coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
 
@@ -358,8 +361,8 @@ def sell_coin_menu():
             by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=False)
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
-            show_coin_in_portfolio()
-            show_percent_change()
+            show_coin_in_portfolio(fr2)
+            show_percent_change(fr4)
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -392,7 +395,7 @@ def sell_coin_menu():
             (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1,
                                                                          sticky='NSEW', ))
 
-        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name(tether=False))
+        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
@@ -423,8 +426,8 @@ def redact_sell_operation():
 
         if question == 'yes':
             del_current_coin_operation(coin_name, operation_id)
-            show_coin_in_portfolio()
-            show_percent_change()
+            show_coin_in_portfolio(fr2)
+            show_percent_change(fr4)
             activate()
         else:
             print('no')
@@ -467,12 +470,12 @@ def redact_sell_operation():
     fr = tk.Frame(red_buy_menu)
     fr.pack(side='top', pady=10, padx=10, )
 
-    if not get_all_coin_name(tether=False):
+    if not get_all_coin_name():
         err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
                            background=menu_bg_colour)
         err_lbl.pack()
     else:
-        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name(tether=False))
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
         coin_name_conbo.current(0)
         coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
 
@@ -480,8 +483,11 @@ def redact_sell_operation():
         btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
 
 
+def on_mousewheel(event):
+    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+
 if __name__ == '__main__':
-    add_coin_to_db('tether')
 
     x = (dispx // 2) - (appx // 2)
     y = (dispy // 2) - (appy // 2)
@@ -529,8 +535,8 @@ if __name__ == '__main__':
 
     # ______________________________________________FRAME_1__________________________________________________
 
-    fr1 = tk.Frame(fr0, background=menu_bg_colour)
-    fr1.pack()
+    fr1 = tk.Frame(fr0, background=menu_bg_colour, )
+    fr1.pack(pady=(0, 5))
     widget_fr1 = [
         ("курс", name_colour2, element_width - 5),
         ("монета", name_colour1, element_width + 5),
@@ -579,74 +585,27 @@ if __name__ == '__main__':
 
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
     fr2.pack()
-    show_coin_in_portfolio()
+    show_coin_in_portfolio(fr2)
 
     # ______________________________________________FRAME_3__________________________________________________
 
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
     fr3.pack()
 
-    btn4 = tk.Button(fr0, text='оновити', width=element_width, height=1,
-                     command=lambda: (show_coin_in_portfolio(), show_percent_change()))
-    btn4.pack(fill='x')
+    refresh_btn = tk.Button(fr0, text='оновити', width=element_width, height=1,
+                            command=lambda: (show_coin_in_portfolio(fr2), show_percent_change(fr4)))
+    refresh_btn.pack(fill='x', pady=(5, 0))
 
     # ______________________________________________FRAME_4__________________________________________________
 
-    fr4 = tk.Frame(fr0, background=menu_bg_colour)
-    fr4.pack(side='left', anchor='n', pady=20, padx=10)
-
-    lbl = tk.Label(fr4, width=15, text='стейблкоіни', background='gray', fg='white', font='size=10')
-    lbl.grid(row=0, column=0, )
-
-    balance_lbl = tk.Label(fr4, width=10,
-                           text=round(abs(get_sell_summ('tether')['coins'] - get_buy_summ('tether')['coins']), 2),
-                           background='gray', fg='white', font='size=10')
-    balance_lbl.grid(row=0, column=1, )
-
-    entry = tk.Entry(fr4, borderwidth=0)
-    add_btn = tk.Button(fr4, text='add', borderwidth=0)
-
-    # додаємо usdt
-    btn5 = tk.Button(fr4, width=3, text='+', background='gray', borderwidth=0.5, fg='green',
-                     command=lambda: (btn5.grid_forget(),
-                                      btn6.grid_forget(),
-                                      entry.grid(row=0, column=2, sticky='NSEW'),
-                                      add_btn.grid(row=0, column=3, sticky='NSEW'),
-                                      add_btn.config(command=lambda: (
-                                          by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=True),
-                                          balance_lbl.config(
-                                              text=round(abs(get_sell_summ('tether')['coins']
-                                                             - get_buy_summ('tether')['coins']), 2)),
-                                          entry.delete(0, END),
-                                          entry.grid_forget(),
-                                          add_btn.grid_forget(),
-                                          btn5.grid(row=0, column=2),
-                                          btn6.grid(row=0, column=3)))))
-    btn5.grid(row=0, column=2)
-
-    # віднімаємо usdt
-    btn6 = tk.Button(fr4, width=3, text='-', background='gray', borderwidth=0.5, fg='red',
-                     command=lambda: (btn5.grid_forget(),
-                                      btn6.grid_forget(),
-                                      entry.grid(row=0, column=2, sticky='NSEW'),
-                                      add_btn.grid(row=0, column=3, sticky='NSEW'),
-                                      add_btn.config(command=lambda: (
-                                          by_or_sell_coin('tether', entry.get(), entry.get(), is_buy=False),
-                                          balance_lbl.config(
-                                              text=round(abs(get_sell_summ('tether')['coins']
-                                                             - get_buy_summ('tether')['coins']), 2)),
-                                          entry.delete(0, END),
-                                          entry.grid_forget(),
-                                          add_btn.grid_forget(),
-                                          btn5.grid(row=0, column=2),
-                                          btn6.grid(row=0, column=3)))))
-    btn6.grid(row=0, column=3)
+    fr4 = tk.Frame(fr0, background=menu_bg_colour, )
+    fr4.pack(side='left', anchor='n', pady=20, padx=10, )
+    show_percent_change(fr4)
 
     # ______________________________________________FRAME_5__________________________________________________
 
     fr5 = tk.Frame(fr0, background=menu_bg_colour, )
     fr5.pack(side='left', anchor='n', pady=20, padx=10, )
-
-    show_percent_change()
+    show_portfolio_statistic(fr5)
 
     menu.mainloop()

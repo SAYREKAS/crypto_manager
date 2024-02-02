@@ -65,6 +65,7 @@ def get_coin_info(coin_name_list):
         if name.lower() in coin_name_list:
             coin_data.append({'name': name, 'symbol': symbol, 'price': price})
 
+    coin_data = sorted(coin_data, key=lambda x: x['name'])
     return coin_data
 
 
@@ -72,7 +73,7 @@ def get_percent_change(coin_name):
     coin_data = ()
     with open('coin info.json', 'r', encoding='utf8') as file:
         data = json.load(file)
-        for f in data.get("data", {}).get("cryptoCurrencyList", []):
+        for f in data.get("data").get("cryptoCurrencyList"):
 
             if str(f['name']).lower() != str(coin_name).replace('_', ' ').lower():
                 continue

@@ -9,18 +9,15 @@ def add_coin_to_db(coin_name):
     """додаємо монету в базу даних"""
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
-        cursor = db.cursor()
         cursor.execute(
             f"CREATE TABLE IF NOT EXISTS {coin_name} (id INTEGER PRIMARY KEY, DATE TEXT, TIME TEXT, BUY INTEGER, BUY_USD INTEGER, SELL INTEGER, SELL_USD INTEGER)")
-        if coin_name != 'tether':
-            print(f"{coin_name} додано в БД")
+        print(f"{coin_name} додано в БД")
 
 
 def dell_coin_in_db(coin_name):
     """видаляємо монету з бази даних"""
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
-        cursor = db.cursor()
         cursor.execute(f"DROP TABLE IF EXISTS {coin_name}")
         print(f"{coin_name} видалено з БД")
 
@@ -29,7 +26,6 @@ def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
     """Додаємо запис про купівлю чи продаж монети в БД"""
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
-        cursor = db.cursor()
         if coin_amount.isdigit() and usd_amount.isdigit():
             date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
             time = str(datetime.datetime.now().strftime("%H:%M"))
@@ -40,15 +36,12 @@ def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
             print(f"{coin_name} {'куплено' if is_buy else 'продано'} {coin_amount} на {usd_amount}")
 
 
-def get_all_coin_name(tether=True):
+def get_all_coin_name():
     """отримуємо імена всіх криптовалют із БД в вигляді кортежа ('bitcoin', 'cardano', 'ethereum')"""
 
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     table_names = cursor.fetchall()
-    if tether:
-        return tuple(str(name[0]).replace('_', ' ') for name in table_names)
-    else:
-        return tuple(str(name[0]).replace('_', ' ') for name in table_names if 'tether' not in name[0])
+    return tuple(sorted(str(name[0]).replace('_', ' ') for name in table_names))
 
 
 def get_all_coin_operation():
@@ -63,7 +56,7 @@ def get_all_coin_operation():
 
 def get_current_coin_operation(coin_name):
     """отримуємо всі операції по конкретній монеті"""
-    return get_all_coin_operation().get(coin_name.replace('_', ' '), ())
+    return get_all_coin_operation().get(coin_name.replace('_', ' '))
 
 
 def del_current_coin_operation(coin_name, operation_id):
