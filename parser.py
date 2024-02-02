@@ -12,8 +12,7 @@ url = (f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/120.0.0.0 Safari/537.36'}
 
-last_update: float = time.time()
-""""- update_period"""
+last_update: float = time.time() - update_period
 
 
 def response():
