@@ -109,7 +109,6 @@ def show_coin_in_portfolio():
 
 
 def show_percent_change():
-    # знищуємо старі віджети
     for widget in fr5.winfo_children():
         widget.destroy()
 
@@ -518,18 +517,15 @@ if __name__ == '__main__':
 
     # ______________________________________________CANVAS______________________________________________
 
-    canvas = tk.Canvas(menu, background=menu_bg_colour, bg=menu_bg_colour, borderwidth=0, border=0)
+    canvas = tk.Canvas(menu, background=menu_bg_colour, highlightbackground=menu_bg_colour)
     canvas.pack(fill="both", expand=True, pady=20, padx=20)
-    scrollbar = tk.Scrollbar(menu, orient="vertical", command=canvas.yview, background=menu_bg_colour)
-    canvas.configure(yscrollcommand=scrollbar.set)
 
     # ______________________________________________FRAME 0__________________________________________________
 
     fr0 = tk.Frame(canvas, background=menu_bg_colour)
     fr0.pack()
-
     fr0.bind("<Configure>", lambda x: canvas.configure(scrollregion=canvas.bbox("all")))
-    canvas.create_window(canvas.winfo_width() // 2, canvas.winfo_height() // 2, window=fr0, anchor="center")
+    canvas.create_window(canvas.winfo_width() // 2, canvas.winfo_height() // 2, window=fr0, anchor="n")
 
     # ______________________________________________FRAME 1__________________________________________________
 
@@ -599,7 +595,7 @@ if __name__ == '__main__':
     fr4 = tk.Frame(fr0, background=menu_bg_colour)
     fr4.pack(side='left', anchor='n', pady=20, padx=10)
 
-    lbl = tk.Label(fr4, width=15, text='баланс usdt', background='gray', fg='white', font='size=10')
+    lbl = tk.Label(fr4, width=15, text='стейблкоіни', background='gray', fg='white', font='size=10')
     lbl.grid(row=0, column=0, )
 
     balance_lbl = tk.Label(fr4, width=10,
