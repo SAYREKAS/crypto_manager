@@ -46,9 +46,9 @@ def get_all_coin_name(tether=True):
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     table_names = cursor.fetchall()
     if tether:
-        return tuple(name[0] for name in table_names)
+        return tuple(str(name[0]).replace('_', ' ') for name in table_names)
     else:
-        return tuple(name[0] for name in table_names if 'tether' not in name[0])
+        return tuple(str(name[0]).replace('_', ' ') for name in table_names if 'tether' not in name[0])
 
 
 def get_all_coin_operation():
@@ -56,14 +56,14 @@ def get_all_coin_operation():
 
     operations_dict = {}
     for coin in get_all_coin_name():
-        cursor.execute(f"SELECT * FROM `{coin}`")
+        cursor.execute(f"SELECT * FROM `{coin.replace(' ', '_')}`")
         operations_dict[coin] = cursor.fetchall()
     return operations_dict
 
 
 def get_current_coin_operation(coin_name):
     """отримуємо всі операції по конкретній монеті"""
-    return get_all_coin_operation().get(coin_name.replace(' ', '_'), ())
+    return get_all_coin_operation().get(coin_name.replace('_', ' '), ())
 
 
 def del_current_coin_operation(coin_name, operation_id):
