@@ -1,6 +1,11 @@
 import datetime
 import sqlite3
 
+stable_coin_list = [
+    'tether usdt', 'usdc', 'dai', 'first digital usd', 'trueusd', 'usdd', 'pax dollar', 'paypal usd', 'busd',
+    'stasis euro', 'eurc', 'tether eurt', 'celo euro'
+]
+
 db = sqlite3.connect('crypto_manager.db')
 cursor = db.cursor()
 
@@ -26,14 +31,14 @@ def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
     """Додаємо запис про купівлю чи продаж монети в БД"""
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
-        if coin_amount.isdigit() and usd_amount.isdigit():
-            date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
-            time = str(datetime.datetime.now().strftime("%H:%M"))
-            buy_sell = "BUY" if is_buy else "SELL"
-            cursor.execute(
-                f"INSERT INTO {coin_name} (DATE, TIME, {buy_sell}, {buy_sell}_USD) VALUES (?, ?, ?, ?)",
-                (date, time, float(coin_amount), float(usd_amount)))
-            print(f"{coin_name} {'куплено' if is_buy else 'продано'} {coin_amount} на {usd_amount}")
+        date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
+        time = str(datetime.datetime.now().strftime("%H:%M"))
+        buy_sell = "BUY" if is_buy else "SELL"
+        cursor.execute(
+            f"INSERT INTO {coin_name} (DATE, TIME, {buy_sell}, {buy_sell}_USD) VALUES (?, ?, ?, ?)",
+            (date, time, float(coin_amount.replace(',', '.')), float(usd_amount.replace(',', '.'))))
+        print(f"{coin_name} {'куплено' if is_buy else 'продано'} "
+              f"{coin_amount.replace(',', '.')} на {usd_amount.replace(',', '.')}")
 
 
 def get_all_coin_name():

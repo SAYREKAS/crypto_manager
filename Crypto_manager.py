@@ -1,5 +1,5 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
-                del_current_coin_operation, get_current_coin_operation)
+                del_current_coin_operation, get_current_coin_operation, stable_coin_list)
 from parser import get_coin_info, check_for_exist_coin, get_percent_change
 from media_downloader import download_file_from_google_drive
 from tkinter import messagebox as mb
@@ -9,14 +9,34 @@ from tkinter import ttk
 import tkinter as tk
 import os
 
+sell_count = 0
+crypto_summ = 0
+stable_summ = 0
+profit_summ = 0
+equivalent_summ = 0
+sell_percent_summ = 0
+realized_income_summ = 0
+unrealized_income_summ = 0
+
 
 def show_coin_in_portfolio(frame):
     """ виводимо віджети з інформацією про портфоліо в головне меню"""
+
+    global sell_count
+    global crypto_summ
+    global stable_summ
+    global profit_summ
+    global equivalent_summ
+    global sell_percent_summ
+    global realized_income_summ
+    global unrealized_income_summ
 
     for widget in frame.winfo_children():
         widget.destroy()
 
     sell_count = 0
+    crypto_summ = 0
+    stable_summ = 0
     profit_summ = 0
     equivalent_summ = 0
     sell_percent_summ = 0
@@ -53,6 +73,9 @@ def show_coin_in_portfolio(frame):
             sell_percent_summ += sell_percent
             realized_income_summ += realized_income
             unrealized_income_summ += unrealized_income
+
+            crypto_summ += equivalent if str(coin['name']).lower() not in stable_coin_list else 0
+            stable_summ += equivalent if str(coin['name']).lower() in stable_coin_list else 0
 
             widgets_data = [
                 # курс
@@ -129,14 +152,19 @@ def show_portfolio_statistic(frame):
      .grid(row=0, column=0, columnspan=2, sticky='NS', pady=(0, 5)))
 
     widget = [
-        ('вартість портфелю', f"**** $"),
-        ('стейбли / криптовалюта', f"**% / **%"),
+        ('вартість стейбли $', f"{stable_summ:.2f} $"),
+        ('вартість крипто $', f"{crypto_summ:.2f} $"),
+        ('вартість портфель $', f"{equivalent_summ:.2f} $"),
+        (
+            'стейбли  /  крипто %',
+            f"{stable_summ * 100 / equivalent_summ:.1f}%  /  {crypto_summ * 100 / equivalent_summ:.1f}%"),
+
     ]
     for enum, (widget_text, value) in enumerate(widget):
-        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', )
-         .grid(row=enum + 1, column=0, ))
-        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', )
-         .grid(row=enum + 1, column=1, ))
+        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w")
+         .grid(row=enum + 1, column=0, sticky='NSEW'))
+        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', anchor="e")
+         .grid(row=enum + 1, column=1, sticky='NSEW'))
 
 
 def add_coin_menu():
@@ -149,6 +177,7 @@ def add_coin_menu():
         if check_for_exist_coin(value):
             show_coin_in_portfolio(fr2)
             show_percent_change(fr4)
+            show_portfolio_statistic(fr5)
             lbl2.config(text="монету додано успішно", background='green')
             entry_coin_name.delete(0, END)
         else:
@@ -189,6 +218,7 @@ def dell_coin_menu():
             dell_coin_in_db(coin_name)
             show_coin_in_portfolio(fr2)
             show_percent_change(fr4)
+            show_portfolio_statistic(fr5)
         else:
             dell_coin.destroy()
 
@@ -236,6 +266,7 @@ def buy_coin_menu():
             usd_value_entry.delete(0, END)
             show_coin_in_portfolio(fr2)
             show_percent_change(fr4)
+            show_portfolio_statistic(fr5)
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -294,6 +325,7 @@ def redact_buy_operation():
             del_current_coin_operation(coin_name, operation_id)
             show_coin_in_portfolio(fr2)
             show_percent_change(fr4)
+            show_portfolio_statistic(fr5)
             activate()
         else:
             print('no')
@@ -363,6 +395,7 @@ def sell_coin_menu():
             usd_value_entry.delete(0, END)
             show_coin_in_portfolio(fr2)
             show_percent_change(fr4)
+            show_portfolio_statistic(fr5)
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -428,6 +461,7 @@ def redact_sell_operation():
             del_current_coin_operation(coin_name, operation_id)
             show_coin_in_portfolio(fr2)
             show_percent_change(fr4)
+            show_portfolio_statistic(fr5)
             activate()
         else:
             print('no')
@@ -593,7 +627,8 @@ if __name__ == '__main__':
     fr3.pack()
 
     refresh_btn = tk.Button(fr0, text='оновити', width=element_width, height=1,
-                            command=lambda: (show_coin_in_portfolio(fr2), show_percent_change(fr4)))
+                            command=lambda:
+                            (show_coin_in_portfolio(fr2), show_percent_change(fr4), show_portfolio_statistic(fr5)))
     refresh_btn.pack(fill='x', pady=(5, 0))
 
     # ______________________________________________FRAME_4__________________________________________________
