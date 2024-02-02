@@ -23,8 +23,8 @@ dispx = screen_res.width
 dispy = screen_res.height
 
 #  розмір вікна програми
-appx = 1400
-appy = 750
+appx = 1423
+appy = 700
 
 # main menu
 name_colour1 = '#ff9947'

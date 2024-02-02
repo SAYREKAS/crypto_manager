@@ -10,6 +10,10 @@ import tkinter as tk
 import os
 
 
+def on_mousewheel(event):
+    canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+
 def show_coin_in_portfolio():
     """ виводимо віджети з інформацією про портфоліо в головне меню"""
 
@@ -81,13 +85,13 @@ def show_coin_in_portfolio():
                 (f'{equivalent:.2f} $', element_width - 3, balance_colour2, 'black', 9),
                 # реалізований дохід
                 (f"{realized_income:.2f} $", element_width - 3, balance_colour1,
-                 'black' if realized_income >= 0 else '#CC1C39', 10),
+                 '#006400' if realized_income >= 0 else '#640000', 10),
                 # нереалізований дохід
                 (f"{unrealized_income:.2f} $", element_width - 3, balance_colour2,
-                 'black' if unrealized_income >= 0 else '#CC1C39', 11),
+                 '#006400' if unrealized_income >= 0 else '#640000', 11),
                 # прибуток
                 (f"{profit:.2f} $", element_width - 3, balance_colour1,
-                 'black' if profit >= 0 else '#CC1C39', 12),
+                 '#006400' if profit >= 0 else '#640000', 12),
                 # Продано у %
                 (f'{sell_percent:.2f}%' if sell_summ != 0 else '0%', element_width - 3, sell_color2, 'black', 13),
             ]
@@ -139,13 +143,13 @@ def add_coin_menu():
             if check_for_exist_coin(value):
                 show_coin_in_portfolio()
                 show_percent_change()
-                label2.config(text="монету додано успішно", background='green')
+                lbl2.config(text="монету додано успішно", background='green')
                 entry_coin_name.delete(0, END)
 
             elif not get_coin_info(value):
-                label2.config(text="монети не існує", background='red')
+                lbl2.config(text="монети не існує", background='red')
         else:
-            label2.config(text="стейбли знаходяться у окремому пункті меню", background='yellow')
+            lbl2.config(text="стейбли знаходяться у окремому пункті меню", background='yellow')
             entry_coin_name.delete(0, END)
 
     # параметри вікна програми
@@ -160,11 +164,11 @@ def add_coin_menu():
     add_coin.grab_set()
 
     # елементи меню
-    label1 = tk.Label(add_coin, text='Введіть ім`я або символ монети', width=30)
-    label1.grid(row=0, column=0, sticky="nsew")
+    lbl1 = tk.Label(add_coin, text='Введіть ім`я або символ монети', width=30)
+    lbl1.grid(row=0, column=0, sticky="nsew")
 
-    label2 = tk.Label(add_coin, text='', )
-    label2.grid(row=3, column=0, columnspan=2, sticky="nsew")
+    lbl2 = tk.Label(add_coin, text='', )
+    lbl2.grid(row=3, column=0, columnspan=2, sticky="nsew")
 
     entry_coin_name = tk.Entry(add_coin, width=30)
     entry_coin_name.grid(row=0, column=1, sticky="nsew")
@@ -175,8 +179,6 @@ def add_coin_menu():
 
 def dell_coin_menu():
     """видаляємо монети з БД"""
-
-    global label1
 
     def del_message(coin_name):
         question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити монету {coin_name} ?')
@@ -214,15 +216,12 @@ def dell_coin_menu():
         button = tk.Button(fr, text='видалити', )
         button.config(command=lambda: del_message(entry_coin_name.get()))
         button.grid(row=2, column=0, columnspan=2, sticky="NSEW")
-    except Exception:
-        label1.config(text="в портфелі немає жодної монети", width=50, height=5, fg='white',
-                      background=menu_bg_colour)
+    except Exception as error:
+        print(error)
 
 
 def buy_coin_menu():
     """додаємо запис про купівлю монети в БД"""
-
-    global coin_name_lbl
 
     def entry_value():
         name = coin_name_combo.get()
@@ -279,9 +278,8 @@ def buy_coin_menu():
         buy_menu_btn = tk.Button(fr, text='зробити запис про купівлю', command=entry_value)
         buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
 
-    except Exception:
-        coin_name_lbl.config(text="в портфелі немає жодної монети", width=50, height=5, fg='white',
-                             background=menu_bg_colour)
+    except Exception as error:
+        print(error)
 
 
 def redact_buy_operation():
@@ -352,8 +350,6 @@ def redact_buy_operation():
 def sell_coin_menu():
     """додаємо запис про продаж монети в БД"""
 
-    global coin_name_lbl
-
     def entry_value():
         name = coin_name_combo.get()
         cval = coin_value_entry.get()
@@ -413,9 +409,8 @@ def sell_coin_menu():
         buy_menu_btn = tk.Button(fr, text='зробити запис про продаж', command=entry_value)
         buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
 
-    except Exception:
-        coin_name_lbl.config(text="в портфелі немає жодної монети", width=50, height=5, fg='white',
-                             background=menu_bg_colour)
+    except Exception as error:
+        print(error)
 
 
 def redact_sell_operation():
@@ -498,6 +493,7 @@ if __name__ == '__main__':
     menu.minsize(appx, appy)
     menu.config(background=menu_bg_colour)
     menu.resizable(False, False)
+    menu.bind("<MouseWheel>", on_mousewheel)
 
     try:
         menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
@@ -511,6 +507,7 @@ if __name__ == '__main__':
             print('logo.png download...')
         except Exception as e:
             print(e)
+
     # ______________________________________________SETTING BAR______________________________________________
 
     menu_bar = tk.Menu(menu, selectcolor='#1E1F22')
@@ -519,10 +516,20 @@ if __name__ == '__main__':
     menu_bar.add_command(label="редагувати продажі", command=redact_sell_operation, )
     menu.configure(menu=menu_bar)
 
+    # ______________________________________________CANVAS______________________________________________
+
+    canvas = tk.Canvas(menu, background=menu_bg_colour, bg=menu_bg_colour, borderwidth=0, border=0)
+    canvas.pack(fill="both", expand=True, pady=20, padx=20)
+    scrollbar = tk.Scrollbar(menu, orient="vertical", command=canvas.yview, background=menu_bg_colour)
+    canvas.configure(yscrollcommand=scrollbar.set)
+
     # ______________________________________________FRAME 0__________________________________________________
 
-    fr0 = tk.Frame(menu, background=menu_bg_colour)
-    fr0.pack(pady=20, padx=20, )
+    fr0 = tk.Frame(canvas, background=menu_bg_colour)
+    fr0.pack()
+
+    fr0.bind("<Configure>", lambda x: canvas.configure(scrollregion=canvas.bbox("all")))
+    canvas.create_window(canvas.winfo_width() // 2, canvas.winfo_height() // 2, window=fr0, anchor="center")
 
     # ______________________________________________FRAME 1__________________________________________________
 
