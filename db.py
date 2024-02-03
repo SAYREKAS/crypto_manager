@@ -1,17 +1,13 @@
 import datetime
 import sqlite3
 
-stable_coin_list = [
-    'tether usdt', 'usdc', 'dai', 'first digital usd', 'trueusd', 'usdd', 'pax dollar', 'paypal usd', 'busd',
-    'stasis euro', 'eurc', 'tether eurt', 'celo euro'
-]
-
 db = sqlite3.connect('crypto_manager.db')
 cursor = db.cursor()
 
 
 def add_coin_to_db(coin_name):
     """додаємо монету в базу даних"""
+
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
         cursor.execute(
@@ -21,6 +17,7 @@ def add_coin_to_db(coin_name):
 
 def dell_coin_in_db(coin_name):
     """видаляємо монету з бази даних"""
+
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
         cursor.execute(f"DROP TABLE IF EXISTS {coin_name}")
@@ -29,6 +26,7 @@ def dell_coin_in_db(coin_name):
 
 def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
     """Додаємо запис про купівлю чи продаж монети в БД"""
+
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
         date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
@@ -61,11 +59,13 @@ def get_all_coin_operation():
 
 def get_current_coin_operation(coin_name):
     """отримуємо всі операції по конкретній монеті"""
+
     return get_all_coin_operation().get(coin_name.replace('_', ' '))
 
 
 def del_current_coin_operation(coin_name, operation_id):
     """видаляємо запис про купівлю/продаж по айді операції"""
+
     cursor.execute(f"DELETE FROM {coin_name.replace(' ', '_')} WHERE id = ?;", (operation_id,))
     db.commit()
     print(f"DELETE FROM {coin_name.replace(' ', '_')} WHERE id = {operation_id};")
@@ -93,6 +93,7 @@ def get_buy_summ(coin_name):
 def get_sell_summ(coin_name):
     """сума проданих монет та usd по конкретній криптовалюті
     у вигляді {'coins': 41.81, 'usd': 774.1, 'avg': 18.5147}"""
+
     coin = 0
     usd = 0
 
