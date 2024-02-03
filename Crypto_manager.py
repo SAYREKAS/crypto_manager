@@ -1,6 +1,6 @@
 from db import (get_all_coin_name, get_buy_summ, get_sell_summ, dell_coin_in_db, by_or_sell_coin,
-                del_current_coin_operation, get_current_coin_operation, stable_coin_list)
-from parser import get_coin_info, check_for_exist_coin, get_percent_change
+                del_current_coin_operation, get_current_coin_operation)
+from parser import get_coin_info, check_for_exist_coin
 from media_downloader import download_file_from_google_drive
 from tkinter import messagebox as mb
 from gui_config import *
@@ -9,30 +9,27 @@ from tkinter import ttk
 import tkinter as tk
 import os
 
-sell_count = 0
-crypto_summ = 0
-stable_summ = 0
-profit_summ = 0
-equivalent_summ = 0
-sell_percent_summ = 0
-realized_income_summ = 0
-unrealized_income_summ = 0
+# глобальні перемінні
+sell_count: int = 0
+crypto_summ: float = 0
+stable_summ: float = 0
+profit_summ: float = 0
+equivalent_summ: float = 0
+sell_percent_summ: float = 0
+realized_income_summ: float = 0
+unrealized_income_summ: float = 0
+
+number_of_coins_in_portfolio: int = 0
+all_coin_name: tuple = ()
+coin_info: list = []
 
 
-def show_coin_in_portfolio(frame):
-    """ виводимо віджети з інформацією про портфоліо в головне меню"""
+def reset_global_variable():
+    """присвоюємо глобальним перемінним стандартні значення,перед записом/зчитуванням в/з них актуальної інформації"""
 
-    global sell_count
-    global crypto_summ
-    global stable_summ
-    global profit_summ
-    global equivalent_summ
-    global sell_percent_summ
-    global realized_income_summ
-    global unrealized_income_summ
-
-    for widget in frame.winfo_children():
-        widget.destroy()
+    global sell_count, crypto_summ, stable_summ, profit_summ, equivalent_summ, sell_percent_summ, \
+        realized_income_summ, unrealized_income_summ, number_of_coins_in_portfolio, all_coin_name, \
+        coin_info
 
     sell_count = 0
     crypto_summ = 0
@@ -43,14 +40,31 @@ def show_coin_in_portfolio(frame):
     realized_income_summ = 0
     unrealized_income_summ = 0
 
-    if not get_all_coin_name():
+    all_coin_name = get_all_coin_name()
+    number_of_coins_in_portfolio = len(all_coin_name)
+    coin_info = get_coin_info(all_coin_name)
+
+
+def show_coin_in_portfolio(frame):
+    """ виводимо віджети з інформацією про портфоліо в головне меню"""
+
+    global sell_count, profit_summ, equivalent_summ, sell_percent_summ, realized_income_summ, unrealized_income_summ \
+        , crypto_summ, stable_summ
+
+    reset_global_variable()
+
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    if not all_coin_name:
         print("В портфелі немає монет")
         add_coin_menu()
     else:
-        for enum, coin in enumerate(get_coin_info(get_all_coin_name())):
+        for enum, coin in enumerate(coin_info):
             crypto_exchange = coin['price']
             coin_name = coin['name']
             coin_symbol = coin['symbol']
+            coin_stable = True if 'stablecoin' in coin['tags'] else False
 
             buy_summ = get_buy_summ(coin['name'].lower())['coins']
             buy_spent_summ = get_buy_summ(coin['name'].lower())['usd']
@@ -74,8 +88,8 @@ def show_coin_in_portfolio(frame):
             realized_income_summ += realized_income
             unrealized_income_summ += unrealized_income
 
-            crypto_summ += equivalent if str(coin['name']).lower() not in stable_coin_list else 0
-            stable_summ += equivalent if str(coin['name']).lower() in stable_coin_list else 0
+            crypto_summ += equivalent if not coin_stable else 0
+            stable_summ += equivalent if coin_stable else 0
 
             widgets_data = [
                 # курс
@@ -111,10 +125,23 @@ def show_coin_in_portfolio(frame):
                 (f'{sell_percent:.2f}%' if sell_summ != 0 else '0%', element_width - 3, sell_color2, 'black', 13),
             ]
 
-            for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
-                (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
-                          fg=font_ground if widget_text != 0 else 'black')
-                 .grid(row=enum, column=widget_column, sticky='NSEW'))
+            if not coin_stable:
+                (tk.Label(frame, text='Криптовалюта', fg='white', background=menu_bg_colour, )
+                 .grid(row=0, column=0, columnspan=14, sticky='NSEW', pady=(5, 0)))
+
+                for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
+                    (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
+                              fg=font_ground if widget_text != 0 else 'black')
+                     .grid(row=enum + 1, column=widget_column, sticky='NSEW'))
+
+            elif coin_stable:
+                (tk.Label(frame, text='Стейбли', fg='white', background=menu_bg_colour, )
+                 .grid(row=200, column=0, columnspan=14, sticky='NSEW', pady=(5, 0)))
+
+                for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
+                    (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
+                              fg=font_ground if widget_text != 0 else 'black')
+                     .grid(row=enum + 201, column=widget_column, sticky='NSEW'))
 
     usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
     realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
@@ -136,15 +163,20 @@ def show_percent_change(frame):
         (tk.Label(frame, text=f, fg='white', background=menu_bg_colour, anchor="e")
          .grid(row=1, column=enum, sticky='NSEW', ))
 
-    # малюємо рядки з іменем монети
-    for enum, coin in enumerate(get_all_coin_name()):
-        (tk.Label(frame, text=coin.upper(), fg='white', background=menu_bg_colour, anchor="w")
-         .grid(row=enum + 2, column=0, sticky='NSEW', ))
+    for enum, coin in enumerate(coin_info):
+        coin_name = coin['name']
+        coin_stable = True if 'stablecoin' in coin['tags'] else False
+        percent_change = coin['percent_change']
 
-        # малюємо рядки зі змінами в ціні за різні періоди
-        for enum1, f in enumerate(get_percent_change(coin)):
-            (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour, anchor="e")
-             .grid(row=enum + 2, column=enum1 + 1, sticky='NSEW', ))
+        # малюємо рядки з іменем монети
+        if not coin_stable:
+            (tk.Label(frame, text=coin_name, fg='white', background=menu_bg_colour, anchor="w")
+             .grid(row=enum + 2, column=0, sticky='NSEW', ))
+
+            # малюємо рядки зі змінами в ціні за різні періоди
+            for enum1, f in enumerate(percent_change):
+                (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour, anchor="e")
+                 .grid(row=enum + 2, column=enum1 + 1, sticky='NSEW', ))
 
 
 def show_portfolio_statistic(frame):
@@ -152,14 +184,15 @@ def show_portfolio_statistic(frame):
      .grid(row=0, column=0, columnspan=2, sticky='NS', pady=(0, 5)))
 
     widget = [
+        ('монет у портфелі', f'{number_of_coins_in_portfolio}'),
         ('вартість стейбли $', f"{stable_summ:.2f} $"),
         ('вартість крипто $', f"{crypto_summ:.2f} $"),
         ('вартість портфель $', f"{equivalent_summ:.2f} $"),
-        (
-            'стейбли  /  крипто %',
-            f"{stable_summ * 100 / equivalent_summ:.1f}%  /  {crypto_summ * 100 / equivalent_summ:.1f}%"),
-
+        ('стейбли  /  крипто %',
+         f"{stable_summ * 100 / equivalent_summ:.1f}%  /  {crypto_summ * 100 / equivalent_summ:.1f}%"
+         if equivalent_summ > 0 else "0%  /  0%"),
     ]
+
     for enum, (widget_text, value) in enumerate(widget):
         (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w")
          .grid(row=enum + 1, column=0, sticky='NSEW'))
@@ -241,7 +274,7 @@ def dell_coin_menu():
         label1 = tk.Label(fr, text='виберіть ім`я монети яку потрібно видалити', wraplength=200, width=50, )
         label1.grid(row=0, column=0, sticky="NSEW")
 
-        entry_coin_name = ttk.Combobox(fr, width=30, values=get_all_coin_name())
+        entry_coin_name = ttk.Combobox(fr, width=30, values=all_coin_name)
         entry_coin_name.current(0)
         entry_coin_name.grid(row=1, column=0, sticky="NSEW")
 
@@ -295,7 +328,7 @@ def buy_coin_menu():
             (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1,
                                                                          sticky='NSEW', ))
 
-        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
+        coin_name_combo = ttk.Combobox(fr, width=23, values=all_coin_name)
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
@@ -336,10 +369,10 @@ def redact_buy_operation():
         coin_operation_combo = ttk.Combobox(fr, values=[''])
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
-        for count, item in enumerate(get_current_coin_operation(coin_name_conbo.get())):
+        for count, item in enumerate(get_current_coin_operation(coin_name_combo.get())):
             if item[3]:
                 operations.append(
-                    f"{item[0]}:    {item[3]} {coin_name_conbo.get().upper()} {item[4]} USD | {item[1]} {item[2]} ")
+                    f"{item[0]}:    {item[3]} {coin_name_combo.get().upper()} {item[4]} USD | {item[1]} {item[2]} ")
             else:
                 continue
 
@@ -351,7 +384,7 @@ def redact_buy_operation():
             coin_operation_combo.current(0)
 
         del_btn = tk.Button(fr, text='видалити')
-        del_btn.config(command=lambda: del_message(coin_name_conbo.get(), coin_operation_combo.get().split(':', 1)[0]))
+        del_btn.config(command=lambda: del_message(coin_name_combo.get(), coin_operation_combo.get().split(':', 1)[0]))
         del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
 
     # параметри вікна програми
@@ -368,14 +401,14 @@ def redact_buy_operation():
     fr = tk.Frame(red_buy_menu)
     fr.pack(side='top', pady=10, padx=10, )
 
-    if not get_all_coin_name():
+    if not all_coin_name:
         err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
                            background=menu_bg_colour)
         err_lbl.pack()
     else:
-        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
-        coin_name_conbo.current(0)
-        coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
+        coin_name_combo = ttk.Combobox(fr, width=50, values=all_coin_name)
+        coin_name_combo.current(0)
+        coin_name_combo.grid(row=0, column=0, sticky='NSEW')
 
         btn0 = tk.Button(fr, text="знайти операції", width=15, command=activate)
         btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
@@ -428,7 +461,7 @@ def sell_coin_menu():
             (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1,
                                                                          sticky='NSEW', ))
 
-        coin_name_combo = ttk.Combobox(fr, width=23, values=get_all_coin_name())
+        coin_name_combo = ttk.Combobox(fr, width=23, values=all_coin_name)
         coin_name_combo.current(0)
         coin_name_combo.grid(row=1, column=0, sticky='NSEW')
 
@@ -504,12 +537,12 @@ def redact_sell_operation():
     fr = tk.Frame(red_buy_menu)
     fr.pack(side='top', pady=10, padx=10, )
 
-    if not get_all_coin_name():
+    if not all_coin_name:
         err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
                            background=menu_bg_colour)
         err_lbl.pack()
     else:
-        coin_name_conbo = ttk.Combobox(fr, width=50, values=get_all_coin_name())
+        coin_name_conbo = ttk.Combobox(fr, width=50, values=all_coin_name)
         coin_name_conbo.current(0)
         coin_name_conbo.grid(row=0, column=0, sticky='NSEW')
 
@@ -536,16 +569,15 @@ if __name__ == '__main__':
 
     try:
         menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
-        print('ok')
-    except Exception as e:
+    except Exception as error:
         try:
             file_id = '1T6CzadYdlO_r5ZgrMVybJ1EGmlf-L2r8'
             destination = os.path.join('media', 'logo.png')
             download_file_from_google_drive(id=file_id, destination=destination)
             menu.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
             print('logo.png download...')
-        except Exception as e:
-            print(e)
+        except Exception as error:
+            print(error)
 
     # ______________________________________________SETTING_BAR______________________________________________
 
@@ -570,7 +602,7 @@ if __name__ == '__main__':
     # ______________________________________________FRAME_1__________________________________________________
 
     fr1 = tk.Frame(fr0, background=menu_bg_colour, )
-    fr1.pack(pady=(0, 5))
+    fr1.pack()
     widget_fr1 = [
         ("курс", name_colour2, element_width - 5),
         ("монета", name_colour1, element_width + 5),
