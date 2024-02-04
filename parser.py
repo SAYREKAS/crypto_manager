@@ -5,6 +5,7 @@ from db import add_coin_to_db
 
 coin_limit: int = 400
 update_period: int = 60
+print(f"Період оновлення даних про монети {update_period}сек.\n")
 
 url = (f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={coin_limit}&sortBy=market_cap'
        f'&sortType=desc&convert=USD,BTC,ETH&cryptoType=all&audited=false')
@@ -16,6 +17,8 @@ last_update: float = time.time() - update_period
 
 
 def response():
+    """Робимо запит до API CoinMarketCup щоб отримати словник з інформацією про монети та зберігаємо його в json файл.
+    , У відповідь віддаємо json файл."""
     global last_update
 
     if time.time() - last_update >= update_period:
@@ -23,20 +26,19 @@ def response():
         last_update = time.time()
 
         if req.status_code == 200:
-            print(f"дані про монети отримано, статус код - {req.status_code}")
+            print(f"Дані про монети оновлено")
             with open('coin info.json', 'w', encoding='utf8') as f:
                 json.dump(req.json(), f)
-                print('файл перезаписано')
             return req.json()
 
         else:
-            print(f"помилка при підключенні, статус код - {req.status_code}")
+            print(f"Помилка при підключенні, статус код - {req.status_code}")
             with open('coin info.json', 'r', encoding='utf8') as f:
                 data_file = json.load(f)
             return data_file
 
     else:
-        print('час не прийшов')
+        print(f'Наступне оновлення через {round(60 - (time.time() - last_update))}сек.')
         try:
             with open('coin info.json', 'r', encoding='utf8') as f:
                 data_file = json.load(f)
@@ -46,6 +48,8 @@ def response():
 
 
 def check_for_exist_coin(coin_name_or_symbol):
+    """Читаємо json файл та перевіряємо чи існує монета по імені або символу"""
+
     data = response()
     for coin in data.get('data', {}).get('cryptoCurrencyList', []):
         if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
@@ -55,6 +59,12 @@ def check_for_exist_coin(coin_name_or_symbol):
 
 
 def get_coin_info(coin_name_list):
+    """
+    Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
+
+    [{'name': 'name', 'symbol': 'symbol', 'tags': [tag1, tag2],
+    'price': 'price','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]"""
+
     percent_change = ()
     data = response()
     coin_data = []
