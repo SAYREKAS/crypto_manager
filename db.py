@@ -29,7 +29,7 @@ def by_or_sell_coin(coin_name, coin_amount, usd_amount, is_buy=True):
 
     coin_name = coin_name.lower().replace(' ', '_')
     with db:
-        date = str(datetime.datetime.now().strftime("%Y-%m-%d"))
+        date = str(datetime.datetime.now().strftime("%d-%m-%Y"))
         time = str(datetime.datetime.now().strftime("%H:%M"))
         buy_sell = "BUY" if is_buy else "SELL"
         cursor.execute(
@@ -50,7 +50,7 @@ def get_all_coin_name():
 
 def get_all_coin_operation():
     """Отримуємо всі операції по всім монетам у вигляді словника
-    {'монета': [(id, 'data', 'time', buy_coin, usd_value, sell_coin, usd_value), ...], ...}"""
+    {'монета': [(id, 'date', 'time', buy_coin, usd_value, sell_coin, usd_value), ...], ...}"""
 
     operations_dict = {}
     for coin in get_all_coin_name():
@@ -61,7 +61,7 @@ def get_all_coin_operation():
 
 def get_current_coin_operation(coin_name):
     """Отримуємо всі операції по конкретній монеті у вигляді списку з кортежами
-    [(id, 'data', 'time', buy_coin, usd_value, sell_coin, usd_value), ...]"""
+    [(id, 'date', 'time', buy_coin, usd_value, sell_coin, usd_value), ...]"""
 
     return get_all_coin_operation().get(coin_name.replace('_', ' '))
 
