@@ -62,8 +62,8 @@ def get_coin_info(coin_name_list):
     """
     Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
 
-    [{'name': 'name', 'symbol': 'symbol', 'tags': [tag1, tag2],
-    'price': 'price','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]"""
+    [{'name': 'bitcoin', 'symbol': 'btc', 'tags': [tag1, tag2],
+    'price': '20000','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]"""
 
     percent_change = ()
     data = response()
