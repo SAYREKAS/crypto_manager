@@ -316,7 +316,7 @@ def dell_coin_menu():
     button.grid(row=2, column=0, columnspan=2, sticky="NSEW")
 
 
-def buy_coin_menu():
+def buy_or_sell_coin_menu(is_buy=True):
     """додаємо запис про купівлю монети в БД"""
 
     def entry_value():
@@ -325,7 +325,7 @@ def buy_coin_menu():
         uval = usd_value_entry.get()
 
         if (cval.replace(',', '').replace('.', '').isdigit()) and (uval.replace(',', '').replace('.', '').isdigit()):
-            by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=True)
+            by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=True if is_buy else False)
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
             show_coin_in_portfolio(fr2)
@@ -336,16 +336,17 @@ def buy_coin_menu():
             info_lbl.config(text=f"помилка в данних", background='red')
 
     # параметри вікна програми
-    buy_menu = ChildWindow(top_lvl=menu.root, title='BUY MENU', app_res=(500, 100), background=menu_bg_colour)
+    buy_menu = ChildWindow(top_lvl=menu.root, title='BUY MENU' if is_buy else 'SELL MENU', app_res=(500, 100),
+                           background=menu_bg_colour)
 
     # елементи меню
     fr = tk.Frame(buy_menu.root)
     fr.pack()
 
     elements = (
-        "ім'я монети",
-        "куплено монет",
-        "витрачено usd",
+        "ім'я монети" if is_buy else "ім'я монети",
+        "куплено монет" if is_buy else "продано монет",
+        "витрачено usd" if is_buy else "отримано usd",
     )
     for enum, elements_text in enumerate(elements):
         (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1, sticky='NSEW', ))
@@ -363,11 +364,12 @@ def buy_coin_menu():
     info_lbl = tk.Label(fr, text='')
     info_lbl.grid(row=2, column=0, sticky='NSEW', columnspan=3)
 
-    buy_menu_btn = tk.Button(fr, text='зробити запис про купівлю', command=entry_value)
+    buy_menu_btn = tk.Button(fr, text='зробити запис про купівлю' if is_buy else 'зробити запис про продаж',
+                             command=entry_value)
     buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
 
 
-def redact_buy_operation():
+def redact_buy_or_sell_operation(is_buy=True):
     """видаляємо запис про купівлю монети в БД"""
 
     def del_message(coin_name, operation_id):
@@ -389,11 +391,21 @@ def redact_buy_operation():
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
         for count, item in enumerate(get_current_coin_operation(coin_name_combo.get())):
-            if item[3]:
-                operations.append(
-                    f"{item[0]}:    {item[3]} {coin_name_combo.get().upper()} {item[4]} USD | {item[1]} {item[2]} ")
-            else:
-                continue
+            if is_buy:
+                if item[3]:
+                    operations.append(
+                        f"{item[0]} | Дата: {item[1]} | Час {item[2]} | Придбано - "
+                        f"{item[3]} {coin_name_combo.get().upper()} за {item[4]}$")
+                else:
+                    continue
+
+            if not is_buy:
+                if item[5]:
+                    operations.append(
+                        f"{item[0]} | Дата: {item[1]} | Час {item[2]} | Придбано - "
+                        f"{item[5]} {coin_name_combo.get().upper()} за {item[6]}$")
+                else:
+                    continue
 
         if not operations:
             coin_operation_combo.config(values=["немає даних"])
@@ -403,124 +415,13 @@ def redact_buy_operation():
             coin_operation_combo.current(0)
 
         del_btn = tk.Button(fr, text='видалити')
-        del_btn.config(command=lambda: del_message(coin_name_combo.get(), coin_operation_combo.get().split(':', 1)[0]))
+        del_btn.config(command=lambda: del_message(coin_name_combo.get(), coin_operation_combo.get().split(' ', 1)[0]))
         del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
 
     # параметри вікна програми
-    red_buy_menu = ChildWindow(top_lvl=menu.root, title='REDACT BUY', app_res=(50, 10), background=menu_bg_colour)
-
+    red_buy_menu = ChildWindow(top_lvl=menu.root, title='REDACT BUY' if is_buy else 'REDACT SELL',
+                               app_res=(50, 10), background=menu_bg_colour)
     # елементи меню
-    fr = tk.Frame(red_buy_menu.root)
-    fr.pack(side='top', pady=10, padx=10, )
-
-    if not all_coin_name:
-        err_lbl = tk.Label(fr, text="в портфелі немає жодної монети", width=50, height=5, fg='white',
-                           background=menu_bg_colour)
-        err_lbl.pack()
-    else:
-        coin_name_combo = ttk.Combobox(fr, width=50, values=all_coin_name)
-        coin_name_combo.current(0)
-        coin_name_combo.grid(row=0, column=0, sticky='NSEW')
-
-        btn0 = tk.Button(fr, text="знайти операції", width=15, command=activate)
-        btn0.grid(row=0, column=1, sticky='NSEW', columnspan=2)
-
-
-def sell_coin_menu():
-    """додаємо запис про продаж монети в БД"""
-
-    def entry_value():
-        name = coin_name_combo.get()
-        cval = coin_value_entry.get()
-        uval = usd_value_entry.get()
-
-        if (cval.replace(',', '').replace('.', '').isdigit()) and (uval.replace(',', '').replace('.', '').isdigit()):
-            by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=False)
-            coin_value_entry.delete(0, END)
-            usd_value_entry.delete(0, END)
-            show_coin_in_portfolio(fr2)
-            show_percent_change(fr4)
-            show_portfolio_statistic(fr5)
-            info_lbl.config(text=f"запис успішно додано", background='green')
-        else:
-            info_lbl.config(text=f"помилка в данних", background='red')
-
-    # параметри вікна програми
-    buy_menu = ChildWindow(top_lvl=menu.root, title='SELL MENU', app_res=(500, 100), background=menu_bg_colour)
-
-    # елементи меню
-    fr = tk.Frame(buy_menu.root)
-    fr.pack()
-
-    elements = (
-        "ім'я монети",
-        "продано монет",
-        "отримано usd",
-    )
-
-    for enum, elements_text in enumerate(elements):
-        (tk.Label(fr, text=elements_text, width=23, height=3, ).grid(row=0, column=enum, rowspan=1, sticky='NSEW', ))
-
-    coin_name_combo = ttk.Combobox(fr, width=23, values=all_coin_name)
-    coin_name_combo.current(0)
-    coin_name_combo.grid(row=1, column=0, sticky='NSEW')
-
-    coin_value_entry = tk.Entry(fr, width=23, )
-    coin_value_entry.grid(row=1, column=1, sticky='NSEW')
-
-    usd_value_entry = tk.Entry(fr, width=23, )
-    usd_value_entry.grid(row=1, column=2, sticky='NSEW')
-
-    info_lbl = tk.Label(fr, text='')
-    info_lbl.grid(row=2, column=0, sticky='NSEW', columnspan=3)
-
-    buy_menu_btn = tk.Button(fr, text='зробити запис про продаж', command=entry_value)
-    buy_menu_btn.grid(row=3, column=0, sticky='NSEW', columnspan=3)
-
-
-def redact_sell_operation():
-    """видаляємо запис про продаж монети з БД"""
-
-    def del_message(coin_name, operation_id):
-        question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити{coin_name}?')
-
-        if question == 'yes':
-            del_current_coin_operation(coin_name, operation_id)
-            show_coin_in_portfolio(fr2)
-            show_percent_change(fr4)
-            show_portfolio_statistic(fr5)
-            activate()
-        else:
-            print('no')
-
-    def activate():
-        operations = []
-
-        coin_operation_combo = ttk.Combobox(fr, values=[''])
-        coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
-
-        for count, item in enumerate(get_current_coin_operation(coin_name_combo.get())):
-            if item[5]:
-                operations.append(
-                    f"{item[0]}:    {item[5]} {coin_name_combo.get().upper()} {item[6]} USD | {item[1]} {item[2]} ")
-            else:
-                continue
-
-        if not operations:
-            coin_operation_combo.config(values=["немає даних"])
-            coin_operation_combo.current(0)
-        else:
-            coin_operation_combo.config(values=operations[-10:])
-            coin_operation_combo.current(0)
-
-        del_btn = tk.Button(fr, text='видалити')
-        del_btn.config(command=lambda: del_message(coin_name_combo.get(), coin_operation_combo.get().split(':', 1)[0]))
-        del_btn.grid(row=2, column=0, sticky='NSEW', columnspan=4)
-
-    # параметри вікна програми
-    red_buy_menu = ChildWindow(top_lvl=menu.root, title='REDACT BUY', app_res=(400, 70), background=menu_bg_colour)
-
-    # елементи вікна програми
     fr = tk.Frame(red_buy_menu.root)
     fr.pack(side='top', pady=10, padx=10, )
 
@@ -561,8 +462,8 @@ if __name__ == '__main__':
     # ______________________________________________SETTING_BAR______________________________________________
     menu_bar = tk.Menu(menu.root, selectcolor='#1E1F22')
     menu_bar.add_command(label="редагувати монети", command=dell_coin_menu)
-    menu_bar.add_command(label="редагувати покупки", command=redact_buy_operation, )
-    menu_bar.add_command(label="редагувати продажі", command=redact_sell_operation, )
+    menu_bar.add_command(label="редагувати покупки", command=lambda: redact_buy_or_sell_operation(is_buy=True), )
+    menu_bar.add_command(label="редагувати продажі", command=lambda: redact_buy_or_sell_operation(is_buy=False), )
     menu_bar.add_command(label="налаштування", command=settings_menu, )
     menu.root.configure(menu=menu_bar)
 
@@ -616,10 +517,12 @@ if __name__ == '__main__':
     btn1 = tk.Button(fr1, text="+", background=name_colour1, borderwidth=0, command=add_coin_menu)
     btn1.grid(row=2, column=1, sticky='NSEW')
 
-    btn2 = tk.Button(fr1, text="+", background=by_color1, borderwidth=0, command=buy_coin_menu)
+    btn2 = tk.Button(fr1, text="+", background=by_color1, borderwidth=0,
+                     command=lambda: buy_or_sell_coin_menu(is_buy=True))
     btn2.grid(row=2, column=2, columnspan=3, sticky='NSEW', )
 
-    btn3 = tk.Button(fr1, text="+", background=sell_color1, borderwidth=0, command=sell_coin_menu)
+    btn3 = tk.Button(fr1, text="+", background=sell_color1, borderwidth=0,
+                     command=lambda: buy_or_sell_coin_menu(is_buy=False))
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
     # ______________________________________________FRAME_2__________________________________________________
