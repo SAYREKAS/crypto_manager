@@ -38,7 +38,7 @@ def response():
             return data_file
 
     else:
-        print(f'Наступне оновлення через {round(60 - (time.time() - last_update))}сек.')
+        print(f'Наступне оновлення через {round(update_period - (time.time() - last_update))}сек.')
         try:
             with open('coin info.json', 'r', encoding='utf8') as f:
                 data_file = json.load(f)
