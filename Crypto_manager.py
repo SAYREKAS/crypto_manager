@@ -140,15 +140,14 @@ def show_coin_in_portfolio(frame):
 
             coins_data.append((
                 crypto_exchange,
-                coin_name,
-                coin_symbol,
+                f"{coin_name} {coin_symbol}",
                 buy_summ,
                 buy_spent_summ,
                 buy_avg,
                 sell_summ,
                 sell_spent_summ,
                 sell_avg,
-                balance,
+                f"{balance:.4f} {coin_symbol}",
                 equivalent.__round__(2),
                 realized_income.__round__(2),
                 unrealized_income.__round__(2),
@@ -160,9 +159,9 @@ def show_coin_in_portfolio(frame):
             for enum_column, item in enumerate(coin_data):
                 (tk.Label(frame,
                           text=item,
-                          width=10 if enum_column not in [1, ] else 20, height=1,
+                          width=10 if enum_column not in [1, 8] else 20, height=1,
                           background='gray' if enum_row % 2 == 0 else 'white',
-                          fg='black')
+                          fg='black' if enum_column not in [9, 10, 11, 12, 13] else 'black' if item == 0 else 'green' if item > 0 else 'red')
                  .grid(row=enum_row, column=enum_column, sticky='NSEW'))
 
                 # (tk.Label(frame, text='Криптовалюта', fg='white', background=menu_bg_colour, )
