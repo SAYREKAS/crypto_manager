@@ -93,8 +93,10 @@ def reset_global_variable():
 def show_coin_in_portfolio(frame):
     """ виводимо віджети з інформацією про портфоліо в головне меню"""
 
-    global sell_count, profit_summ, equivalent_summ, sell_percent_summ, realized_income_summ, unrealized_income_summ \
-        , crypto_summ, stable_summ
+    coins_data = []
+
+    global sell_count, profit_summ, equivalent_summ, sell_percent_summ, realized_income_summ, \
+        unrealized_income_summ, crypto_summ, stable_summ
 
     reset_global_variable()
 
@@ -136,63 +138,54 @@ def show_coin_in_portfolio(frame):
             crypto_summ += equivalent if not coin_stable else 0
             stable_summ += equivalent if coin_stable else 0
 
-            widgets_data = (
-                # курс
-                (f'{crypto_exchange} $', element_width - 5, name_colour2, 'black', 0),
-                # монета
-                (f'{coin_name} {coin_symbol}', element_width + 5, name_colour1, 'black', 1),
-                # куплено
-                (f'{buy_summ}', element_width - 4, by_color2, 'black', 2),
-                # витрачено
-                (f'{buy_spent_summ} $', element_width - 4, by_color2, 'black', 3),
-                # середня ціна
-                (f'{buy_avg} $', element_width - 4, by_color2, 'black', 4),
-                # продано
-                (sell_summ, element_width - 4, sell_color2, 'black', 5),
-                # отримано
-                (f'{sell_spent_summ} $', element_width - 4, sell_color2, 'black', 6),
-                # середня ціна
-                (f'{sell_avg} $', element_width - 4, sell_color2, 'black', 7),
-                # баланс
-                (f'{balance:.4f} {coin_symbol}', element_width, balance_colour1, 'black', 8),
-                # еквівалент
-                (f'{equivalent:.2f} $', element_width - 3, balance_colour2, 'black', 9),
-                # реалізований дохід
-                (f"{realized_income:.2f} $", element_width - 3, balance_colour1,
-                 '#006400' if realized_income >= 0 else '#640000', 10),
-                # нереалізований дохід
-                (f"{unrealized_income:.2f} $", element_width - 3, balance_colour2,
-                 '#006400' if unrealized_income >= 0 else '#640000', 11),
-                # прибуток
-                (f"{profit:.2f} $", element_width - 3, balance_colour1,
-                 '#006400' if profit >= 0 else '#640000', 12),
-                # Продано у %
-                (f'{sell_percent:.2f}%' if sell_summ != 0 else '0%', element_width - 3, sell_color2, 'black', 13),
-            )
+            coins_data.append((
+                crypto_exchange,
+                coin_name,
+                coin_symbol,
+                buy_summ,
+                buy_spent_summ,
+                buy_avg,
+                sell_summ,
+                sell_spent_summ,
+                sell_avg,
+                balance,
+                equivalent.__round__(2),
+                realized_income.__round__(2),
+                unrealized_income.__round__(2),
+                profit.__round__(2),
+                sell_percent.__round__(2),
+            ))
 
-            if not coin_stable:
-                (tk.Label(frame, text='Криптовалюта', fg='white', background=menu_bg_colour, )
-                 .grid(row=0, column=0, columnspan=14, sticky='NSEW', pady=(5, 0)))
+        for enum_row, coin_data in enumerate(sorted(coins_data, key=lambda x: x[0], reverse=False)):
+            for enum_column, item in enumerate(coin_data):
+                (tk.Label(frame,
+                          text=item,
+                          width=10 if enum_column not in [1, ] else 20, height=1,
+                          background='gray' if enum_row % 2 == 0 else 'white',
+                          fg='black')
+                 .grid(row=enum_row, column=enum_column, sticky='NSEW'))
 
-                for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
-                    (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
-                              fg=font_ground if widget_text != 0 else 'black')
-                     .grid(row=enum + 1, column=widget_column, sticky='NSEW'))
+                # (tk.Label(frame, text='Криптовалюта', fg='white', background=menu_bg_colour, )
+                #  .grid(row=0, column=0, columnspan=14, sticky='NSEW', pady=(5, 0)))
+                #
+                # for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
+                #     (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
+                #               fg=font_ground if widget_text != 0 else 'black')
+                #      .grid(row=enum_row + 1, column=widget_column, sticky='NSEW'))
+                #
+                # (tk.Label(frame, text='Стейбли', fg='white', background=menu_bg_colour, )
+                #  .grid(row=200, column=0, columnspan=14, sticky='NSEW', pady=(5, 0)))
+                #
+                # for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
+                #     (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
+                #               fg=font_ground if widget_text != 0 else 'black')
+                #      .grid(row=enum + 201, column=widget_column, sticky='NSEW'))
 
-            elif coin_stable:
-                (tk.Label(frame, text='Стейбли', fg='white', background=menu_bg_colour, )
-                 .grid(row=200, column=0, columnspan=14, sticky='NSEW', pady=(5, 0)))
-
-                for (widget_text, widget_width, widget_background, font_ground, widget_column) in widgets_data:
-                    (tk.Label(frame, text=widget_text, width=widget_width, height=1, background=widget_background,
-                              fg=font_ground if widget_text != 0 else 'black')
-                     .grid(row=enum + 201, column=widget_column, sticky='NSEW'))
-
-    usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
-    realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
-    unrealized_profit_lbl.config(text=f"{unrealized_income_summ:.2f} $")
-    sell_percent_lbl.config(text=f"{(sell_percent_summ / sell_count):.2f} %" if sell_count != 0 else '0 %')
-    profit_lbl.config(text=f"{profit_summ:.2f} $")
+            usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
+            realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
+            unrealized_profit_lbl.config(text=f"{unrealized_income_summ:.2f} $")
+            sell_percent_lbl.config(text=f"{(sell_percent_summ / sell_count):.2f} %" if sell_count != 0 else '0 %')
+            profit_lbl.config(text=f"{profit_summ:.2f} $")
 
 
 def show_percent_change(frame):
@@ -459,7 +452,7 @@ if __name__ == '__main__':
         except Exception as error:
             print(error)
 
-    # ______________________________________________SETTING_BAR______________________________________________
+    # ______________________________________________SETTING_BAR_____________________________________________
     menu_bar = tk.Menu(menu.root, selectcolor='#1E1F22')
     menu_bar.add_command(label="редагувати монети", command=dell_coin_menu)
     menu_bar.add_command(label="редагувати покупки", command=lambda: redact_buy_or_sell_operation(is_buy=True), )
@@ -467,7 +460,7 @@ if __name__ == '__main__':
     menu_bar.add_command(label="налаштування", command=settings_menu, )
     menu.root.configure(menu=menu_bar)
 
-    # ______________________________________________CANVAS______________________________________________
+    # ______________________________________________CANVAS__________________________________________________
     canvas = tk.Canvas(menu.root, background=menu_bg_colour, highlightbackground=menu_bg_colour)
     canvas.pack(fill="both", expand=True, pady=20, padx=20)
 
