@@ -40,21 +40,34 @@ def reset_settings():
         json.dump(standart_param, settings_file)
 
 
+def update_settings(key, parameter):
+    # Відкриваємо файл .json і завантажуємо дані
+    with open('config.json', 'r') as f:
+        data = json.load(f)
+
+    # Змінюємо значення ключа
+    data[key] = parameter
+
+    # Записуємо дані назад у файл
+    with open('config.json', 'w') as f:
+        json.dump(data, f)
+
+
 #  розширення монітора
 screen_res = get_screen_resolution()
 dispx = screen_res.width
 dispy = screen_res.height
 
 #  розмір вікна програми
-appx = 1470
+appx = 1414
 appy = 720
 
 # main menu
 name_colour1 = '#ff9947'
 name_colour2 = '#ffcc8d'
 
-by_color1 = '#3C8A67'
-by_color2 = '#D9EFE2'
+buy_colour1 = '#3C8A67'
+buy_colour2 = '#D9EFE2'
 
 sell_color1 = '#CC1C39'
 sell_color2 = '#F1D5CA'
