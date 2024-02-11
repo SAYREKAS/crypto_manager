@@ -2,23 +2,34 @@ import json
 import time
 import requests
 from db import add_coin_to_db
+from settings import get_settings, reset_settings
 
-coin_limit: int = 400
-update_period: int = 60
+# читаємо файл з налаштуваннями
+try:
+    coin_limit: int = get_settings()["coins_limit"]
+    update_period: int = get_settings()["update_peruiod"]
+except Exception:
+    reset_settings()
+    coin_limit: int = get_settings()["coins_limit"]
+    update_period: int = get_settings()["update_peruiod"]
+    print('Файл з налаштуваннями перезаписано')
+
 print(f"Період оновлення даних про монети {update_period}сек.\n")
 
-url = (f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={coin_limit}&sortBy=market_cap'
-       f'&sortType=desc&convert=USD,BTC,ETH&cryptoType=all&audited=false')
+last_update: float = time.time() - update_period
+
+url = (
+    f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={coin_limit}&sortBy=market_cap'
+    f'&sortType=desc&convert=USD,BTC,ETH&cryptoType=all&audited=false')
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/120.0.0.0 Safari/537.36'}
-
-last_update: float = time.time() - update_period
 
 
 def response():
     """Робимо запит до API CoinMarketCup щоб отримати словник з інформацією про монети та зберігаємо його в json файл.
     , У відповідь віддаємо json файл."""
+
     global last_update
 
     if time.time() - last_update >= update_period:
@@ -26,7 +37,7 @@ def response():
         last_update = time.time()
 
         if req.status_code == 200:
-            print(f"Дані про монети оновлено")
+            print(f"Дані про монети оновлено\n")
             with open('coin info.json', 'w', encoding='utf8') as f:
                 json.dump(req.json(), f)
             return req.json()
@@ -43,6 +54,7 @@ def response():
             with open('coin info.json', 'r', encoding='utf8') as f:
                 data_file = json.load(f)
             return data_file
+
         except FileNotFoundError:
             return {}
 

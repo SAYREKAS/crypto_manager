@@ -1,8 +1,6 @@
-import json
-
 from media_downloader import download_file_from_google_drive
 from parser import get_coin_info, check_for_exist_coin
-from gui_config import *
+from settings import *
 from db import *
 
 from tkinter import messagebox as mb
@@ -95,17 +93,28 @@ def reset_global_variable():
 def show_coin_in_portfolio(frame):
     """ виводимо віджети з інформацією про портфоліо в головне меню"""
 
-    coins_data = []
-    settings = json.load(open('config.json', 'r'))
-
     global sell_count, profit_summ, equivalent_summ, sell_percent_summ, realized_income_summ, \
         unrealized_income_summ, crypto_summ, stable_summ
 
     reset_global_variable()
 
+    coins_data = []
+
+    # читаємо файл з налаштуваннями
+    try:
+        sorting = get_settings()['sorting']
+        reverse = get_settings()['reverse']
+    except Exception:
+        reset_settings()
+        sorting = get_settings()['sorting']
+        reverse = get_settings()['reverse']
+        print('Файл з налаштуваннями перезаписано')
+
+    # знищуємо старі віджети
     for widget in frame.winfo_children():
         widget.destroy()
 
+    # заповнюємо новими даними
     if not all_coin_name:
         print("В портфелі немає монет")
         add_coin_menu()
@@ -158,7 +167,7 @@ def show_coin_in_portfolio(frame):
                 f"{sell_percent:.2f}%",
             ))
 
-        for enum_row, coin_data in enumerate(sorted(coins_data, key=lambda x: x[settings["sorting"]], reverse=settings["reverse"])):
+        for enum_row, coin_data in enumerate(sorted(coins_data, key=lambda x: x[sorting], reverse=reverse)):
             for num_column, item in enumerate(coin_data):
                 (tk.Label(frame,
                           text=item if num_column not in [0, 3, 6, 9, 10, 11, 12] else f"{item}$",

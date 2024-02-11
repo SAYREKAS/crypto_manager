@@ -1,4 +1,5 @@
 import ctypes
+import json
 
 
 # Структура для зберігання інформації про розширення екрану
@@ -15,6 +16,28 @@ def get_screen_resolution():
     resolution.width = user32.GetSystemMetrics(0)
     resolution.height = user32.GetSystemMetrics(1)
     return resolution
+
+
+def get_settings():
+    try:
+        with open('config.json', 'r') as settings_file:
+            data = json.load(settings_file)
+            return data
+
+    except FileNotFoundError:
+        reset_settings()
+
+
+def reset_settings():
+    standart_param = {
+        "sorting": 1,
+        "reverse": 0,
+        "coins_limit": 300,
+        "update_peruiod": 60
+    }
+
+    with open('config.json', 'w') as settings_file:
+        json.dump(standart_param, settings_file)
 
 
 #  розширення монітора
