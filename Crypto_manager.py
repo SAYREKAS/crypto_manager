@@ -1,13 +1,14 @@
-from media_downloader import download_file_from_google_drive
-from parser import get_coin_info, check_for_exist_coin
-from settings import *
+import os
 from db import *
-
-from tkinter import messagebox as mb
+import tkinter as tk
 from tkinter import END
 from tkinter import ttk
-import tkinter as tk
-import os
+from tkinter import messagebox as mb
+from media_downloader import download_file_from_google_drive
+from parser import get_coin_info, check_for_exist_coin
+from settings import (appx, appy, dispx, dispy, element_width, name_colour1, buy_colour1, buy_colour2,
+                      sell_color1, sell_color2, balance_colour1, balance_colour2, menu_bg_colour, get_settings,
+                      reset_settings, update_settings)
 
 # глобальні перемінні
 sell_count: int = 0
@@ -172,7 +173,7 @@ def show_coin_in_portfolio():
                 (tk.Label(fr2,
                           text=item if num_column not in [0, 3, 6, 9, 10, 11, 12] else f"{item}$"
                           if num_column != 13 else f"{item}%",
-                          width=12 if num_column not in [1, 8] else 20, height=1,
+                          width=12 if num_column not in [1, 8] else 20, height=2,
                           background='#23211E' if enum_row % 2 == 0 else '#1B1A17',
                           fg='white' if num_column not in [9, 10, 11, 12] else 'white'
                           if item == 0 else 'green' if item > 0 else 'red',
@@ -191,12 +192,12 @@ def show_percent_change(frame):
         widget.destroy()
 
     # малюємо шапку
-    (tk.Label(frame, text='зміни в цінах', font='size=10', fg='white', background='#808080', width=45)
+    (tk.Label(frame, text='зміни в цінах', fg='white', background='#808080', width=45, font=("Helvetica", 12))
      .grid(row=0, column=0, columnspan=7, sticky='NS', pady=(0, 5)))
 
     # малюємо заголовкі стовпців
     for enum, f in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
-        (tk.Label(frame, text=f, fg='white', background=menu_bg_colour, anchor="e")
+        (tk.Label(frame, text=f, fg='white', background=menu_bg_colour, anchor="e", font=("Verdana", 8))
          .grid(row=1, column=enum, sticky='NSEW', ))
 
     for enum, coin in enumerate(coin_info):
@@ -206,18 +207,19 @@ def show_percent_change(frame):
 
         # малюємо рядки з іменем монети
         if not coin_stable:
-            (tk.Label(frame, text=coin_name, fg='white', background=menu_bg_colour, anchor="w")
+            (tk.Label(frame, text=coin_name, fg='white', background=menu_bg_colour, anchor="w", font=("Verdana", 8))
              .grid(row=enum + 2, column=0, sticky='NSEW', ))
 
             # малюємо рядки зі змінами в ціні за різні періоди
             for enum1, f in enumerate(percent_change):
-                (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour, anchor="e")
+                (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour,
+                          anchor="e", font=("Verdana", 8))
                  .grid(row=enum + 2, column=enum1 + 1, sticky='NSEW', ))
 
 
 def show_portfolio_statistic(frame):
-    (tk.Label(frame, text='статистика', font='size=10', fg='white', background='#808080', width=45)
-     .grid(row=0, column=0, columnspan=2, sticky='NS', pady=(0, 5)))
+    (tk.Label(frame, text='статистика', fg='white', background='#808080', width=45, font=("Helvetica", 12))
+     .grid(row=0, column=0, columnspan=2, sticky='NSEW', pady=(0, 5)))
 
     widget = (
         ('монет у портфелі', f'{number_of_coins_in_portfolio}'),
@@ -230,9 +232,9 @@ def show_portfolio_statistic(frame):
     )
 
     for enum, (widget_text, value) in enumerate(widget):
-        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w")
+        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w",font=("Verdana", 8))
          .grid(row=enum + 1, column=0, sticky='NSEW'))
-        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', anchor="e")
+        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', anchor="e",font=("Verdana", 8))
          .grid(row=enum + 1, column=1, sticky='NSEW'))
 
 
@@ -470,51 +472,55 @@ if __name__ == '__main__':
     # ______________________________________________FRAME_1__________________________________________________
     fr1 = tk.Frame(fr0, background=menu_bg_colour, )
     fr1.pack(fill="both", expand=True, )
-    widget_fr1 = (("курс", lambda: (update_settings("sorting", 0), show_coin_in_portfolio())),
-                  ("монета", lambda: (update_settings("sorting", 1), show_coin_in_portfolio())),
-                  ("куплено", lambda: print('не сортується')),
-                  ("витрачено\nUSD", lambda: print('не сортується')),
-                  ("середня ціна\nкупівлі", lambda: print('не сортується')),
-                  ("продано", lambda: print('не сортується')),
-                  ("отримано\nUSD", lambda: print('не сортується')),
-                  ("середня ціна\nпродажу", lambda: print('не сортується')),
-                  ("баланс", lambda: print('не сортується')),
-                  ("еквівалент\nUSD", lambda: (update_settings("sorting", 9), show_coin_in_portfolio())),
-                  ("нереалізований\nдохід", lambda: (update_settings("sorting", 10), show_coin_in_portfolio())),
-                  ("реалізований\nдохід", lambda: (update_settings("sorting", 11), show_coin_in_portfolio())),
-                  ("прибуток", lambda: (update_settings("sorting", 12), show_coin_in_portfolio())),
-                  ("продано %", lambda: (update_settings("sorting", 13), show_coin_in_portfolio())),
+    widget_fr1 = (("курс", balance_colour1, lambda: (update_settings("sorting", 0), show_coin_in_portfolio())),
+                  ("монета", name_colour1, lambda: (update_settings("sorting", 1), show_coin_in_portfolio())),
+                  ("куплено", buy_colour1, lambda: print('не сортується')),
+                  ("витрачено\nUSD", buy_colour1, lambda: print('не сортується')),
+                  ("середня ціна\nкупівлі", buy_colour1, lambda: print('не сортується')),
+                  ("продано", sell_color1, lambda: print('не сортується')),
+                  ("отримано\nUSD", sell_color1, lambda: print('не сортується')),
+                  ("середня ціна\nпродажу", sell_color1, lambda: print('не сортується')),
+                  ("баланс", balance_colour1, lambda: print('не сортується')),
+                  ("еквівалент\nUSD", balance_colour2, lambda:
+                  (update_settings("sorting", 9), show_coin_in_portfolio())),
+                  ("нереалізований\nдохід", balance_colour2, lambda:
+                  (update_settings("sorting", 10), show_coin_in_portfolio())),
+                  ("реалізований\nдохід", balance_colour2, lambda:
+                  (update_settings("sorting", 11), show_coin_in_portfolio())),
+                  ("прибуток", balance_colour2, lambda: (update_settings("sorting", 12), show_coin_in_portfolio())),
+                  ("продано %", balance_colour2, lambda: (update_settings("sorting", 13), show_coin_in_portfolio())),
                   )
 
-    for enum_column, (text, command) in enumerate(widget_fr1):
+    for enum_column, (text, colour, command) in enumerate(widget_fr1):
         (tk.Button(fr1, text=text, width=12 if enum_column not in [1, 8] else 20, height=3, borderwidth=0,
-                   background='gray', fg='White', font=("Helvetica", 8, 'bold'),
+                   background=colour, fg='black', font=("Helvetica", 9),
                    cursor="hand2" if enum_column not in [2, 3, 4, 5, 6, 7, 8] else 'arrow', command=command)
          .grid(row=1, column=enum_column, rowspan=2 if text in ["курс", "баланс"] else 1, sticky='NSEW', ))
 
-    usd_equal_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
+    usd_equal_lbl = tk.Label(fr1, text="-", background='#ADB7C0', fg='black', )
     usd_equal_lbl.grid(row=2, column=9, sticky='NSEW', )
 
-    realized_profit_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
+    realized_profit_lbl = tk.Label(fr1, text="-", background='#ADB7C0', fg='black', )
     realized_profit_lbl.grid(row=2, column=10, sticky='NSEW', )
 
-    unrealized_profit_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
+    unrealized_profit_lbl = tk.Label(fr1, text="-", background='#ADB7C0', fg='black', )
     unrealized_profit_lbl.grid(row=2, column=11, sticky='NSEW', )
 
-    profit_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
+    profit_lbl = tk.Label(fr1, text="-", background='#ADB7C0', fg='black', )
     profit_lbl.grid(row=2, column=12, sticky='NSEW', )
 
-    sell_percent_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
+    sell_percent_lbl = tk.Label(fr1, text="-", background='#ADB7C0', fg='black', )
     sell_percent_lbl.grid(row=2, column=13, sticky='NSEW', )
 
-    btn1 = tk.Button(fr1, text="+", background='gray', borderwidth=0, fg='white', command=add_coin_menu)
+    btn1 = tk.Button(fr1, text="+", background='#ffe4ce', borderwidth=0, fg='black', font=("Helvetica", 9),
+                     command=add_coin_menu)
     btn1.grid(row=2, column=1, sticky='NSEW')
 
-    btn2 = tk.Button(fr1, text="+", background='gray', borderwidth=0, fg='white',
+    btn2 = tk.Button(fr1, text="+", background=buy_colour2, borderwidth=0, fg='black', font=("Helvetica", 9),
                      command=lambda: buy_or_sell_coin_menu(is_buy=True))
     btn2.grid(row=2, column=2, columnspan=3, sticky='NSEW', )
 
-    btn3 = tk.Button(fr1, text="+", background='gray', borderwidth=0, fg='white',
+    btn3 = tk.Button(fr1, text="+", background=sell_color2, borderwidth=0, fg='black', font=("Helvetica", 9),
                      command=lambda: buy_or_sell_coin_menu(is_buy=False))
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
