@@ -2,13 +2,13 @@ import ctypes
 import json
 
 
-# Структура для зберігання інформації про розширення екрану
+# Структура для зберігання інформації про розширення монітора
 class ScreenResolution(ctypes.Structure):
     _fields_ = [("width", ctypes.c_int),
                 ("height", ctypes.c_int)]
 
 
-# Отримання розширення екрану
+# Отримання розширення монітора
 def get_screen_resolution():
     user32 = ctypes.windll.user32
     user32.SetProcessDPIAware()

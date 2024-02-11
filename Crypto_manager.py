@@ -153,18 +153,18 @@ def show_coin_in_portfolio():
             coins_data.append((
                 crypto_exchange,
                 f"{coin_name} {coin_symbol}",
-                round(buy_summ, 4),
-                round(buy_spent_summ, 2),
-                round(buy_avg, 4),
-                round(sell_summ, 4),
-                round(sell_spent_summ, 2),
-                round(sell_avg, 4),
-                f"{balance:.4f} {coin_symbol}",
-                round(equivalent, 2),
-                round(realized_income, 2),
-                round(unrealized_income, 2),
-                round(profit, 2),
-                round(sell_percent, 2),
+                buy_summ.__round__(4),
+                buy_spent_summ.__round__(2),
+                buy_avg.__round__(4),
+                sell_summ.__round__(4),
+                sell_spent_summ.__round__(2),
+                sell_avg.__round__(4),
+                f"{balance:.3f} {coin_symbol}",
+                equivalent.__round__(2),
+                unrealized_income.__round__(2),
+                realized_income.__round__(2),
+                profit.__round__(2),
+                sell_percent.__round__(2)
             ))
 
         for enum_row, coin_data in enumerate(sorted(coins_data, key=lambda x: x[sorting], reverse=reverse)):
@@ -177,7 +177,7 @@ def show_coin_in_portfolio():
                           fg='white' if num_column not in [9, 10, 11, 12] else 'white'
                           if item == 0 else 'green' if item > 0 else 'red',
                           font=("Verdana", 8))
-                 .grid(row=enum_row, column=num_column, sticky='NSEW'))
+                 .grid(row=enum_row + 1, column=num_column, sticky='NSEW'))
 
     usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
     realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
@@ -472,23 +472,24 @@ if __name__ == '__main__':
     fr1.pack(fill="both", expand=True, )
     widget_fr1 = (("курс", lambda: (update_settings("sorting", 0), show_coin_in_portfolio())),
                   ("монета", lambda: (update_settings("sorting", 1), show_coin_in_portfolio())),
-                  ("куплено", lambda: (update_settings("sorting", 2), show_coin_in_portfolio())),
-                  ("витрачено\nUSD", lambda: (update_settings("sorting", 3), show_coin_in_portfolio())),
-                  ("середня ціна\nкупівлі", lambda: (update_settings("sorting", 4), show_coin_in_portfolio())),
-                  ("продано", lambda: (update_settings("sorting", 5), show_coin_in_portfolio())),
-                  ("отримано\nUSD", lambda: (update_settings("sorting", 6), show_coin_in_portfolio())),
-                  ("середня ціна\nпродажу", lambda: (update_settings("sorting", 7), show_coin_in_portfolio())),
-                  ("баланс", lambda: (update_settings("sorting", 8), show_coin_in_portfolio())),
+                  ("куплено", lambda: print('не сортується')),
+                  ("витрачено\nUSD", lambda: print('не сортується')),
+                  ("середня ціна\nкупівлі", lambda: print('не сортується')),
+                  ("продано", lambda: print('не сортується')),
+                  ("отримано\nUSD", lambda: print('не сортується')),
+                  ("середня ціна\nпродажу", lambda: print('не сортується')),
+                  ("баланс", lambda: print('не сортується')),
                   ("еквівалент\nUSD", lambda: (update_settings("sorting", 9), show_coin_in_portfolio())),
-                  ("реалізований\nдохід", lambda: (update_settings("sorting", 10), show_coin_in_portfolio())),
-                  ("нереалізований\nдохід", lambda: (update_settings("sorting", 11), show_coin_in_portfolio())),
+                  ("нереалізований\nдохід", lambda: (update_settings("sorting", 10), show_coin_in_portfolio())),
+                  ("реалізований\nдохід", lambda: (update_settings("sorting", 11), show_coin_in_portfolio())),
                   ("прибуток", lambda: (update_settings("sorting", 12), show_coin_in_portfolio())),
                   ("продано %", lambda: (update_settings("sorting", 13), show_coin_in_portfolio())),
                   )
 
     for enum_column, (text, command) in enumerate(widget_fr1):
         (tk.Button(fr1, text=text, width=12 if enum_column not in [1, 8] else 20, height=3, borderwidth=0,
-                   background='gray', fg='White', font=("Helvetica", 8, 'bold'), command=command)
+                   background='gray', fg='White', font=("Helvetica", 8, 'bold'),
+                   cursor="hand2" if enum_column not in [2, 3, 4, 5, 6, 7, 8] else 'arrow', command=command)
          .grid(row=1, column=enum_column, rowspan=2 if text in ["курс", "баланс"] else 1, sticky='NSEW', ))
 
     usd_equal_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
@@ -506,8 +507,7 @@ if __name__ == '__main__':
     sell_percent_lbl = tk.Label(fr1, text="-", background='gray', fg='white', )
     sell_percent_lbl.grid(row=2, column=13, sticky='NSEW', )
 
-    btn1 = tk.Button(fr1, text="+", background='gray', borderwidth=0, fg='white',
-                     command=add_coin_menu)
+    btn1 = tk.Button(fr1, text="+", background='gray', borderwidth=0, fg='white', command=add_coin_menu)
     btn1.grid(row=2, column=1, sticky='NSEW')
 
     btn2 = tk.Button(fr1, text="+", background='gray', borderwidth=0, fg='white',
@@ -527,9 +527,9 @@ if __name__ == '__main__':
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
     fr3.pack(fill="both", expand=True, )
 
-    refresh_btn = tk.Button(fr0, text='оновити', width=element_width, height=1,
-                            command=lambda:
-                            (show_coin_in_portfolio(), show_percent_change(fr4), show_portfolio_statistic(fr5)))
+    refresh_btn = tk.Button(
+        fr0, text='оновити', width=element_width, height=1,
+        command=lambda: (show_coin_in_portfolio(), show_percent_change(fr4), show_portfolio_statistic(fr5)))
     refresh_btn.pack(fill='x', pady=(5, 0))
 
     # ______________________________________________FRAME_4__________________________________________________
