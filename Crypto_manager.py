@@ -191,21 +191,23 @@ def show_coin_in_portfolio():
                 ))
 
     def create_labels(data_list, title, start_row):
-        labels_list = [tk.Label(fr2, text=title, background='gray', fg='white', font=("Verdana", 9))]
-        labels_list[-1].grid(row=start_row, column=0, columnspan=14, pady=(10, 0), sticky='NSEW')
+        (tk.Label(fr2, text=title, background='gray', fg='white', font=("Verdana", 9))
+         .grid(row=start_row, column=0, columnspan=14, pady=(10, 0), sticky='NSEW'))
 
         for enum_row, coin_data in enumerate(data_list):
             for num_column, (data, end_text) in enumerate(coin_data):
-                labels_list.append(tk.Label(fr2, text=f"{data} {end_text}", font=("Verdana", 8), height=1,
-                                            width=12 if num_column not in [1, 8] else 20,
-                                            background='#23211E' if enum_row % 2 == 0 else '#1B1A17',
-                                            fg='white' if num_column not in [9, 10, 11, 12] else 'white'
-                                            if data == 0 else 'green' if data > 0 else 'red'))
-                labels_list[-1].grid(row=enum_row + start_row + 1, column=num_column, sticky='NSEW')
+                (tk.Label(fr2, text=f"{data} {end_text}", font=("Verdana", 8), height=1,
+                          width=12 if num_column not in [1, 8] else 20,
+                          background='#23211E' if enum_row % 2 == 0 else '#1B1A17',
+                          fg='white' if num_column not in [9, 10, 11, 12] else 'white'
+                          if data == 0 else 'green' if data > 0 else 'red')
+                 .grid(row=enum_row + start_row + 1, column=num_column, sticky='NSEW'))
 
-    create_labels(sorted(crypto, key=lambda x: x[sorting], reverse=reverse), 'КРИПТОВАЛЮТА', 0)
-    create_labels(sorted(stable, key=lambda x: x[sorting], reverse=reverse), 'СТАБІЛЬНІ МОНЕТИ',
-                  number_of_coins_in_portfolio)
+    if crypto:
+        create_labels(sorted(crypto, key=lambda x: x[sorting], reverse=reverse), 'КРИПТОВАЛЮТА', 0)
+    if stable:
+        create_labels(sorted(stable, key=lambda x: x[sorting], reverse=reverse), 'СТАБІЛЬНІ МОНЕТИ',
+                      number_of_coins_in_portfolio + 1)
 
     usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
     realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
