@@ -8,11 +8,11 @@ from settings import get_settings, reset_settings
 try:
     coin_limit: int = get_settings()["coins_limit"]
     update_period: int = get_settings()["update_peruiod"]
-except Exception:
+except Exception as e:
     reset_settings()
     coin_limit: int = get_settings()["coins_limit"]
     update_period: int = get_settings()["update_peruiod"]
-    print('Файл з налаштуваннями перезаписано')
+    e.add_note('Файл з налаштуваннями перезаписано')
 
 print(f"Період оновлення даних про монети {update_period}сек.\n")
 
@@ -71,9 +71,7 @@ def check_for_exist_coin(coin_name_or_symbol):
 
 
 def get_coin_info(coin_name_list):
-    """
-    Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
-
+    """Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
     [{'name': 'bitcoin', 'symbol': 'btc', 'tags': [tag1, tag2],
     'price': '20000','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]"""
 

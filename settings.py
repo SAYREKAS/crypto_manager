@@ -32,7 +32,7 @@ def reset_settings():
     standart_param = {
         "sorting": 1,
         "reverse": 0,
-        "coins_limit": 300,
+        "coins_limit": 500,
         "update_peruiod": 60
     }
 

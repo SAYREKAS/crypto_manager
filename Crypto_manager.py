@@ -1,4 +1,6 @@
 import os
+import time
+
 from db import *
 import tkinter as tk
 from tkinter import END
@@ -70,6 +72,12 @@ class ChildWindow:
         self.root.grab_set()
 
 
+def refresh_frame(frame):
+    """знищуємо старі віджети у фреймі"""
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+
 def reset_global_variable():
     """присвоюємо глобальним перемінним стандартні значення,перед записом/зчитуванням в/з них актуальної інформації"""
 
@@ -98,34 +106,29 @@ def show_coin_in_portfolio():
         unrealized_income_summ, crypto_summ, stable_summ
 
     reset_global_variable()
-
-    coins_data = []
+    refresh_frame(fr2)
 
     # читаємо файл з налаштуваннями
     try:
         sorting = get_settings()['sorting']
         reverse = get_settings()['reverse']
-    except Exception:
+    except Exception as e:
         reset_settings()
         sorting = get_settings()['sorting']
         reverse = get_settings()['reverse']
-        print('Файл з налаштуваннями перезаписано')
-
-    # знищуємо старі віджети
-    for widget in fr2.winfo_children():
-        widget.destroy()
+        e.add_note('Файл з налаштуваннями перезаписано')
+        print()
 
     # заповнюємо новими даними
+
+    crypto = []
+    stable = []
+
     if not all_coin_name:
         print("В портфелі немає монет")
         add_coin_menu()
     else:
         for enum, coin in enumerate(coin_info):
-            crypto_exchange = coin['price']
-            coin_name = coin['name']
-            coin_symbol = coin['symbol']
-            coin_stable = True if 'stablecoin' in coin['tags'] else False
-
             buy_summ = get_buy_summ(coin['name'].lower())['coins']
             buy_spent_summ = get_buy_summ(coin['name'].lower())['usd']
             buy_avg = get_buy_summ(coin['name'].lower())['avg']
@@ -134,12 +137,12 @@ def show_coin_in_portfolio():
             sell_spent_summ = get_sell_summ(coin['name'].lower())['usd']
             sell_avg = get_sell_summ(coin['name'].lower())['avg']
 
-            balance = buy_summ - sell_summ
-            equivalent = crypto_exchange * balance
-            realized_income = sell_spent_summ - (sell_summ * buy_avg)
-            unrealized_income = equivalent - (balance * buy_avg)
-            profit = realized_income + unrealized_income
-            sell_percent = sell_summ * 100 / buy_summ if buy_summ > 0 else 0
+            balance = round(buy_summ - sell_summ, 4)
+            equivalent = round(coin['price'] * balance, 2)
+            realized_income = round(sell_spent_summ - (sell_summ * buy_avg), 2)
+            unrealized_income = round(equivalent - (balance * buy_avg), 2)
+            profit = round(realized_income + unrealized_income, 2)
+            sell_percent = round(sell_summ * 100 / buy_summ if buy_summ > 0 else 0.0, 2)
 
             sell_count += 1 if sell_percent > 0 else 0
             profit_summ += profit
@@ -148,37 +151,61 @@ def show_coin_in_portfolio():
             realized_income_summ += realized_income
             unrealized_income_summ += unrealized_income
 
-            crypto_summ += equivalent if not coin_stable else 0
-            stable_summ += equivalent if coin_stable else 0
+            crypto_summ += equivalent if 'stablecoin' not in coin['tags'] else 0
+            stable_summ += equivalent if 'stablecoin' in coin['tags'] else 0
 
-            coins_data.append((
-                crypto_exchange,
-                f"{coin_name} {coin_symbol}",
-                buy_summ.__round__(4),
-                buy_spent_summ.__round__(2),
-                buy_avg.__round__(4),
-                sell_summ.__round__(4),
-                sell_spent_summ.__round__(2),
-                sell_avg.__round__(4),
-                f"{balance:.3f} {coin_symbol}",
-                equivalent.__round__(2),
-                unrealized_income.__round__(2),
-                realized_income.__round__(2),
-                profit.__round__(2),
-                sell_percent.__round__(2)
-            ))
+            if 'stablecoin' not in coin['tags']:
+                crypto.append((
+                    (coin['price'], '$'),
+                    (coin['name'], coin['symbol']),
+                    (buy_summ, ''),
+                    (buy_spent_summ, '$'),
+                    (buy_avg, '$'),
+                    (sell_summ, ''),
+                    (sell_spent_summ, '$'),
+                    (sell_avg, '$'),
+                    (balance, coin['symbol']),
+                    (equivalent, '$'),
+                    (unrealized_income, '$'),
+                    (realized_income, '$'),
+                    (profit, '$'),
+                    (sell_percent, '%'),
+                ))
 
-        for enum_row, coin_data in enumerate(sorted(coins_data, key=lambda x: x[sorting], reverse=reverse)):
-            for num_column, item in enumerate(coin_data):
-                (tk.Label(fr2,
-                          text=item if num_column not in [0, 3, 6, 9, 10, 11, 12] else f"{item}$"
-                          if num_column != 13 else f"{item}%",
-                          width=12 if num_column not in [1, 8] else 20, height=2,
-                          background='#23211E' if enum_row % 2 == 0 else '#1B1A17',
-                          fg='white' if num_column not in [9, 10, 11, 12] else 'white'
-                          if item == 0 else 'green' if item > 0 else 'red',
-                          font=("Verdana", 8))
-                 .grid(row=enum_row + 1, column=num_column, sticky='NSEW'))
+            elif 'stablecoin' in coin['tags']:
+                stable.append((
+                    (coin['price'], '$'),
+                    (coin['name'], coin['symbol']),
+                    (buy_summ, ''),
+                    (buy_spent_summ, '$'),
+                    (buy_avg, '$'),
+                    (sell_summ, ''),
+                    (sell_spent_summ, '$'),
+                    (sell_avg, '$'),
+                    (balance, coin['symbol']),
+                    (equivalent, '$'),
+                    (unrealized_income, '$'),
+                    (realized_income, '$'),
+                    (profit, '$'),
+                    (sell_percent, '%'),
+                ))
+
+    def create_labels(data_list, title, start_row):
+        labels_list = [tk.Label(fr2, text=title, background='gray', fg='white', font=("Verdana", 9))]
+        labels_list[-1].grid(row=start_row, column=0, columnspan=14, pady=(10, 0), sticky='NSEW')
+
+        for enum_row, coin_data in enumerate(data_list):
+            for num_column, (data, end_text) in enumerate(coin_data):
+                labels_list.append(tk.Label(fr2, text=f"{data} {end_text}", font=("Verdana", 8), height=1,
+                                            width=12 if num_column not in [1, 8] else 20,
+                                            background='#23211E' if enum_row % 2 == 0 else '#1B1A17',
+                                            fg='white' if num_column not in [9, 10, 11, 12] else 'white'
+                                            if data == 0 else 'green' if data > 0 else 'red'))
+                labels_list[-1].grid(row=enum_row + start_row + 1, column=num_column, sticky='NSEW')
+
+    create_labels(sorted(crypto, key=lambda x: x[sorting], reverse=reverse), 'КРИПТОВАЛЮТА', 0)
+    create_labels(sorted(stable, key=lambda x: x[sorting], reverse=reverse), 'СТАБІЛЬНІ МОНЕТИ',
+                  number_of_coins_in_portfolio)
 
     usd_equal_lbl.config(text=f"{equivalent_summ:.2f} $")
     realized_profit_lbl.config(text=f"{realized_income_summ:.2f} $")
@@ -188,19 +215,18 @@ def show_coin_in_portfolio():
 
 
 def show_percent_change(frame):
-    for widget in frame.winfo_children():
-        widget.destroy()
+    refresh_frame(frame)
 
     # малюємо шапку
     (tk.Label(frame, text='зміни в цінах', fg='white', background='#808080', width=45, font=("Helvetica", 12))
      .grid(row=0, column=0, columnspan=7, sticky='NS', pady=(0, 5)))
 
     # малюємо заголовкі стовпців
-    for enum, f in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
-        (tk.Label(frame, text=f, fg='white', background=menu_bg_colour, anchor="e", font=("Verdana", 8))
-         .grid(row=1, column=enum, sticky='NSEW', ))
+    for column, item in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
+        (tk.Label(frame, text=item, fg='white', background=menu_bg_colour, anchor="e", font=("Verdana", 8))
+         .grid(row=1, column=column, sticky='NSEW', ))
 
-    for enum, coin in enumerate(coin_info):
+    for row, coin in enumerate(coin_info):
         coin_name = coin['name']
         coin_stable = True if 'stablecoin' in coin['tags'] else False
         percent_change = coin['percent_change']
@@ -208,13 +234,13 @@ def show_percent_change(frame):
         # малюємо рядки з іменем монети
         if not coin_stable:
             (tk.Label(frame, text=coin_name, fg='white', background=menu_bg_colour, anchor="w", font=("Verdana", 8))
-             .grid(row=enum + 2, column=0, sticky='NSEW', ))
+             .grid(row=row + 2, column=0, sticky='NSEW', ))
 
             # малюємо рядки зі змінами в ціні за різні періоди
-            for enum1, f in enumerate(percent_change):
+            for column, f in enumerate(percent_change):
                 (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour,
                           anchor="e", font=("Verdana", 8))
-                 .grid(row=enum + 2, column=enum1 + 1, sticky='NSEW', ))
+                 .grid(row=row + 2, column=column + 1, sticky='NSEW', ))
 
 
 def show_portfolio_statistic(frame):
@@ -232,9 +258,9 @@ def show_portfolio_statistic(frame):
     )
 
     for enum, (widget_text, value) in enumerate(widget):
-        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w",font=("Verdana", 8))
+        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w", font=("Verdana", 8))
          .grid(row=enum + 1, column=0, sticky='NSEW'))
-        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', anchor="e",font=("Verdana", 8))
+        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', anchor="e", font=("Verdana", 8))
          .grid(row=enum + 1, column=1, sticky='NSEW'))
 
 
@@ -322,8 +348,6 @@ def buy_or_sell_coin_menu(is_buy=True):
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
             show_coin_in_portfolio()
-            show_percent_change(fr4)
-            show_portfolio_statistic(fr5)
             info_lbl.config(text=f"запис успішно додано", background='green')
         else:
             info_lbl.config(text=f"помилка в данних", background='red')
@@ -371,8 +395,6 @@ def redact_buy_or_sell_operation(is_buy=True):
         if question == 'yes':
             del_current_coin_operation(coin_name, operation_id)
             show_coin_in_portfolio()
-            show_percent_change(fr4)
-            show_portfolio_statistic(fr5)
             activate()
         else:
             print('no')
@@ -472,12 +494,12 @@ if __name__ == '__main__':
     # ______________________________________________FRAME_1__________________________________________________
     fr1 = tk.Frame(fr0, background=menu_bg_colour, )
     fr1.pack(fill="both", expand=True, )
-    widget_fr1 = (("курс", balance_colour1, lambda: (update_settings("sorting", 0), show_coin_in_portfolio())),
-                  ("монета", name_colour1, lambda: (update_settings("sorting", 1), show_coin_in_portfolio())),
-                  ("куплено", buy_colour1, lambda: print('не сортується')),
+    widget_fr1 = (("курс", name_colour1, lambda: (update_settings("sorting", 0), show_coin_in_portfolio())),
+                  ("ім'я", name_colour1, lambda: (update_settings("sorting", 1), show_coin_in_portfolio())),
+                  ("куплено\nмонет", buy_colour1, lambda: print('не сортується')),
                   ("витрачено\nUSD", buy_colour1, lambda: print('не сортується')),
                   ("середня ціна\nкупівлі", buy_colour1, lambda: print('не сортується')),
-                  ("продано", sell_color1, lambda: print('не сортується')),
+                  ("продано\nмонет", sell_color1, lambda: print('не сортується')),
                   ("отримано\nUSD", sell_color1, lambda: print('не сортується')),
                   ("середня ціна\nпродажу", sell_color1, lambda: print('не сортується')),
                   ("баланс", balance_colour1, lambda: print('не сортується')),
@@ -492,10 +514,10 @@ if __name__ == '__main__':
                   )
 
     for enum_column, (text, colour, command) in enumerate(widget_fr1):
-        (tk.Button(fr1, text=text, width=12 if enum_column not in [1, 8] else 20, height=3, borderwidth=0,
+        (tk.Button(fr1, text=text, width=12 if enum_column not in [1, 8] else 20, height=2, borderwidth=0,
                    background=colour, fg='black', font=("Helvetica", 9),
                    cursor="hand2" if enum_column not in [2, 3, 4, 5, 6, 7, 8] else 'arrow', command=command)
-         .grid(row=1, column=enum_column, rowspan=2 if text in ["курс", "баланс"] else 1, sticky='NSEW', ))
+         .grid(row=1, column=enum_column, rowspan=2 if text == "баланс" else 1, sticky='NSEW', ))
 
     usd_equal_lbl = tk.Label(fr1, text="-", background='#ADB7C0', fg='black', )
     usd_equal_lbl.grid(row=2, column=9, sticky='NSEW', )
@@ -513,15 +535,15 @@ if __name__ == '__main__':
     sell_percent_lbl.grid(row=2, column=13, sticky='NSEW', )
 
     btn1 = tk.Button(fr1, text="+", background='#ffe4ce', borderwidth=0, fg='black', font=("Helvetica", 9),
-                     command=add_coin_menu)
-    btn1.grid(row=2, column=1, sticky='NSEW')
+                     cursor="hand2", command=add_coin_menu)
+    btn1.grid(row=2, column=0, columnspan=2, sticky='NSEW')
 
     btn2 = tk.Button(fr1, text="+", background=buy_colour2, borderwidth=0, fg='black', font=("Helvetica", 9),
-                     command=lambda: buy_or_sell_coin_menu(is_buy=True))
+                     cursor="hand2", command=lambda: buy_or_sell_coin_menu(is_buy=True))
     btn2.grid(row=2, column=2, columnspan=3, sticky='NSEW', )
 
     btn3 = tk.Button(fr1, text="+", background=sell_color2, borderwidth=0, fg='black', font=("Helvetica", 9),
-                     command=lambda: buy_or_sell_coin_menu(is_buy=False))
+                     cursor="hand2", command=lambda: buy_or_sell_coin_menu(is_buy=False))
     btn3.grid(row=2, column=5, columnspan=3, sticky='NSEW')
 
     # ______________________________________________FRAME_2__________________________________________________
@@ -534,9 +556,9 @@ if __name__ == '__main__':
     fr3.pack(fill="both", expand=True, )
 
     refresh_btn = tk.Button(
-        fr0, text='оновити', width=element_width, height=1,
+        fr0, text='оновити', width=element_width, height=1, cursor="hand2",
         command=lambda: (show_coin_in_portfolio(), show_percent_change(fr4), show_portfolio_statistic(fr5)))
-    refresh_btn.pack(fill='x', pady=(5, 0))
+    refresh_btn.pack(fill='x', pady=(10, 0))
 
     # ______________________________________________FRAME_4__________________________________________________
     fr4 = tk.Frame(fr0, background=menu_bg_colour, )
