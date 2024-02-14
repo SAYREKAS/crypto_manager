@@ -1,16 +1,22 @@
-import os
-import time
-
+import zlib
+import base64
+import tempfile
+import threading
 from db import *
 import tkinter as tk
 from tkinter import END
 from tkinter import ttk
 from tkinter import messagebox as mb
-from media_downloader import download_file_from_google_drive
-from parser import get_coin_info, check_for_exist_coin
+from parser import response, get_coin_info, check_for_exist_coin, response_update
 from settings import (appx, appy, dispx, dispy, element_width, name_colour1, buy_colour1, buy_colour2,
                       sell_color1, sell_color2, balance_colour1, balance_colour2, menu_bg_colour, get_settings,
                       reset_settings, update_settings)
+
+ICON = zlib.decompress(base64.b64decode('eJxjYGAEQgEBBiDJwZDBysAgxsDAoAHEQCEGBQaIOAg4sDIgACMUj4JRMApGwQgF/ykEAFXxQRc='))
+
+_, ICON_PATH = tempfile.mkstemp()
+with open(ICON_PATH, 'wb') as icon_file:
+    icon_file.write(ICON)
 
 # глобальні перемінні
 sell_count: int = 0
@@ -45,6 +51,7 @@ class MainWindow:
         self.root.minsize(app_res[0], app_res[1])
         self.root.config(background=background)
         self.root.resizable(resizable[0], resizable[1])
+        self.root.iconbitmap(default=ICON_PATH)
 
     def start(self):
         self.root.mainloop()
@@ -199,7 +206,7 @@ def show_coin_in_portfolio():
                 (tk.Label(fr2, text=f"{data} {end_text}", font=("Verdana", 8), height=1,
                           width=12 if num_column not in [1, 8] else 20,
                           background='#23211E' if enum_row % 2 == 0 else '#1B1A17',
-                          fg='white' if num_column not in [9, 10, 11, 12] else 'white'
+                          fg='white' if num_column not in [10, 11, 12] else 'white'
                           if data == 0 else 'green' if data > 0 else 'red')
                  .grid(row=enum_row + start_row + 1, column=num_column, sticky='NSEW'))
 
@@ -216,16 +223,16 @@ def show_coin_in_portfolio():
     profit_lbl.config(text=f"{profit_summ:.2f} $")
 
 
-def show_percent_change(frame):
-    refresh_frame(frame)
+def show_percent_change():
+    refresh_frame(fr4)
 
     # малюємо шапку
-    (tk.Label(frame, text='зміни в цінах', fg='white', background='#808080', width=45, font=("Helvetica", 12))
+    (tk.Label(fr4, text='зміни в цінах', fg='white', background='#808080', width=45, font=("Helvetica", 12))
      .grid(row=0, column=0, columnspan=7, sticky='NS', pady=(0, 5)))
 
     # малюємо заголовкі стовпців
     for column, item in enumerate(['', '1h', '24h', '7d', '30d', '60d', '90d', ]):
-        (tk.Label(frame, text=item, fg='white', background=menu_bg_colour, anchor="e", font=("Verdana", 8))
+        (tk.Label(fr4, text=item, fg='white', background=menu_bg_colour, anchor="e", font=("Verdana", 8))
          .grid(row=1, column=column, sticky='NSEW', ))
 
     for row, coin in enumerate(coin_info):
@@ -235,18 +242,18 @@ def show_percent_change(frame):
 
         # малюємо рядки з іменем монети
         if not coin_stable:
-            (tk.Label(frame, text=coin_name, fg='white', background=menu_bg_colour, anchor="w", font=("Verdana", 8))
+            (tk.Label(fr4, text=coin_name, fg='white', background=menu_bg_colour, anchor="w", font=("Verdana", 8))
              .grid(row=row + 2, column=0, sticky='NSEW', ))
 
             # малюємо рядки зі змінами в ціні за різні періоди
             for column, f in enumerate(percent_change):
-                (tk.Label(frame, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour,
+                (tk.Label(fr4, text=f"{f}%", fg='green' if f > 0 else 'red', background=menu_bg_colour,
                           anchor="e", font=("Verdana", 8))
                  .grid(row=row + 2, column=column + 1, sticky='NSEW', ))
 
 
-def show_portfolio_statistic(frame):
-    (tk.Label(frame, text='статистика', fg='white', background='#808080', width=45, font=("Helvetica", 12))
+def show_portfolio_statistic():
+    (tk.Label(fr5, text='статистика', fg='white', background='#808080', width=45, font=("Helvetica", 12))
      .grid(row=0, column=0, columnspan=2, sticky='NSEW', pady=(0, 5)))
 
     widget = (
@@ -260,10 +267,16 @@ def show_portfolio_statistic(frame):
     )
 
     for enum, (widget_text, value) in enumerate(widget):
-        (tk.Label(frame, text=widget_text, background=menu_bg_colour, fg='white', anchor="w", font=("Verdana", 8))
+        (tk.Label(fr5, text=widget_text, background=menu_bg_colour, fg='white', anchor="w", font=("Verdana", 8))
          .grid(row=enum + 1, column=0, sticky='NSEW'))
-        (tk.Label(frame, text=value, background=menu_bg_colour, fg='white', anchor="e", font=("Verdana", 8))
+        (tk.Label(fr5, text=value, background=menu_bg_colour, fg='white', anchor="e", font=("Verdana", 8))
          .grid(row=enum + 1, column=1, sticky='NSEW'))
+
+
+def menu_update():
+    show_coin_in_portfolio()
+    show_percent_change()
+    show_portfolio_statistic()
 
 
 def settings_menu():
@@ -279,9 +292,7 @@ def add_coin_menu():
         value = str(entry_coin_name.get())
 
         if check_for_exist_coin(value):
-            show_coin_in_portfolio()
-            show_percent_change(fr4)
-            show_portfolio_statistic(fr5)
+            menu_update()
             lbl2.config(text="монету додано успішно", background='green')
             entry_coin_name.delete(0, END)
         else:
@@ -312,9 +323,7 @@ def dell_coin_menu():
         if question == 'yes':
             dell_coin.root.destroy()
             dell_coin_in_db(coin_name)
-            show_coin_in_portfolio()
-            show_percent_change(fr4)
-            show_portfolio_statistic(fr5)
+            menu_update()
         else:
             dell_coin.root.destroy()
 
@@ -460,21 +469,15 @@ def on_mousewheel(event):
 
 
 if __name__ == '__main__':
+    response()
 
-    menu = MainWindow(app_res=(appx, appy), disp_res=(dispx, dispy), background=menu_bg_colour, title='Crypto Manager')
+    # Запускаємо цикл який оновлює інформацію про монети в файлі
+    t = threading.Thread(target=response_update)
+    t.daemon = True
+    t.start()
+
+    menu = MainWindow(app_res=(appx, appy), disp_res=(dispx, dispy), background=menu_bg_colour, title='CRYPTO MANAGER')
     menu.root.bind("<MouseWheel>", on_mousewheel)
-
-    try:
-        menu.root.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
-    except Exception as error:
-        try:
-            file_id = '1T6CzadYdlO_r5ZgrMVybJ1EGmlf-L2r8'
-            destination = os.path.join('media', 'logo.png')
-            download_file_from_google_drive(id=file_id, destination=destination)
-            menu.root.iconphoto(False, tk.PhotoImage(file='media/logo.png'))
-            print('logo.png download...')
-        except Exception as error:
-            print(error)
 
     # ______________________________________________SETTING_BAR_____________________________________________
     menu_bar = tk.Menu(menu.root, selectcolor='#1E1F22')
@@ -551,25 +554,20 @@ if __name__ == '__main__':
     # ______________________________________________FRAME_2__________________________________________________
     fr2 = tk.Frame(fr0, background=menu_bg_colour)
     fr2.pack(fill="both", expand=True, )
-    show_coin_in_portfolio()
 
+    refresh_btn = tk.Button(fr0, text='оновити', width=element_width, cursor="hand2", command=lambda: menu_update())
+    refresh_btn.pack(fill='x', pady=(10, 0))
     # ______________________________________________FRAME_3__________________________________________________
     fr3 = tk.Frame(fr0, background=menu_bg_colour)
     fr3.pack(fill="both", expand=True, )
 
-    refresh_btn = tk.Button(
-        fr0, text='оновити', width=element_width, height=1, cursor="hand2",
-        command=lambda: (show_coin_in_portfolio(), show_percent_change(fr4), show_portfolio_statistic(fr5)))
-    refresh_btn.pack(fill='x', pady=(10, 0))
-
     # ______________________________________________FRAME_4__________________________________________________
     fr4 = tk.Frame(fr0, background=menu_bg_colour, )
     fr4.pack(side='left', anchor='n', pady=20, padx=10, )
-    show_percent_change(fr4)
 
     # ______________________________________________FRAME_5__________________________________________________
     fr5 = tk.Frame(fr0, background=menu_bg_colour, )
     fr5.pack(side='left', anchor='n', pady=20, padx=10, )
-    show_portfolio_statistic(fr5)
 
+    menu_update()
     menu.start()
