@@ -2,7 +2,7 @@ import zlib
 import base64
 import tempfile
 import threading
-from db import *
+from db import Db
 import tkinter as tk
 from tkinter import END
 from tkinter import ttk
@@ -101,7 +101,7 @@ def reset_global_variable():
     realized_income_summ = 0
     unrealized_income_summ = 0
 
-    all_coin_name = get_all_coin_name()
+    all_coin_name = Db().all_coin_name()
     number_of_coins_in_portfolio = len(all_coin_name)
     coin_info = get_coin_info(all_coin_name)
 
@@ -136,13 +136,13 @@ def show_coin_in_portfolio():
         add_coin_menu()
     else:
         for enum, coin in enumerate(coin_info):
-            buy_summ = get_buy_summ(coin['name'].lower())['coins']
-            buy_spent_summ = get_buy_summ(coin['name'].lower())['usd']
-            buy_avg = get_buy_summ(coin['name'].lower())['avg']
+            buy_summ = Db().get_buy_summ(coin['name'].lower())['coins']
+            buy_spent_summ = Db().get_buy_summ(coin['name'].lower())['usd']
+            buy_avg = Db().get_buy_summ(coin['name'].lower())['avg']
 
-            sell_summ = get_sell_summ(coin['name'].lower())['coins']
-            sell_spent_summ = get_sell_summ(coin['name'].lower())['usd']
-            sell_avg = get_sell_summ(coin['name'].lower())['avg']
+            sell_summ = Db().get_sell_summ(coin['name'].lower())['coins']
+            sell_spent_summ = Db().get_sell_summ(coin['name'].lower())['usd']
+            sell_avg = Db().get_sell_summ(coin['name'].lower())['avg']
 
             balance = round(buy_summ - sell_summ, 4)
             equivalent = round(coin['price'] * balance, 2)
@@ -322,7 +322,7 @@ def dell_coin_menu():
         question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити монету {coin_name} ?')
         if question == 'yes':
             dell_coin.root.destroy()
-            dell_coin_in_db(coin_name)
+            Db().dell_coin(coin_name)
             menu_update()
         else:
             dell_coin.root.destroy()
@@ -355,7 +355,7 @@ def buy_or_sell_coin_menu(is_buy=True):
         uval = usd_value_entry.get()
 
         if (cval.replace(',', '').replace('.', '').isdigit()) and (uval.replace(',', '').replace('.', '').isdigit()):
-            by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=True if is_buy else False)
+            Db().by_or_sell_coin(coin_name=name, coin_amount=cval, usd_amount=uval, is_buy=True if is_buy else False)
             coin_value_entry.delete(0, END)
             usd_value_entry.delete(0, END)
             show_coin_in_portfolio()
@@ -404,7 +404,7 @@ def redact_buy_or_sell_operation(is_buy=True):
         question = mb.askquestion('DELETE MENU', f'ви впевнені що хочете видалити {coin_name}?')
 
         if question == 'yes':
-            del_current_coin_operation(coin_name, operation_id)
+            Db().curr_coin_operation(coin_name)
             show_coin_in_portfolio()
             activate()
         else:
@@ -416,7 +416,7 @@ def redact_buy_or_sell_operation(is_buy=True):
         coin_operation_combo = ttk.Combobox(fr, values=[''])
         coin_operation_combo.grid(row=1, column=0, sticky='NSEW', columnspan=4)
 
-        for count, item in enumerate(get_current_coin_operation(coin_name_combo.get())):
+        for count, item in enumerate(Db().curr_coin_operation(coin_name_combo.get())):
             if is_buy:
                 if item[3]:
                     operations.append(

@@ -1,7 +1,7 @@
 import json
 import time
 import requests
-from db import add_coin_to_db
+from db import Db
 
 update_period = 120
 coin_limit = 2500
@@ -59,7 +59,7 @@ def check_for_exist_coin(coin_name_or_symbol):
             data_file = json.load(file)
             for coin in data_file.get('data', {}).get('cryptoCurrencyList', []):
                 if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-                    add_coin_to_db(coin['name'])
+                    Db().add_coin(coin['name'])
                     file.close()
                     return True
             return False
