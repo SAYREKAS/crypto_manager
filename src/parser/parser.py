@@ -1,85 +1,111 @@
 import json
 import time
-from pprint import pprint
-
 import requests
 from loguru import logger
 
-from src.db.config import engine
 from src.db.db import Db
+from src.db.config import engine
 from src.parser.common import CryptoResponse, Parser, PercentChange
 
-update_period = 120
-coin_limit = 1000
+# Конфігурація
+UPDATE_PERIOD = 120
+COIN_LIMIT = 1000
 
-session = requests.session()
+session = requests.Session()
+last_update: float = time.time() - UPDATE_PERIOD
 
-last_update: float = time.time() - update_period
-
-print(f"\nПеріод оновлення даних про монети {update_period}сек.\n")
+logger.info(f"Період оновлення даних про монети {UPDATE_PERIOD} сек.")
 
 
-def response():
-    """Робимо запит до API CoinMarketCup щоб отримати словник з інформацією про монети та зберігаємо його в json файл.
-    , У відповідь віддаємо json файл."""
-
+def fetch_coin_data() -> dict:
+    """
+    Виконує запит до API CoinMarketCup для отримання даних про монети.
+    Повертає відповідь у форматі словника.
+    """
     global last_update
 
     url = (
-        f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={coin_limit}&sortBy=market_cap'
-        f'&sortType=desc&convert=USD,BTC,ETH&cryptoType=all&audited=false')
+        f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={COIN_LIMIT}'
+        f'&sortBy=market_cap&sortType=desc&convert=USD,BTC,ETH&cryptoType=all&audited=false'
+    )
 
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                             'AppleWebKit/537.36 (KHTML, like Gecko) '
                              'Chrome/120.0.0.0 Safari/537.36'}
-    try:
-        if time.time() - last_update >= update_period:
-            start = time.time()
-            req = session.get(url, headers=headers)
-            last_update = time.time()
 
-            if req.status_code == 200:
-                print(f"Дані про монети оновлено {time.time() - start:.2f}сек.\n")
-                with open('coin info.json', 'w', encoding='utf8') as file:
-                    json.dump(req.json(), file)
-                    file.close()
-            else:
-                print(f"Помилка при підключенні, статус код - {req.status_code}")
-                with open('coin info.json', 'w', encoding='utf8') as file:
-                    file.close()
+    if time.time() - last_update < UPDATE_PERIOD:
+        logger.info(f"Наступне оновлення через {UPDATE_PERIOD - (time.time() - last_update):.2f} сек.")
+        return {}
+
+    try:
+        start = time.time()
+        response = session.get(url, headers=headers)
+        last_update = time.time()
+
+        if response.status_code == 200:
+            logger.info(f"Дані про монети оновлено за {time.time() - start:.2f} сек.")
+            return response.json()
         else:
-            print(f'Наступне оновлення через {update_period - (time.time() - last_update)}сек.')
+            logger.error(f"Помилка підключення: статус код {response.status_code}")
+            return {}
+
     except requests.exceptions.ConnectionError:
-        print('connection lost')
+        logger.error("Помилка з'єднання з API CoinMarketCup.")
+        return {}
 
 
-def response_update():
-    while True:
-        response()
-        time.sleep(1)
+def save_coin_data_to_file(data: dict, filename: str = 'coin info.json'):
+    """
+    Зберігає дані в JSON файл.
+    """
+    if not data:
+        logger.warning("Немає нових даних для збереження.")
+        return
 
-
-def check_for_exist_coin(coin_name_or_symbol):
-    """Читаємо json файл та перевіряємо чи існує монета по імені або символу"""
     try:
-        with open('coin info.json', 'r', encoding='utf8') as file:
-            data_file = json.load(file)
-            all_data = CryptoResponse(**data_file)
+        with open(filename, 'w', encoding='utf8') as file:
+            json.dump(data, file)
+        logger.info(f"Дані успішно збережено у файл '{filename}'.")
 
-            for coin in all_data.data.cryptoCurrencyList:
-                if coin.symbol == coin_name_or_symbol.upper() or coin.name == coin_name_or_symbol.capitalize():
-                    Db(engine=engine).add_coin(coin.name)
-                    file.close()
-                    return True
-            return False
+    except Exception as e:
+        logger.error(f"Помилка збереження даних у файл: {e}")
+
+
+def load_coin_data_from_file(filename: str = 'coin info.json') -> dict:
+    """
+    Читає дані з JSON файлу та повертає у вигляді словника.
+    """
+    try:
+        with open(filename, 'r', encoding='utf8') as file:
+            return json.load(file)
 
     except FileNotFoundError:
-        with open('coin info.json', 'w', encoding='utf8') as file:
-            file.close()
-            return ()
+        logger.warning(f"Файл '{filename}' не знайдено. Створюється новий файл.")
+        with open(filename, 'w', encoding='utf8') as file:
+            pass
+        return {}
 
     except json.decoder.JSONDecodeError:
-        print('check_for_exist_coin() - json.decoder.JSONDecodeError:')
-        return ()
+        logger.error(f"Помилка декодування JSON у файлі '{filename}'.")
+        return {}
+
+
+def check_for_exist_coin(coin_name_or_symbol: str) -> bool:
+    """
+    Перевіряє, чи існує монета за ім'ям або символом у збережених даних.
+    """
+    data_file = load_coin_data_from_file()
+    if not data_file:
+        return False
+
+    all_data = CryptoResponse(**data_file)
+
+    for coin in all_data.data.cryptoCurrencyList:
+        if coin.symbol == coin_name_or_symbol.upper() or coin.name == coin_name_or_symbol.capitalize():
+            Db(engine=engine).add_coin(coin.name)
+            return True
+
+    return False
 
 
 def parse_percent_change(quotes) -> PercentChange | None:
@@ -101,43 +127,37 @@ def parse_percent_change(quotes) -> PercentChange | None:
 
 def get_coin_info(coin_name_list: list) -> list[Parser]:
     """
-    Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
-    [{'name': 'bitcoin', 'symbol': 'btc', 'tags': [tag1, tag2],
-    'price': '20000','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]
+    Читає дані з файлу та повертає список монет із зазначеної назви або символу.
     """
-
     coin_data = []
+    data_file = load_coin_data_from_file()
 
-    try:
-        with open("coin info.json", "r", encoding="utf8") as file:
-            data_file = json.load(file)
-            all_data = CryptoResponse(**data_file)
+    if not data_file:
+        return coin_data
 
-            for coin_info in all_data.data.cryptoCurrencyList:
-                percent_change = parse_percent_change(coin_info.quotes)
+    all_data = CryptoResponse(**data_file)
 
-                if coin_info.name.lower() in coin_name_list:
-                    coin_data.append(
-                        Parser(
-                            name=coin_info.name,
-                            symbol=coin_info.symbol,
-                            tags=coin_info.tags,
-                            price=coin_info.quotes[2].price,
-                            percent_change=percent_change,
-                        )
-                    )
-            return coin_data
+    for coin_info in all_data.data.cryptoCurrencyList:
+        percent_change = parse_percent_change(coin_info.quotes)
 
-    except FileNotFoundError:
-        logger.error("Файл 'coin info.json' не знайдено, створюємо новий.")
-        with open("coin info.json", "w", encoding="utf8") as file:
-            pass
-        return []
-
-    except json.decoder.JSONDecodeError:
-        logger.error("Помилка декодування JSON у файлі 'coin info.json'.")
-        return []
+        if coin_info.name.lower() in coin_name_list:
+            coin_data.append(
+                Parser(
+                    name=coin_info.name,
+                    symbol=coin_info.symbol,
+                    tags=coin_info.tags,
+                    price=coin_info.quotes[2].price,
+                    percent_change=percent_change,
+                )
+            )
+    return coin_data
 
 
-if __name__ == '__main__':
-    pprint(get_coin_info(['bitcoin', 'cardano', 'ethereum', 'arbitrum', 'gfjdhj']))
+def response_update():
+    """
+    Безкінечний цикл для періодичного оновлення даних.
+    """
+    while True:
+        data = fetch_coin_data()
+        save_coin_data_to_file(data)
+        time.sleep(1)
