@@ -1,10 +1,15 @@
 import json
 import time
+from pprint import pprint
+
 import requests
+
+from src.db.config import engine
 from src.db.db import Db
+from src.parser.common import CryptoResponse, Parser, PercentChange
 
 update_period = 120
-coin_limit = 2500
+coin_limit = 1000
 
 session = requests.session()
 
@@ -41,7 +46,7 @@ def response():
                 with open('coin info.json', 'w', encoding='utf8') as file:
                     file.close()
         else:
-            print(f'Наступне оновлення через {round(update_period - (time.time() - last_update))}сек.')
+            print(f'Наступне оновлення через {update_period - (time.time() - last_update)}сек.')
     except requests.exceptions.ConnectionError:
         print('connection lost')
 
@@ -59,7 +64,7 @@ def check_for_exist_coin(coin_name_or_symbol):
             data_file = json.load(file)
             for coin in data_file.get('data', {}).get('cryptoCurrencyList', []):
                 if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-                    Db().add_coin(coin['name'])
+                    Db(engine=engine).add_coin(coin['name'])
                     file.close()
                     return True
             return False
@@ -68,6 +73,7 @@ def check_for_exist_coin(coin_name_or_symbol):
         with open('coin info.json', 'w', encoding='utf8') as file:
             file.close()
             return ()
+
     except json.decoder.JSONDecodeError:
         print('check_for_exist_coin() - json.decoder.JSONDecodeError:')
         return ()
@@ -84,27 +90,36 @@ def get_coin_info(coin_name_list):
     try:
         with open('coin info.json', 'r', encoding='utf8') as file:
             data_file = json.load(file)
-            for coin_info in data_file.get('data').get('cryptoCurrencyList'):
+            all_data = CryptoResponse(**data_file)
 
-                for quota in coin_info["quotes"]:
-                    if quota['name'] != 'USD':
+            for coin_info in all_data.data.cryptoCurrencyList:
+
+                for quota in coin_info.quotes:
+                    if quota.name != 'USD':
                         continue
-                    percent_change = (
-                        round(float(quota['percentChange1h']), 2),
-                        round(float(quota['percentChange24h']), 2),
-                        round(float(quota['percentChange7d']), 2),
-                        round(float(quota['percentChange30d']), 2),
-                        round(float(quota['percentChange60d']), 2),
-                        round(float(quota['percentChange90d']), 2),
+
+                    percent_change = PercentChange(
+                        percentChange1h=quota.percentChange1h,
+                        percentChange24h=quota.percentChange24h,
+                        percentChange7d=quota.percentChange7d,
+                        percentChange30d=quota.percentChange30d,
+                        percentChange60d=quota.percentChange60d,
+                        percentChange90d=quota.percentChange90d,
                     )
 
-                if coin_info['name'].lower() in coin_name_list:
+                if coin_info.name.lower() in coin_name_list:
                     coin_data.append(
-                        {'name': coin_info['name'], 'symbol': coin_info['symbol'], 'tags': coin_info['tags'],
-                         'price': round(float(coin_info['quotes'][2]["price"]), 2), 'percent_change': percent_change})
-
+                        Parser(
+                            name=coin_info.name,
+                            symbol=coin_info.symbol,
+                            tags=coin_info.tags,
+                            price=coin_info.quotes[2].price,
+                            percent_change=percent_change
+                        )
+                    )
             file.close()
-            return sorted(coin_data, key=lambda x: x['name'])
+            # return sorted(coin_data, key=lambda x: x['name'])
+            return coin_data
 
     except FileNotFoundError:
         with open('coin info.json', 'w', encoding='utf8') as file:
