@@ -3,6 +3,7 @@ import time
 from pprint import pprint
 
 import requests
+from loguru import logger
 
 from src.db.config import engine
 from src.db.db import Db
@@ -62,9 +63,11 @@ def check_for_exist_coin(coin_name_or_symbol):
     try:
         with open('coin info.json', 'r', encoding='utf8') as file:
             data_file = json.load(file)
-            for coin in data_file.get('data', {}).get('cryptoCurrencyList', []):
-                if coin['symbol'] == coin_name_or_symbol.upper() or coin['name'] == coin_name_or_symbol.capitalize():
-                    Db(engine=engine).add_coin(coin['name'])
+            all_data = CryptoResponse(**data_file)
+
+            for coin in all_data.data.cryptoCurrencyList:
+                if coin.symbol == coin_name_or_symbol.upper() or coin.name == coin_name_or_symbol.capitalize():
+                    Db(engine=engine).add_coin(coin.name)
                     file.close()
                     return True
             return False
@@ -79,33 +82,39 @@ def check_for_exist_coin(coin_name_or_symbol):
         return ()
 
 
-def get_coin_info(coin_name_list):
-    """Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
-    [{'name': 'bitcoin', 'symbol': 'btc', 'tags': [tag1, tag2],
-    'price': '20000','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]"""
+def parse_percent_change(quotes) -> PercentChange | None:
+    """
+    Витягає дані відсоткових змін для валюти USD.
+    """
+    for quota in quotes:
+        if quota.name == "USD":
+            return PercentChange(
+                percentChange1h=quota.percentChange1h,
+                percentChange24h=quota.percentChange24h,
+                percentChange7d=quota.percentChange7d,
+                percentChange30d=quota.percentChange30d,
+                percentChange60d=quota.percentChange60d,
+                percentChange90d=quota.percentChange90d,
+            )
+    return None
 
-    percent_change = ()
+
+def get_coin_info(coin_name_list: list) -> list[Parser]:
+    """
+    Читаємо json файл і дістаємо з нього необхідну інформацію, результат зберігаємо у вигляді списку з словниками:
+    [{'name': 'bitcoin', 'symbol': 'btc', 'tags': [tag1, tag2],
+    'price': '20000','percent_change': (1h, 24h, 7d, 30d, 60d, 90d)}]
+    """
+
     coin_data = []
 
     try:
-        with open('coin info.json', 'r', encoding='utf8') as file:
+        with open("coin info.json", "r", encoding="utf8") as file:
             data_file = json.load(file)
             all_data = CryptoResponse(**data_file)
 
             for coin_info in all_data.data.cryptoCurrencyList:
-
-                for quota in coin_info.quotes:
-                    if quota.name != 'USD':
-                        continue
-
-                    percent_change = PercentChange(
-                        percentChange1h=quota.percentChange1h,
-                        percentChange24h=quota.percentChange24h,
-                        percentChange7d=quota.percentChange7d,
-                        percentChange30d=quota.percentChange30d,
-                        percentChange60d=quota.percentChange60d,
-                        percentChange90d=quota.percentChange90d,
-                    )
+                percent_change = parse_percent_change(coin_info.quotes)
 
                 if coin_info.name.lower() in coin_name_list:
                     coin_data.append(
@@ -114,17 +123,21 @@ def get_coin_info(coin_name_list):
                             symbol=coin_info.symbol,
                             tags=coin_info.tags,
                             price=coin_info.quotes[2].price,
-                            percent_change=percent_change
+                            percent_change=percent_change,
                         )
                     )
-            file.close()
-            # return sorted(coin_data, key=lambda x: x['name'])
             return coin_data
 
     except FileNotFoundError:
-        with open('coin info.json', 'w', encoding='utf8') as file:
-            file.close()
-        return ()
+        logger.error("Файл 'coin info.json' не знайдено, створюємо новий.")
+        with open("coin info.json", "w", encoding="utf8") as file:
+            pass
+        return []
+
     except json.decoder.JSONDecodeError:
-        print('get_coin_info() - json.decoder.JSONDecodeError:')
-        return ()
+        logger.error("Помилка декодування JSON у файлі 'coin info.json'.")
+        return []
+
+
+if __name__ == '__main__':
+    pprint(get_coin_info(['bitcoin', 'cardano', 'ethereum', 'arbitrum', 'gfjdhj']))
