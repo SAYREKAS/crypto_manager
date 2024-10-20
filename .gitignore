@@ -1,7 +1,2 @@
 /.venv
 /.idea
-/media/
-/crypto_manager.db
-/coin info.json
-config.json
-app_logo.ico
