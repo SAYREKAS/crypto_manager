@@ -1,2 +1,3 @@
 /.venv
 /.idea
+src/parser/coin info.json

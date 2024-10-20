@@ -4,7 +4,7 @@ import os.path
 from sqlalchemy.orm import DeclarativeBase, Mapped
 from sqlalchemy import Column, Integer, DateTime, Float, VARCHAR
 
-from config import engine
+from src.db.config import engine
 
 
 class Base(DeclarativeBase):
