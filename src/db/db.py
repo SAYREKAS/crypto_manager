@@ -76,7 +76,7 @@ class Db:
         """Отримує всі імена криптовалют у вигляді відсортованого по алфавіту списку."""
         with self.__session() as session:
             data = session.query(CoinsData.coin_name).distinct().all()
-        return [name[0] for name in data]
+        return [name[0] for name in data] if data else []
 
     def all_coin_transaction(self) -> dict:
         """

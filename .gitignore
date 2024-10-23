@@ -1,3 +1,4 @@
 /.venv
 /.idea
 src/parser/coin info.json
+src/coins_data.db
